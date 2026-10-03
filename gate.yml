@@ -215,10 +215,16 @@ gate:
     #    `gate-check --prove` over an unrun tier looks like, and this repository
     #    is the shape that produces one: `bin/prime` without the flag prints
     #    "skipping the contract tier (--contracts); it did NOT run" and exits 0.
-    #    Six tests, measured.
+    #    Seven tests, measured, and RAISED 6 -> 7 because the tier had grown by
+    #    one and the floor had not: `bin/prime --contracts` prints `# pass 7` on
+    #    this tree. That is the one-test version of the drift this repository's
+    #    own AGENTS.md warns about — "the counts are printed, because a check
+    #    that reports nothing looks like a check that found nothing" — except the
+    #    count that went stale here is the one the gate reads rather than the one
+    #    the page shows, so nothing on the page changed and nothing went red.
     - id: contract-tier-ran
       match: '(?s)^== npm run test:contracts.*?^# pass ([0-9]+)$'
-      minimum: 6
+      minimum: 7
     #
     # 4. Nothing skipped in the contract tier either, anchored the same way.
     #    The two `# skipped 0` blocks are identical strings, so an unanchored
@@ -260,10 +266,21 @@ gate:
       match: '^#.*\\# OK \S+/cafaye\.yml$'
     #
     # 7. The prose's event-type claims were checked against **core's real
-    #    catalog**, not a list written beside it. 8 claims against the 30 types
+    #    catalog**, not a list written beside it. 9 claims against the 32 types
     #    core publishes, measured. `.` in `core.s` is the apostrophe in `core's`
     #    — it is not counting a position, which is the only way core's docs warn
     #    a `.` in a proof can be dangerous.
+    #
+    #    RAISED 8 -> 9, measured, and the catalog figure in this sentence was
+    #    stale in the same way: the floor said 8 claims against 30 types and the
+    #    run prints 9 against 32. Both halves moved because core published two
+    #    more types and a page here gained a claim about one of them, and
+    #    neither half is a thing that goes red on its own. The pattern below
+    #    carries the catalog size in parentheses precisely so that a count
+    #    checked against the wrong document cannot still be green — and here it
+    #    did not help, because both numbers had drifted together and in the same
+    #    direction. That is the limit of the parenthesis, recorded here rather
+    #    than discovered again by the next person who trusts it.
     #
     #    The parenthetical is in the pattern on purpose: the count is only
     #    meaningful beside the catalog size it was checked against, and a
@@ -271,7 +288,7 @@ gate:
     #    parsing a different document.
     - id: event-claims-checked
       match: "^#.*\\\\# event-type claims checked against core.s catalog: ([0-9]+) \\(core publishes [0-9]+\\)$"
-      minimum: 8
+      minimum: 9
     #
     # 8. And the other grammar, against the other schema: observability.md's
     #    span names against core's `schemas/telemetry/span-naming.schema.json`
