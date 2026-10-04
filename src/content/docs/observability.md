@@ -82,7 +82,7 @@ against it.
 | [`identity`](/services/identity/) | yes | **yes** | no | traces |
 | [`muse`](/services/muse/) | yes | **yes** | no | traces |
 | [`darkroom`](/services/darkroom/) | yes | no | no | correlated logs only — see below |
-| [`guard`](/services/guard/) | yes | no | no | nothing |
+| [`gateway`](/services/gateway/) | yes | no | no | nothing |
 | `parlor` | yes | no | no | nothing |
 
 **Four services export traces and none of them exports metrics or logs.**

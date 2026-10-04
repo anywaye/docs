@@ -139,7 +139,7 @@ is no fourth unit on this page, because inventing one would be a price list with
 a fiction in it.
 
 If you want `guard` in front of your stack, read its page first: it
-[authenticates and forwards nothing](/services/guard/), and its browser sessions
+[authenticates and forwards nothing](/services/gateway/), and its browser sessions
 live in one process's memory.
 
 ## The numbers we have not decided

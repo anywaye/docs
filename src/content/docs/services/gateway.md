@@ -1,9 +1,9 @@
 ---
-title: guard
+title: gateway
 description: The public gateway and BFF — the only door in, terminating auth and rate limits in front of every service.
 ---
 
-`guard` is the only door into a cafaye deployment. It authenticates callers,
+`gateway` is the only door into a cafaye deployment. It authenticates callers,
 limits what they may ask for, and forwards each request to the service that
 actually owns the work — which is why it is written in **TypeScript** and sits on
 the same runtime the web does. A browser-facing gateway and a Next.js frontend
@@ -44,9 +44,10 @@ therefore permits a burst of twice the limit across it. GCRA spends the allowanc
 continuously, so two requests two milliseconds apart cannot both be admitted at
 the end of an exhausted bucket.
 
-There is a **per-route limit table**: `guard-api`, `guard-auth`,
-`guard-auth-register`, `guard-auth-login`, `guard-auth-logout`. The probes are
-not in it, deliberately.
+There is a **per-route limit table**: `gateway-api`, `gateway-auth`,
+`gateway-auth-register`, `gateway-auth-login`, `gateway-auth-logout` and
+`gateway-api-keys` — six policies, read out of the shipped table rather than
+guessed from the routes. The probes are not in it, deliberately.
 
 **What is shared and what is not, exactly:**
 
@@ -86,10 +87,10 @@ A script can hold a scoped, revocable API key rather than a bearer JWT. Keys are
 revocable immediately — no TTL to wait out — and carry their own scope, so
 `/v1/*` accepts a key where it would otherwise require a token.
 
-- **Repository:** [github.com/cafaye/guard](https://github.com/cafaye/guard)
+- **Repository:** [github.com/cafaye/gateway](https://github.com/cafaye/gateway)
 - **Language:** TypeScript (Bun)
-- **Namespace / routing prefix:** `guard`
+- **Namespace / routing prefix:** `gateway`
 - **Container port:** 8080
 - **Environment:** `PORT`, `IDENTITY_ISSUER`, `IDENTITY_JWKS_URL`,
-  `IDENTITY_JWKS_TTL_MS`, `GUARD_CLIENT_ID`, `IDENTITY_URL`, `REDIS_URL`,
-  `REDIS_PREFIX` — see [Topology](/architecture/topology/#guard)
+  `IDENTITY_JWKS_TTL_MS`, `GATEWAY_CLIENT_ID`, `IDENTITY_URL`, `REDIS_URL`,
+  `REDIS_PREFIX` — see [Topology](/architecture/topology/#gateway)

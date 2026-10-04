@@ -148,7 +148,7 @@ wrong port.
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error`. |
 | `IDENTITY_OTEL_ENDPOINT` | `http://otel-collector:4318` | Where traces go. Set it to any OTLP endpoint — the shipped collector, Datadog, Honeycomb, Grafana Cloud — and it wins. `OTEL_EXPORTER_OTLP_ENDPOINT` is honoured as a fallback, and `OTEL_SDK_DISABLED=true` or any `OTEL_*_EXPORTER=none` is a genuine no-op. |
 
-### guard
+### gateway
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -174,7 +174,7 @@ refuses to boot rather than falling back to memory.
 **What Redis does and does not fix.** It makes the **rate-limit counters**
 shared and durable. It does **not** make browser sessions shared: the
 `SessionStore` is a `Map` in one process regardless. See
-[guard](/services/guard/).
+[gateway](/services/gateway/).
 
 ### billing
 

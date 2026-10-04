@@ -19,12 +19,12 @@ truth, not hedging.
 | [courier](/services/courier/) | Email, push, every outbound webhook | Elixir | v0 — email pipeline, preferences, Oban outbox worker, signed outbound webhooks. Publishes one event |
 | [darkroom](/services/darkroom/) | Media uploads, variants, object storage | Rust | v0 — signed uploads, tenant isolation, variants, S3 **and Cloudflare R2** |
 | [muse](/services/muse/) | LLM routing, vault, token metering | Python | v1 core — auth verifies the token against identity's JWKS. **The first service to export traces**, and not on core's `error.type` vocabulary |
-| [guard](/services/guard/) | Public gateway, JWT verify, rate limits | TypeScript | v0 — real auth, API keys, Redis-backed limits, **no routing** |
+| [gateway](/services/gateway/) | Public gateway, JWT verify, rate limits | TypeScript | v0 — real auth, API keys, Redis-backed limits, **no routing** |
 | [parlor](/services/parlor/) | App shell template + admin | Next.js | In progress — accounts, invitations, billing screens. **No admin surface, no e2e suite** |
 
 Two of those status lines carry a gap that will bite a reader who skips them:
-`identity` cannot reset a password or renew an access token, and `guard` forwards
-nothing. Each is stated on its own page with the consequence.
+`identity` cannot reset a password or renew an access token, and `gateway`
+forwards nothing. Each is stated on its own page with the consequence.
 
 A third row changed on 2026-10-01 and is recorded rather than quietly rewritten:
 `muse`'s status line used to read *auth is a stub*, which was true when it was
