@@ -165,23 +165,27 @@ which databases ought to be there.
 ### What an open database actually looks like
 
 Measured, on a cluster where a database was created the way an operator creates
-one — `CREATE DATABASE`, with nothing else:
+one — `CREATE DATABASE`, with nothing else. The name is a real one, because a
+database nobody has would make the example ungreppable, and it is deliberately
+**not** `gateway`: the public edge creates no database at all, so a `gateway`
+database in this block would be a claim about a cluster that cannot exist. Every
+other service in the listing above owns its own.
 
 ```sh
-psql -d cafaye_platform -U cafaye -c 'CREATE DATABASE guard OWNER guard;'
-psql -d guard -U courier -c 'select current_database(), current_user;'
+psql -d cafaye_platform -U cafaye -c 'CREATE DATABASE billing OWNER billing;'
+psql -d billing -U courier -c 'select current_database(), current_user;'
 ```
 
 ```
  current_database | current_user
 -----------------+--------------
- guard           | courier
+ billing          | courier
 ```
 
 And from inside it, the whole cluster is enumerable:
 
 ```sh
-psql -d guard -U courier -X -tAc 'select datname from pg_database order by datname;'
+psql -d billing -U courier -X -tAc 'select datname from pg_database order by datname;'
 ```
 
 ```
@@ -189,7 +193,6 @@ billing
 cafaye_platform
 courier
 darkroom
-guard
 identity
 muse
 postgres
@@ -197,15 +200,15 @@ template0
 template1
 ```
 
-The sweep query above reported `guard` and nothing else. That is the entire
+The sweep query above reported `billing` and nothing else. That is the entire
 diagnosis: **one database name, and you know which one is open.**
 
 Closing it is the same statement the contract carries, and it is not optional
 bookkeeping:
 
 ```sh
-psql -d cafaye_platform -U cafaye -c 'REVOKE ALL ON DATABASE guard FROM PUBLIC;'
-psql -d cafaye_platform -U cafaye -c 'GRANT CONNECT, TEMPORARY ON DATABASE guard TO guard;'
+psql -d cafaye_platform -U cafaye -c 'REVOKE ALL ON DATABASE billing FROM PUBLIC;'
+psql -d cafaye_platform -U cafaye -c 'GRANT CONNECT, TEMPORARY ON DATABASE billing TO billing;'
 ```
 
 `courier` is then refused at the door with the same `FATAL:` as before, and the
