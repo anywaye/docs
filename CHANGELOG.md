@@ -12,11 +12,14 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 - **`guard` is `gateway`, everywhere on this site that meant the service.** The
   gateway repository's rename merged into `master` at `15cf59b`, and this site
-  described a service that no longer exists under that name: 144 occurrences
-  across 22 pages, plus `cafaye.yml`. Every one was classified before any was
-  changed, because `guard` in this repository means two things and only one of
-  them is a service — the other is a tripwire, the way "test" is used, and it is
-  the majority. A blind replace would have corrupted the majority.
+  described a service that no longer exists under that name: **155 occurrences**
+  removed across 22 pages and `cafaye.yml`, counted by diff against `master`
+  rather than by hand. Every one was classified before any was changed, because
+  `guard` in this repository means two things and only one of them is a service —
+  the other is a tripwire, the way "test" is used, and in a blind sweep it is the
+  majority. 5 occurrences under `src/content/docs` survive, 2 of them added on
+  purpose below, and 24 outside the docs are tripwires in `README.md`,
+  `AGENTS.md`, `ci.yml` and `tests/contracts.mjs`.
 
   Changed, each verified against merged gateway master rather than by pattern:
 
@@ -46,13 +49,14 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   - `docker ps | grep -c guard`, `8080:guard` and `docker build -t guard .` —
     commands a reader types, now matching the compose service name `gateway`.
 
-  Left alone, each for a reason rather than by omission: **five tripwire sites**
+  Left alone, each for a reason rather than by omission: **three tripwire sites**
   in the docs (an SSRF guard in courier, a guard that keeps muse's exporter out
-  of the image, a guard worth keeping in `backup-and-restore`) and **31 tripwire
-  occurrences** in `README.md`, `AGENTS.md`, `ci.yml` and `tests/contracts.mjs` —
-  "a guard that cannot find its target is not a guard" would become false;
-  `CHANGELOG.md`, `HANDOFF-*` and `REPORT-*`, because history is not rewritten;
-  and **two new sentences that name `guard` on purpose**, below.
+  of the image, a guard worth keeping in `backup-and-restore`) and **24 tripwire
+  occurrences** outside the docs — `README.md:107`, `AGENTS.md:120/142`,
+  `ci.yml` and `tests/contracts.mjs` — because "a guard that cannot find its
+  target is not a guard" would become false. `CHANGELOG.md`, `HANDOFF-*` and
+  `REPORT-*` are untouched because history is not rewritten. The **two new
+  sentences that still name `guard`** are in the entry below.
 
 - **`muse` still declares a dependency named `guard`, and two pages now say so.**
   `muse/cafaye.yml` carries `dependencies[].name: guard`, so `caf dev` and
