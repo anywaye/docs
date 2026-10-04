@@ -436,12 +436,6 @@ Drawn from the `dependencies` and `consumes` blocks of each `cafaye.yml`.
 `caf dev` and `pantry` to start them. `courier` and `billing` declare no
 dependencies — they depend on Postgres, not on a sibling service.
 
-**`muse`'s manifest has not caught up with the rename:** it still carries
-`dependencies[].name: guard`, so `caf dev` and `pantry` read a service name that
-no longer exists. That is a finding against `muse`, recorded here rather than
-fixed from this repository, and it is the one name on this page that a sibling
-repository still spells the old way.
-
 **`gateway` proxies nothing yet.** Its dependency on `identity` is real (it dials
 it for `/auth/*` and fetches its JWKS) but no request is routed to any cafaye
 service. The thing that decides where a path goes does not exist — `pantry`

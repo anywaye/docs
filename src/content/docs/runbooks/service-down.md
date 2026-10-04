@@ -105,14 +105,6 @@ courier  ──▶ Postgres, and out to subscriber webhooks
 gateway  ──▶ nothing         (no database)
 ```
 
-`muse`'s row says `gateway` because that is the service, but **`muse`'s own
-manifest still declares a dependency named `guard`** (`muse/cafaye.yml`,
-`dependencies[].name`), and the rename has not reached it. So the arrow above is
-what the fleet means and the string in `muse` is what `caf dev` and `pantry` read
-— and the two do not agree yet. This is a finding against `muse`, not against
-this page, and it is the one place in the dependency graph where a name here and
-a name there differ.
-
 `gateway` returning 503 on `/v1/*` almost always means `identity` is unreachable —
 and that is a **different** 503 from a database one, because `gateway` deliberately
 distinguishes them. `identity` returning 503 on `/readyz` means Postgres.
