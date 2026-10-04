@@ -39,7 +39,7 @@ tool against a Kamal deployment you are watching remotely, where the container
 names are prefixed and `kamal` is what addresses them.
 
 Ask the question the caller is asking, from outside. **Note the port collisions
-first**, because they are not all the same kind: `identity`, `guard` and
+first**, because they are not all the same kind: `identity`, `gateway` and
 `darkroom` all default to 8080, and `billing` and `parlor` both default to 3000.
 A loop that probes one port twice finds one service and prints it twice, so the
 loop below prints the port next to every answer and is written to be edited for
@@ -55,7 +55,7 @@ for p in 8080:identity 3000:billing 4000:courier 8000:muse 3000:parlor; do
 done
 
 # the three that share 8080 - probe them one at a time
-for p in 8080:identity 8080:guard 8080:darkroom; do
+for p in 8080:identity 8080:gateway 8080:darkroom; do
   port=${p%%:*}; name=${p##*:}
   printf '%-10s :%s  ' "$name" "$port"
   curl -s -m 5 -o /dev/null -w 'healthz=%{http_code} ' "http://localhost:$port/healthz"
@@ -70,9 +70,9 @@ a 503 there as "`parlor` is failing" is a guess about which process answered.
 `parlor` answers `{"status":"ok","deps":"none"}`; `billing` names its check.
 
 :::caution[Only three of the seven have a Compose stack you can bring up on its own]
-`darkroom`, `muse` and `guard` do: each owns a complete `docker-compose.yml`, and
+`darkroom`, `muse` and `gateway` do: each owns a complete `docker-compose.yml`, and
 `docker compose up -d` works there. `darkroom`'s and `muse`'s carry their own
-`postgres` container (`muse`'s is called `db`); `guard` has no database at all,
+`postgres` container (`muse`'s is called `db`); `gateway` has no database at all,
 so its file declares one service. `muse` needs `MUSE_VAULT_KEY` set or compose
 refuses to interpolate it, and `darkroom` needs nothing.
 
@@ -97,16 +97,24 @@ Then the dependency direction, which is short and worth memorising:
 
 ```
 parlor   ──▶ identity
-guard    ──▶ identity        (dials it for /auth/*, fetches its JWKS)
+gateway  ──▶ identity        (dials it for /auth/*, fetches its JWKS)
 darkroom ──▶ identity        (JWKS only - verifies locally, no call per request)
-muse     ──▶ identity, guard  (declared dependencies)
+muse     ──▶ identity, gateway  (declared dependencies)
 billing  ──▶ Postgres, and out to Stripe
 courier  ──▶ Postgres, and out to subscriber webhooks
-guard    ──▶ nothing         (no database)
+gateway  ──▶ nothing         (no database)
 ```
 
-`guard` returning 503 on `/v1/*` almost always means `identity` is unreachable —
-and that is a **different** 503 from a database one, because `guard` deliberately
+`muse`'s row says `gateway` because that is the service, but **`muse`'s own
+manifest still declares a dependency named `guard`** (`muse/cafaye.yml`,
+`dependencies[].name`), and the rename has not reached it. So the arrow above is
+what the fleet means and the string in `muse` is what `caf dev` and `pantry` read
+— and the two do not agree yet. This is a finding against `muse`, not against
+this page, and it is the one place in the dependency graph where a name here and
+a name there differ.
+
+`gateway` returning 503 on `/v1/*` almost always means `identity` is unreachable —
+and that is a **different** 503 from a database one, because `gateway` deliberately
 distinguishes them. `identity` returning 503 on `/readyz` means Postgres.
 
 ## Step 2 — the process is not answering
@@ -147,7 +155,7 @@ will actually hit:
 
 - `muse` refuses to start without `MUSE_VAULT_KEY`, or with one that is not
   base64 or does not decode to 32 bytes.
-- `guard` refuses to start on a malformed `IDENTITY_JWKS_TTL_MS` (`0` or `soon`),
+- `gateway` refuses to start on a malformed `IDENTITY_JWKS_TTL_MS` (`0` or `soon`),
   or on a malformed `REDIS_URL` (`redis//redis`).
 - `darkroom` refuses to start on an object-store configuration it cannot resolve:
   a real `DARKROOM_S3_REGION` on an R2 endpoint, or `region=auto` with no
@@ -163,7 +171,7 @@ will actually hit:
   and no warning. A deploy that fails at boot is the cheapest version of that
   incident. Full list in [rotating secrets](/runbooks/secret-rotation/).
 
-**Is it listening on the port you are probing?** `identity`, `guard` and
+**Is it listening on the port you are probing?** `identity`, `gateway` and
 `darkroom` all default to 8080, and the image listens on what `PORT` says. A
 container running with `PORT=9000` is healthy and unreachable at 8080.
 
@@ -228,9 +236,9 @@ with a probe timeout in your logs that looks like an unrelated misconfiguration.
 Raise the probe timeout before you investigate anything else. Restarting
 `courier` here fixes nothing: the database is still gone.
 
-### guard — 503 means identity, not guard
+### gateway — 503 means identity, not gateway
 
-`guard` returns 503 when identity's key set is **unreachable, unparseable, or
+`gateway` returns 503 when identity's key set is **unreachable, unparseable, or
 slow**. That is the platform's outage, not the caller's credential, and the
 distinction is deliberate: reporting it as `401` sends every caller to
 re-authenticate against a healthy service.
@@ -239,22 +247,22 @@ Check the two variables, which are different on purpose:
 
 | Variable | Default | What it is for |
 | --- | --- | --- |
-| `IDENTITY_ISSUER` | `https://identity.localhost` | Issuer-only base URL. `guard` appends `/.well-known/jwks.json` itself. Also the expected `iss`. |
+| `IDENTITY_ISSUER` | `https://identity.localhost` | Issuer-only base URL. `gateway` appends `/.well-known/jwks.json` itself. Also the expected `iss`. |
 | `IDENTITY_URL` | `http://localhost:8080` | identity's base URL for the `/auth` **calls**. |
 
-**Inside a container, `localhost` is `guard` itself.** An unset `IDENTITY_URL` in
+**Inside a container, `localhost` is `gateway` itself.** An unset `IDENTITY_URL` in
 a container is a gateway asking itself for a session, and the symptom is a 503
 or a hang rather than anything that names the variable. The compose file sets it
 explicitly for exactly this reason.
 
 Note also that the key set is cached for `IDENTITY_JWKS_TTL_MS` (default
-`300000` — five minutes). **`guard` will keep verifying tokens signed with a key
+`300000` — five minutes). **`gateway` will keep verifying tokens signed with a key
 identity has withdrawn until that cache expires.** During a rotation or a
 withdrawal, allow five minutes before concluding a change had no effect.
 
-### guard — a 503 that names Redis
+### gateway — a 503 that names Redis
 
-`guard` treats Redis as a **registered readiness dependency** when `REDIS_URL` is
+`gateway` treats Redis as a **registered readiness dependency** when `REDIS_URL` is
 set, so `/readyz` reports it by name:
 
 ```json
@@ -272,7 +280,7 @@ limiting, check the readiness body before you check the limiter.
 The probes cover liveness and the registered dependencies. They do not cover
 everything, and there are two known cases in this platform.
 
-**Sessions die on a restart or a second replica.** `guard`'s session store is a
+**Sessions die on a restart or a second replica.** `gateway`'s session store is a
 `Map` in one process. A browser signed in on replica A gets a cookie that
 replica B has never heard of. The symptom is a login loop: `/auth/login` returns
 `200` with a fresh cookie and `/auth/me` answers 401 on the next request.
@@ -375,7 +383,7 @@ between the two groups is the whole reason two stacks collide:
 | `identity`, `courier`, `billing` | an **override** on `kit`'s stack, run with `bin/dev` | **15500** — `kit`'s container, one per project |
 | `darkroom` | a standalone compose file that owns its Postgres | **5432** |
 | `muse` | a standalone compose file that owns its `db` | **5433** |
-| `guard`, `parlor` | no database at all | — |
+| `gateway`, `parlor` | no database at all | — |
 
 **The consequence is a container collision, not a port collision.** The first
 three share one Postgres container, and each one renames that container's

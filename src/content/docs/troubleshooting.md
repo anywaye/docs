@@ -17,25 +17,25 @@ The user submits credentials, gets a success, and lands on sign-in again.
 ### Check
 
 ```sh
-# 1. How many guard replicas are running?
-docker ps --format '{{.Names}}' | grep -c guard
+# 1. How many gateway replicas are running?
+docker ps --format '{{.Names}}' | grep -c gateway
 ```
 
 ### What it usually means
 
-**`guard` runs more than one replica.** The session store is a `Map` in a single
+**`gateway` runs more than one replica.** The session store is a `Map` in a single
 process, and the `__Host-bff-session` cookie holds a session id that only the
 replica that created it knows about. The user signs in on replica A and the
 next request lands on replica B, which has never heard of it. `/auth/login`
 returns `200` every time, so nothing looks broken from the outside.
 
-**Or `guard` restarted between the login and the next request.** Same mechanism:
+**Or `gateway` restarted between the login and the next request.** Same mechanism:
 the sessions are in memory and a restart loses them.
 
 ### Do
 
-Run **one** replica of `guard` until the session store is shared. This is a known
-limitation recorded in `guard`'s own README, not a misconfiguration: the
+Run **one** replica of `gateway` until the session store is shared. This is a known
+limitation recorded in `gateway`'s own README, not a misconfiguration: the
 `SessionStore` interface is the seam, and a shared store is a later packet.
 
 **Setting `REDIS_URL` does not fix this.** It shares the *rate-limit counters*
@@ -59,8 +59,8 @@ The browser has a session, and `GET /v1/me` still refuses.
 
 ```sh
 # Is it a cookie problem or a token problem?
-curl -s -i "$GUARD/v1/me" -H "Authorization: Bearer $TOKEN" | head -3
-curl -s -i "$GUARD/auth/me" -H "Cookie: __Host-bff-session=$SESSION_ID" | head -3
+curl -s -i "$GATEWAY/v1/me" -H "Authorization: Bearer $TOKEN" | head -3
+curl -s -i "$GATEWAY/auth/me" -H "Cookie: __Host-bff-session=$SESSION_ID" | head -3
 ```
 
 ### What it usually means
@@ -70,7 +70,7 @@ cookie is not a credential there. `/auth/*` is the BFF: the `__Host-bff-session`
 cookie and nothing else. A client holding only a cookie and calling `/v1/me` is
 using the wrong credential, and the `401` is correct.
 
-**Or `guard` cannot reach identity's key set.** That is a **`503`**, not a `401`
+**Or `gateway` cannot reach identity's key set.** That is a **`503`**, not a `401`
 — deliberately, so a platform outage is not mistaken for an expired token. If
 you are seeing `401`, identity is reachable and the token genuinely did not
 verify: it is expired, wrongly signed, or carries the wrong `iss` or `aud`.

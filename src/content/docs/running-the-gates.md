@@ -20,13 +20,13 @@ for several packets that the reusable CI path did not exist. It has moved to
 **`.github/workflows/ci.reusable.yml`**, which is the path GitHub requires, and
 eight repositories now call it as
 `uses: cafaye/kit/.github/workflows/ci.reusable.yml@master`: `caf`, `core`,
-`courier`, `darkroom`, `guard`, `identity`, `muse` and `parlor`.
+`courier`, `darkroom`, `gateway`, `identity`, `muse` and `parlor`.
 
 What exists on `master` today, counted with `git ls-files .github/workflows`:
 
 | Has a CI workflow | Does not |
 | --- | --- |
-| `billing`, `caf`, `cafaye-rb`, `core`, `courier`, `darkroom`, `docs`, `guard`, `identity`, `kit`, `muse`, `pantry`, `parlor` | — |
+| `billing`, `caf`, `cafaye-rb`, `core`, `courier`, `darkroom`, `docs`, `gateway`, `identity`, `kit`, `muse`, `pantry`, `parlor` | — |
 
 `docs` was on the right until **docs-05**, which added
 `.github/workflows/ci.yml` (`gate`, `contracts`, `pins`) and
@@ -66,7 +66,7 @@ workflow file existing does not make the rest of the fleet honest.
 | `courier` | `bin/prime` && `mix precommit` | `mise install` — **needs Postgres; `bin/dev` brings it up on 15500** |
 | `darkroom` | `./bin/prime` and `./bin/prime --db` | `mise install` — the second tier needs `TEST_DATABASE_URL` |
 | `muse` | `bin/prime` | `mise install` — `uv sync --locked`, ruff, pytest |
-| `guard` | `bin/prime` | `bun` — `bun install && bun test` |
+| `gateway` | `bin/prime` | `bun` — `bun install && bun test` |
 | `parlor` | `bin/prime` | `npm ci && npm test` (vitest) |
 | `pantry` | `./bin/prime` | `cargo` — **the drift tests skip without a workspace** |
 | `cafaye-rb` | `bin/prime` | `mise install` — `rake db:prepare`, rubocop, bundler-audit, `rake test` |

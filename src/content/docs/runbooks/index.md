@@ -59,7 +59,7 @@ non-zero exit. A half-applied migration is worse than one that did not run.
 does it in production.
 
 **Only three of the seven services have a Compose stack you can bring up on its
-own.** `darkroom`, `muse` and `guard` do — `guard`'s has no database at all, the
+own.** `darkroom`, `muse` and `gateway` do — `gateway`'s has no database at all, the
 other two own theirs. `identity`, `courier` and `billing`
 carry a `docker-compose.yml` that is an **override** — the service, its database
 name and its crash layer, and no `image:` on `postgres` because kit's fetched

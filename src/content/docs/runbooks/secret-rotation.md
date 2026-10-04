@@ -26,7 +26,7 @@ things that cannot.
 | `MUSE_VAULT_KEY` | `muse` | **no** | see [below](#3-the-muse-vault-key--cannot-be-rotated) |
 | `COURIER_MAIL_ADAPTER` and its `COURIER_SMTP_*` | `courier` | **yes** | a deployment decision, not a stored secret — see [below](#6-an-email-provider-credential-in-courier--required-not-optional) |
 | Scoped API token | `identity` | **yes, by issuing a second one** | `POST /v1/accounts/{id}/api-keys` → cut over → `DELETE …/{key_id}` |
-| Session secret | `guard` | **n/a** | sessions are a `Map` in one process, signed by `identity` |
+| Session secret | `gateway` | **n/a** | sessions are a `Map` in one process, signed by `identity` |
 
 Three of those rows are new and all three were previously written as "there is
 nothing to rotate here". `billing` now makes **three kinds of request to
@@ -326,7 +326,7 @@ environment variable, and a symptom that looks nothing like a wrong password.
 
 ## 5. The identity OIDC signing key — configured, not rotatable
 
-`guard` verifies bearer tokens against identity's published JWKS at
+`gateway` verifies bearer tokens against identity's published JWKS at
 `{IDENTITY_ISSUER}/.well-known/jwks.json`, and that mechanism is real and
 running. **This section used to say the key set did not exist**, which stopped
 being true when the OIDC provider landed.
@@ -341,14 +341,14 @@ secret to rotate, not two.
 **There is still no rotation tooling.** The procedure that applies the moment one
 exists is worth writing down now, because two of its properties are non-obvious:
 
-**Publish the new key before you sign with it.** `guard` holds a fetched key set
+**Publish the new key before you sign with it.** `gateway` holds a fetched key set
 in memory for `IDENTITY_JWKS_TTL_MS` (default `300000` — five minutes). A token
 naming a `kid` that is not in the cached set triggers **one** forced refresh per
 cache window, and is then refused. So: publish the new public key at the JWKS
 URL, wait longer than the TTL, and only then start minting tokens with it.
 
 **The TTL is also the revocation window.** A key identity withdraws keeps
-verifying until the cache expires. That is stated in `guard`'s own README and it
+verifying until the cache expires. That is stated in `gateway`'s own README and it
 is the number to plan against: withdrawing a compromised signing key does not
 take effect for up to `IDENTITY_JWKS_TTL_MS`, and the only lever is lowering the
 TTL and paying for more JWKS fetches.
@@ -365,7 +365,7 @@ Order, when the tooling lands:
 Because step 1 has no overlap, **a rotation today is a cutover, not a
 rotation.** There is no point at which both keys verify, so schedule it.
 
-`guard` enforces **no ceiling on token lifetime** — it verifies `exp` and `nbf`
+`gateway` enforces **no ceiling on token lifetime** — it verifies `exp` and `nbf`
 and trusts `identity` to mint short-lived ones. Access tokens live fifteen
 minutes and **there are no refresh tokens**, so "the longest token lifetime" above
 is bounded at fifteen minutes. That is convenient here and it is also the thing
@@ -548,8 +548,8 @@ Do not build a rotation procedure for these; there is nothing to rotate.
   three ways, so it holds a key — but it is a **restricted** key scoped to the
   Checkout, subscription and plan operations it uses, and the rotation is
   Stripe's restricted-key rotation with no overlap window in the cafaye side.
-- **A session secret in `guard`.** Sessions are a `Map` in one process and the
-  session id is `identity`'s. Restarting `guard` loses them; there is no key
+- **A session secret in `gateway`.** Sessions are a `Map` in one process and the
+  session id is `identity`'s. Restarting `gateway` loses them; there is no key
   material to rotate.
 - **A per-message DKIM or provider API key in `courier`.** The adapter speaks
   SMTP and nothing else; there is no HTTP-provider adapter to configure, so a

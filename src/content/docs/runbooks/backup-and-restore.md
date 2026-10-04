@@ -100,7 +100,7 @@ is a correctness problem rather than a limitation.
 | `billing` | **four** Postgres databases: `billing_production` plus `_cache`, `_queue`, `_cable` | **primary only**, and that is correct — see below |
 | `darkroom` | one Postgres registry (`assets`, `asset_variants`) **and the object bytes in a bucket** | **registry only. The bytes are not.** |
 | `muse` | one Postgres: `vault_secrets` | **yes**, and unreadable without `MUSE_VAULT_KEY` |
-| `guard` | no database at all | **nothing to back up** — see below |
+| `gateway` | no database at all | **nothing to back up** — see below |
 | `parlor` | no server state at all; the session token is in the browser's `localStorage` | **nothing to back up** |
 
 Four of those rows need a sentence, and the sentences are the reason to read
@@ -129,7 +129,7 @@ cafaye. Note also that `DARKROOM_OBJECT_STORE` defaults to `memory`, and
 with a real `DARKROOM_S3_BUCKET`, there is nothing to back up *and* nothing to
 lose, which is a worse problem than it sounds.
 
-**`guard` has no database, and the state it does have is not backup material.**
+**`gateway` has no database, and the state it does have is not backup material.**
 Its browser sessions and its API keys are held in a bare in-process `Map` and are
 gone on every restart and on every deploy, by design and independent of any
 backup. Rate-limit counters are in-process too, *unless* `REDIS_URL` is set, in

@@ -16,7 +16,7 @@ Every cafaye repository carries one file, `cafaye.yml`, validated against
 `core`'s
 [manifest schema](https://github.com/cafaye/core/blob/master/schemas/cafaye.manifest.schema.json).
 It is the one place that declares what a service is and what it speaks, so that
-`caf init`, `caf dev`, `caf gen`, `pantry`, and `guard` all read the same six
+`caf init`, `caf dev`, `caf gen`, `pantry`, and `gateway` all read the same six
 facts instead of six bespoke config files.
 
 ```yaml
@@ -48,7 +48,7 @@ owner:
 The schema is `additionalProperties: false` at every level, so a key `core` does
 not define is an error rather than a silent no-op. A service name is
 lowercase kebab-case and is simultaneously the repository name, the event
-envelope's `source`, and the `guard` routing prefix — which is why the rules
+envelope's `source`, and the `gateway` routing prefix — which is why the rules
 are strict.
 
 ## The event envelope
