@@ -443,7 +443,7 @@ DSN, which is the one convenience of database-per-service worth having.
 | --- | --- | --- |
 | The invitation email | `courier` **can** send and `identity` **can** call it, but nobody sends `team_invitation` — one unmade call, not a missing template and not a missing adapter | Send the token yourself, out of band, from the 201 |
 | A billing customer | `billing` is a separate deployment with its own database | Create plans and customers through `/v1` once you need them — [billing](/services/billing/) |
-| A `guard` role mapping | `guard` verifies tokens; role enforcement is `identity`'s | Nothing. `/v1/*` is bearer-only and `identity` is the authority |
+| A `gateway` role mapping | `gateway` verifies tokens; role enforcement is `identity`'s | Nothing. `/v1/*` is bearer-only and `identity` is the authority |
 | Any event delivery | No publisher loop runs | Build the consumer yourself, or read the outbox |
 | Member identifiers from `GET …/members` | Only `role` is populated; `account_id`, `user_id` and `created_at` come back empty | Use step 2 of step 9 — the new member's own token reading the account |
 

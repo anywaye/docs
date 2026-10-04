@@ -48,7 +48,7 @@ one you need rather than the whole platform.
 | [`courier`](https://github.com/cafaye/courier) | Transactional email, preferences, **every outbound webhook** | Elixir | **No email provider adapter configured** — nothing is delivered until you set one |
 | [`darkroom`](https://github.com/cafaye/darkroom) | Signed uploads, tenant-scoped assets, variants, S3 and R2 | Rust | No transcoding, no CDN, no malware scanning |
 | [`muse`](https://github.com/cafaye/muse) | LLM routing, encrypted credentials vault, token metering | Python | **Auth is a stub** — the token is not verified |
-| [`guard`](https://github.com/cafaye/guard) | The public edge: JWT verification, API keys, rate limits | TypeScript | **Proxies nothing.** It serves `/v1/me` and `/auth/*` and forwards no request onward. Sessions are per-process, so one replica |
+| [`gateway`](https://github.com/cafaye/gateway) | The public edge: JWT verification, API keys, rate limits | TypeScript | **Proxies nothing.** It serves `/v1/me` and `/auth/*` and forwards no request onward. Sessions are per-process, so one replica |
 | [`parlor`](https://github.com/cafaye/parlor) | Next.js app shell: signup, login, accounts, billing screens | Next.js | No admin surface, no e2e suite, and its `cafaye.yml` does not validate |
 
 Each has a page here that states what is built and what is not in its own words:
@@ -65,7 +65,7 @@ Checked across all thirteen repositories on 2026-09-30:
 | --- | --- |
 | `cafaye-rb` | **`LICENSE.txt`, MIT**, "Copyright (c) 2026 cafaye" — the only repository with a licence file |
 | `darkroom`, `pantry` | `license = "MIT"` in `Cargo.toml`. No licence file. |
-| `guard`, `docs` | `"license": "MIT"` in `package.json`. No licence file. |
+| `gateway`, `docs` | `"license": "MIT"` in `package.json`. No licence file. |
 | **`muse`** | **`license = { text = "AGPL-3.0-only" }` in `pyproject.toml`, and a README that says the same** |
 | `identity`, `billing`, `courier`, `parlor`, `core`, `caf`, `kit` | **nothing.** No licence file, no field in any manifest. |
 
@@ -102,9 +102,9 @@ one.** Here is what the code actually asserts, and it is all of it:
 - **Every service is one stateless container.** Multi-stage, non-root, no volume
   mounted. Replacing or restarting one loses nothing.
 - **Five Postgres databases**, one per service that owns state: `identity`,
-  `billing`, `courier`, `darkroom`, `muse`. `guard` and `parlor` own none.
+  `billing`, `courier`, `darkroom`, `muse`. `gateway` and `parlor` own none.
   Postgres is the only thing a backup has to cover, except the bucket below.
-- **Redis** if you set `REDIS_URL` on `guard`. Rate-limit counters live there;
+- **Redis** if you set `REDIS_URL` on `gateway`. Rate-limit counters live there;
   the browser session store does not, and that is a per-process `Map`.
 - **One object-storage bucket you choose**, for `darkroom` — S3 or Cloudflare
   R2, one implementation, two configurations. It is not covered by `pg_dump`.
@@ -263,7 +263,7 @@ cd identity
 **Why `identity` first.** It declares no dependency on another cafaye service,
 which means the whole stack is one service plus its database plus a cache.
 `darkroom` is the other one in that position, and `courier` and `billing` declare
-empty lists; `muse` and `guard` reach `identity`. Get this one working, then add
+empty lists; `muse` and `gateway` reach `identity`. Get this one working, then add
 the others.
 
 **If the clone fails on SSH**, you do not have a key registered on GitHub. Use
@@ -544,8 +544,8 @@ to be set, and `caf dev` sets none of them. A process with no signing key serves
 its `/v1` surface and its probes and nothing else, deliberately, because there is
 no key to sign with and no document to publish.
 
-**Consequence for a pilot:** `guard` verifies bearer tokens against identity's
-JWKS. With no JWKS, `guard` has nothing to verify against. Until you set those
+**Consequence for a pilot:** `gateway` verifies bearer tokens against identity's
+JWKS. With no JWKS, `gateway` has nothing to verify against. Until you set those
 three variables, call `identity`'s `/v1` directly, which is what steps 5 and 6
 do.
 
@@ -673,8 +673,8 @@ because it will get shorter and this page will be updated when it does.
 | Not ready | What it means for you | Where to check |
 | --- | --- | --- |
 | **No broker. Nothing publishes events.** | Events accumulate unpublished. No cross-service reaction happens. | `outbox_events` in any service; the publisher loop in `core/docs/event-outbox.md` |
-| **`guard` proxies nothing.** | It authenticates and forwards no request onward. Call services directly, or accept that `guard` is an auth decorator today. | `guard`'s route table; `/v1/me` |
-| **`guard` sessions are per process.** | A browser session dies with the replica it signed in on, and is lost on restart. **Run one replica.** | the `SessionStore` in `guard` |
+| **`gateway` proxies nothing.** | It authenticates and forwards no request onward. Call services directly, or accept that `gateway` is an auth decorator today. | `gateway`'s route table; `/v1/me` |
+| **`gateway` sessions are per process.** | A browser session dies with the replica it signed in on, and is lost on restart. **Run one replica.** | the `SessionStore` in `gateway` |
 | **`muse` does not verify the token it is given.** | Do not put `muse` behind anything you care about. | `muse`'s auth stub |
 | **`caf gen`, `caf init` and `caf new` are stubs.** | Three of the twelve commands `caf help` lists parse their flags and return `not implemented in v0`. The other nine work, **including `caf deploy`** (Kamal) and `caf mcp`, so write your manifest by hand rather than scaffolding one. | `caf/internal/cli/stub_test.go`, whose `stubCommands` table is the single source of truth |
 | **Telemetry is instrumented; no collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing in a cafaye environment receives them. `kit` ships the stack and `bin/dev` runs it, so a pilot gets traces rather than a promise. | You will not have a fleet-wide trace view until you run the stack, and you should budget for wiring `<SERVICE>_OTEL_ENDPOINT` at whatever backend you already pay for. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. | [Observability](/observability/) |
@@ -746,7 +746,7 @@ What exists today, honestly:
   and its history. This is the channel we actually watch.
 - **A per-service contact address**, declared in each repository's `cafaye.yml`
   under `owner.contact`: `identity@cafaye.com`, `billing@cafaye.com`,
-  `courier@cafaye.com`, `darkroom@cafaye.com`, `guard@cafaye.com`,
+  `courier@cafaye.com`, `darkroom@cafaye.com`, `gateway@cafaye.com`,
   `muse@cafaye.com`, `pantry@cafaye.com`, `caf@cafaye.com`, `core@cafaye.com`,
   `cafaye@cafaye.com`, `docs@cafaye.com`, `parlor@cafaye.com`,
   `site@cafaye.com`. One repository declares none: **`kit`, which has no

@@ -370,7 +370,7 @@ rather than silently omitted. It does not deploy, and it does not start a broker
 nothing in the platform publishes events off the outbox.
 
 :::caution[Not every service has a Compose stack you can bring up on its own]
-`darkroom`, `muse` and `guard` ship a complete `docker-compose.yml`, and
+`darkroom`, `muse` and `gateway` ship a complete `docker-compose.yml`, and
 `docker compose up -d` works in each of them (`muse` needs `MUSE_VAULT_KEY` set,
 or compose refuses to interpolate it). With one of those, the shape is:
 
@@ -488,7 +488,7 @@ kinds are not interchangeable — that is the whole table:
 | `billing` | `kit` override | `bin/dev` — see the caution above | 3000 | `{"status":"ok","checks":{"database":"ok"}}` |
 | `darkroom` | standalone | `docker compose up -d postgres`, then `cargo run` | 8080 | `{"status":"ok"}` |
 | `muse` | standalone | `docker compose up --build` (needs `MUSE_VAULT_KEY`) | 8000 | `{"status":"ok","deps":{"db":"ok"}}` |
-| `guard` | standalone | `docker compose up -d --build` | 8080 | `{"deps":{…}}` |
+| `gateway` | standalone | `docker compose up -d --build` | 8080 | `{"deps":{…}}` |
 | `parlor` | none — no Compose file | `bun run dev` | 3000 | `{"status":"ok","deps":"none"}` |
 
 The first three ship **`bin/dev`** and a `kit.ref` pin; the next three ship no
@@ -513,7 +513,7 @@ loop instead.
 
 | | |
 | --- | --- |
-| 8080 | `identity`, `guard`, `darkroom` — three services, one port |
+| 8080 | `identity`, `gateway`, `darkroom` — three services, one port |
 | 3000 | `billing`, `parlor` — two services, one port |
 | 5432 | `darkroom`'s Postgres only |
 | 5433 | `muse`'s Postgres only |
@@ -711,7 +711,7 @@ logs.
 | `courier` | `docker build -t courier .` | 4000 | `debian:trixie-20260918-slim`, `USER nobody` |
 | `darkroom` | `docker build -f docker/Dockerfile -t darkroom .` | 8080 | a Rust static binary; **the Dockerfile is under `docker/`, not the root** |
 | `muse` | `docker build -t muse .` | 8000 | `python:3.14-slim` |
-| `guard` | `docker build -t guard .` | 8080 | `oven/bun:1.3.12-slim` |
+| `gateway` | `docker build -t gateway .` | 8080 | `oven/bun:1.3.12-slim` |
 | `parlor` | `docker build -t parlor .` | 3000 | `node:22-slim`, `ENV PORT=3000` — the build stages pin `node:22.22.2-slim`, the runtime stage does not |
 
 **Two of those build lines used to carry flags that do not exist.** `courier`'s
@@ -748,7 +748,7 @@ The order that works, and the order that bites:
 | `courier` | `GET /healthz` → always 200, never touches the database | `GET /readyz` → 503 while the database is unreachable |
 | `darkroom` | `GET /healthz` → consults nothing | `GET /readyz` → really runs a query |
 | `muse` | `GET /healthz` → 200, consults nothing | `GET /readyz` → reports the `db` slot |
-| `guard` | `GET /healthz` → always 200 | `GET /readyz` → 200, or 503 if a registered probe is down |
+| `gateway` | `GET /healthz` → always 200 | `GET /readyz` → 200, or 503 if a registered probe is down |
 | `parlor` | `GET /healthz` → 200 | `GET /readyz` → `{"status":"ok","deps":"none"}` |
 
 One warning about `courier`: with a database that has gone away underneath a
@@ -758,8 +758,8 @@ timeout will time out and read `courier` as not ready, which is the same verdict
 Set the probe timeout above 5s or you will restart a service that is answering
 correctly.
 
-`guard`'s probes sit on the same port as its API, and it is **not** in the
-table above for `/v1/*` because `guard` routes nothing yet: `/v1/me` proves the
+`gateway`'s probes sit on the same port as its API, and it is **not** in the
+table above for `/v1/*` because `gateway` routes nothing yet: `/v1/me` proves the
 auth chain and forwards nothing.
 
 :::caution[kit's proxy healthcheck path is `/up`, and `/up` is a *boot* check]
@@ -769,7 +769,7 @@ The comment immediately above that line calls it *"A READINESS endpoint, not a
 liveness one"*, and for every cafaye service that comment is wrong:
 
 - **`/up` is not a cafaye path at all.** `identity`, `courier`, `muse`,
-  `darkroom`, `guard` and `parlor` serve `/healthz` and `/readyz`, so a proxy
+  `darkroom`, `gateway` and `parlor` serve `/healthz` and `/readyz`, so a proxy
   pointed at `/up` gets a 404 and the rollout never goes green. `identity` and
   `courier` are the two that carry kit's template, and **both changed the path
   to `/readyz`** while they were in it — the change is in each file, commented.

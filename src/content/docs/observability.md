@@ -106,7 +106,7 @@ Its log records do reach the stack, indirectly: the collector's `syslog/crash`
 receiver reads every container's stderr, so a `tracing` line becomes a log
 record in Loki with no per-language SDK at all.
 
-**`guard` and `parlor` emit nothing.**
+**`gateway` and `parlor` emit nothing.**
 They owe the probe contract — `/healthz` and `/readyz` — and that is the whole
 of their telemetry surface.
 
@@ -156,7 +156,7 @@ operation := lowercase word, optional internal underscore, at most 15 characters
 ```
 
 **Good:** `muse.request` · `muse.route` · `muse.provider.call` ·
-`identity.db.query` · `courier.email.deliver` · `guard.request.authorize`
+`identity.db.query` · `courier.email.deliver` · `gateway.request.authorize`
 
 **Never:** `GET /users/:id` · `get_user` · `users.GET` ·
 `muse.user.usr_01J9Z8QK5M4N7P2R3T6V8W9X0A`
@@ -352,7 +352,7 @@ planned":
   `billing` is on a divergent list of its own. `courier` and `identity` are on
   core's thirteen. See [`error.type`](#errortype) above for what that means for
   a panel.
-- **`darkroom`, `guard` and `parlor` export no OTel signal.** `darkroom` has a
+- **`darkroom`, `gateway` and `parlor` export no OTel signal.** `darkroom` has a
   real correlation story on `tracing` and reaches Loki through the collector's
   stderr receiver; the other two owe the probes and nothing more.
 - **`core` owns the contract only.** There is deliberately no collector, exporter

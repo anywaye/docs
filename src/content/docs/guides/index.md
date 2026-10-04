@@ -6,7 +6,7 @@ description: Task-oriented walkthroughs for cafaye. Placeholder — nothing publ
 This section is a placeholder. Nothing is published here yet.
 
 Guides are the task-oriented pages: "add a subscription and meter it",
-"authenticate a request through `guard`", "generate an SDK from a contract".
+"authenticate a request through `gateway`", "generate an SDK from a contract".
 They assume you have read [Getting started](/getting-started/) and know what you
 are building, and they get to the point fast.
 

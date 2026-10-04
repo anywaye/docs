@@ -22,12 +22,12 @@ database.
 
 | Service | Owns | Language | Reached by |
 | --- | --- | --- | --- |
-| [`identity`](https://github.com/cafaye/identity) | Users, sessions, accounts and tenancy, roles, invitations, OIDC, MFA | Go | HTTP `/v1/*`; verified by `guard` |
+| [`identity`](https://github.com/cafaye/identity) | Users, sessions, accounts and tenancy, roles, invitations, OIDC, MFA | Go | HTTP `/v1/*`; verified by `gateway` |
 | [`billing`](https://github.com/cafaye/billing) | Plans, customers, money, usage metering, payment-processor webhooks in | Ruby | HTTP `/v1/*`; a Stripe-signed webhook endpoint |
 | [`courier`](https://github.com/cafaye/courier) | Transactional email, push, notification preferences, **every outbound webhook** | Elixir | HTTP; plus events every other service publishes to it |
 | [`darkroom`](https://github.com/cafaye/darkroom) | Media: uploads, variants, object storage | Rust | HTTP + presigned object-storage URLs |
 | [`muse`](https://github.com/cafaye/muse) | LLM routing, the provider-credentials vault, token metering | Python | HTTP `POST /v1/route` |
-| [`guard`](https://github.com/cafaye/guard) | The public edge: token verification, the browser session, rate limits | TypeScript | HTTP — **it is the door; nothing else is public** |
+| [`gateway`](https://github.com/cafaye/gateway) | The public edge: token verification, the browser session, rate limits | TypeScript | HTTP — **it is the door; nothing else is public** |
 | [`parlor`](https://github.com/cafaye/parlor) | The app shell you clone, plus the admin surface | Next.js | A browser |
 
 Two boundaries do most of the work.
@@ -148,7 +148,7 @@ up; that is the BEAM's whole reason for existing. `darkroom` pushes pixels and
 does not want GC pauses in the middle of an encode — Rust. `billing` is pure
 domain modelling with a state machine and integers in minor units — Ruby.
 `muse` talks to models, and Python's ecosystem is unmatched there; it embeds
-LiteLLM as a library rather than porting it. `guard` and `parlor` are both the
+LiteLLM as a library rather than porting it. `gateway` and `parlor` are both the
 web, so they share a language and can share types across the gateway boundary.
 
 **Polyglot, connected by contracts, never by shared code.** Two services that
@@ -172,7 +172,7 @@ Stated plainly, because a page that only sells the design is a marketing page.
   `caf contract resolve` exist to gate it. The current drift is recorded in the
   [drift audit](/architecture/topology/#cross-repo-drift-audit) rather than
   smoothed over.
-- **The boundaries are younger than the design.** `guard` routes nothing yet.
+- **The boundaries are younger than the design.** `gateway` routes nothing yet.
   `parlor`'s manifest is still the pre-`core` draft shape.
   `identity` cannot reset a password or renew an OIDC access token.
   `muse` does not verify the token it is handed.

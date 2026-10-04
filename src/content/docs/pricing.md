@@ -131,14 +131,14 @@ about all three.
 
 ## The services that are not units
 
-`billing`, `darkroom`, `guard`, and `muse` are **not packaged as units today**.
+`billing`, `darkroom`, `gateway`, and `muse` are **not packaged as units today**.
 That is a packaging decision rather than a judgement on them, and it has a
 consequence worth stating: a buyer who wants one of them today has nothing to
 buy, and the honest answer is to ask us what it would take to package it. There
 is no fourth unit on this page, because inventing one would be a price list with
 a fiction in it.
 
-If you want `guard` in front of your stack, read its page first: it
+If you want `gateway` in front of your stack, read its page first: it
 [authenticates and forwards nothing](/services/gateway/), and its browser sessions
 live in one process's memory.
 

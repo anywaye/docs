@@ -27,7 +27,7 @@ concluding anything from this table about who can see what.
 | `courier` | Elixir | 4000 | 4000 | Postgres via `kit`'s container, own database **on the shared cluster** | `^0.1.0` |
 | `darkroom` | Rust | 8080 | 8080 | Postgres 17, own database — **its own container, not the cluster** | `^0.2.0` |
 | `muse` | Python | 8000 | 8000 | Postgres 17, own database — **its own container, not the cluster** | `^0.2.0` |
-| `guard` | TypeScript (Bun) | 8080 | 8080 | **none** — `Map`s and, with `REDIS_URL`, Redis | `^0.1.0` |
+| `gateway` | TypeScript (Bun) | 8080 | 8080 | **none** — `Map`s and, with `REDIS_URL`, Redis | `^0.1.0` |
 | `parlor` | Next.js | 3000 | 3000 | **none** | *manifest is a pre-`core` draft* |
 
 **The two bolded clauses in the Database column are different arrangements, not
@@ -56,13 +56,13 @@ you need 17, and do not assume it from the compose file.
 
 **Most databases take the name of the service that owns them, and the exception
 is `darkroom`.** `identity`, `billing` and `courier` each set
-`POSTGRES_DB: <service>`, `muse` sets `POSTGRES_DB: muse`, and `guard` and
+`POSTGRES_DB: <service>`, `muse` sets `POSTGRES_DB: muse`, and `gateway` and
 `parlor` have no database at all. `darkroom`'s own stack sets **`POSTGRES_DB:
 darkroom_test`** while its role is `darkroom`, so for that one service the
 database named in the DSN and the role that connects to it are spelled
 differently.
 
-Three services want host port **8080** (`identity`, `guard`, `darkroom`), and two
+Three services want host port **8080** (`identity`, `gateway`, `darkroom`), and two
 want **3000** (`billing`, `parlor`), so run one of each at a time on a laptop.
 
 **Only two services publish a Postgres port on the host:** `darkroom` on `5432`
@@ -112,7 +112,7 @@ database blip becomes a crash loop.
 | `courier` | `GET /healthz` → never touches the database | `GET /readyz` | `{"status":"error","checks":{"database":"unavailable"}}` |
 | `darkroom` | `GET /healthz` → consults nothing | `GET /readyz` → really runs a query | the probe reason is logged, never returned |
 | `muse` | `GET /healthz` → consults nothing | `GET /readyz` → reports the `db` slot | — |
-| `guard` | `GET /healthz` → always 200 | `GET /readyz` | `{"deps":{"identity":"ok","redis":"unavailable"}}` |
+| `gateway` | `GET /healthz` → always 200 | `GET /readyz` | `{"deps":{"identity":"ok","redis":"unavailable"}}` |
 | `parlor` | `GET /healthz` → 200 | `GET /readyz` | `{"status":"ok","deps":"none"}` — `deps` is a placeholder |
 
 Two probe facts that are not obvious from the table:
@@ -153,17 +153,17 @@ wrong port.
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `PORT` | `8080` | Listen port. |
-| `IDENTITY_ISSUER` | `https://identity.localhost` | Issuer-only base URL. `guard` appends `/.well-known/jwks.json` itself. Also the expected `iss`. |
+| `IDENTITY_ISSUER` | `https://identity.localhost` | Issuer-only base URL. `gateway` appends `/.well-known/jwks.json` itself. Also the expected `iss`. |
 | `IDENTITY_JWKS_URL` | derived from the issuer | Full key-set URL, for a key set served anywhere other than the issuer's well-known path. |
 | `IDENTITY_JWKS_TTL_MS` | `300000` | How long a fetched key set is reused. **Also the revocation window.** |
-| `GUARD_CLIENT_ID` | `guard` | The `aud` guard accepts. |
+| `GATEWAY_CLIENT_ID` | `gateway` | The `aud` gateway accepts. |
 | `IDENTITY_URL` | `http://localhost:8080` | identity's base URL for the `/auth` **calls** — where a session is *requested*. |
 | `REDIS_URL` | *unset* | `redis://` or `rediss://` — host and port, no path. **Set it and the rate-limit counters are shared by every replica and survive a restart.** Unset and they are this process's memory. |
-| `REDIS_PREFIX` | `guard:rl` | Sub-namespace inside guard's own, so two guards or two environments sharing one Redis do not read each other's buckets. |
+| `REDIS_PREFIX` | `gateway:rl` | Sub-namespace inside gateway's own, so two gateways or two environments sharing one Redis do not read each other's buckets. A bucket key is `<prefix>:<policy>:<caller digest>`, so the default produces `gateway:rl:gateway-api:…`. It is *added to* the namespace rather than replacing it, and the trailing colon is the separator — `REDIS_PREFIX=gateway:rl:` would produce a doubled one. |
 
 `IDENTITY_URL` is a second variable for one service on purpose. The issuer is
-an https origin in every environment; the address `guard` *dials* is a service
-name, and inside a container `localhost` is `guard` itself. Leave it unset in a
+an https origin in every environment; the address `gateway` *dials* is a service
+name, and inside a container `localhost` is `gateway` itself. Leave it unset in a
 container and you get a gateway asking itself for a session.
 
 An empty or whitespace-only value counts as unset. A malformed one is a startup
@@ -254,7 +254,7 @@ observability backend.
 | `BILLING_OTEL_ENDPOINT` | `billing` | `http://otel-collector:4318` | traces |
 | `IDENTITY_OTEL_ENDPOINT` | `identity` | `http://otel-collector:4318` | traces |
 | `MUSE_OTEL_EXPORTER_OTLP_ENDPOINT` | `muse` | *unset* | traces |
-| — | `darkroom`, `guard`, `parlor` | — | nothing |
+| — | `darkroom`, `gateway`, `parlor` | — | nothing |
 
 **Unset does not mean off for the first three, and that is deliberate.** The
 default is the collector that ships with the stack, so a developer sees real
@@ -306,7 +306,7 @@ error shapes to parse.
 
 | Path | What |
 | --- | --- |
-| `/.well-known/*` | Discovery and the JWKS. `guard` verifies against `/.well-known/jwks.json`. |
+| `/.well-known/*` | Discovery and the JWKS. `gateway` verifies against `/.well-known/jwks.json`. |
 | `GET`/`POST` `/oidc/authorize` | The authorization request. `GET` is not an accident: OIDC Core permits both and a product behind a strict corporate proxy may have no choice. |
 | `GET` `/oidc/callback` | The redirect target. |
 | `POST` `/oidc/token` · `GET`/`POST` `/oidc/userinfo` | Token and userinfo. |
@@ -383,7 +383,7 @@ destination the service will sign and dial on somebody else's behalf.
 | GET | `/healthz` | none | Liveness. |
 | GET | `/readyz` | none | Readiness. |
 
-### guard — port 8080
+### gateway — port 8080
 
 `/v1/*` is the API surface (bearer JWTs, never a cookie) and `/auth/*` is the
 browser surface (a `__Host-bff-session` cookie, and nothing else). They do not
@@ -417,7 +417,7 @@ Drawn from the `dependencies` and `consumes` blocks of each `cafaye.yml`.
                        │                     identity  DELETE /v1/session
                        │                     identity  GET  /v1/me
                        ▼
-                    guard (8080) ──────────▶ identity  /auth/*  (via IDENTITY_URL)
+                    gateway (8080) ─────────▶ identity  /auth/*  (via IDENTITY_URL)
                        │
                        └── verifies tokens against identity's JWKS
                            (via IDENTITY_ISSUER, no call per request)
@@ -428,15 +428,21 @@ Drawn from the `dependencies` and `consumes` blocks of each `cafaye.yml`.
                           │
                           └── outbox_events ──▶ (no publisher loop yet)
 
-   muse (8000) ──declared dependency──▶ identity, guard
+   muse (8000) ──declared dependency──▶ identity, gateway
    courier (4000) ──declared dependency──▶ (none)  ──out──▶ subscriber webhooks
 ```
 
-`muse` declares `identity` and `guard` as dependencies, which is what tells
-`caf dev` and `pantry` to start them. `courier` and `billing` declare none —
-they depend on Postgres, not on a sibling service.
+`muse` declares `identity` and `gateway` as dependencies, which is what tells
+`caf dev` and `pantry` to start them. `courier` and `billing` declare no
+dependencies — they depend on Postgres, not on a sibling service.
 
-**`guard` proxies nothing yet.** Its dependency on `identity` is real (it dials
+**`muse`'s manifest has not caught up with the rename:** it still carries
+`dependencies[].name: guard`, so `caf dev` and `pantry` read a service name that
+no longer exists. That is a finding against `muse`, recorded here rather than
+fixed from this repository, and it is the one name on this page that a sibling
+repository still spells the old way.
+
+**`gateway` proxies nothing yet.** Its dependency on `identity` is real (it dials
 it for `/auth/*` and fetches its JWKS) but no request is routed to any cafaye
 service. The thing that decides where a path goes does not exist — `pantry`
 answers *what a service is*, not *where a path goes*.
@@ -449,8 +455,8 @@ the reason one of the [runbooks](/runbooks/) reads the way it does.
 | Gap | Consequence for an operator |
 | --- | --- |
 | **No broker.** No service starts an outbox publisher loop. `identity`'s only `Publisher` is a no-op, on purpose. | Events accumulate in `outbox_events` unpublished. No cross-service reaction happens. Alert on the age of the oldest unpublished row. |
-| **`guard` routes nothing.** | `/v1/me` proves auth and forwards nothing. There is no path-based routing behind the gateway. |
-| **`guard` sessions are per process.** The `SessionStore` is a `Map`, and Redis does not change that. | A browser's session dies with the replica it signed in on, and is lost on restart. This is the "login loops back to the sign-in page" entry in [troubleshooting](/troubleshooting/), and it is why one replica is still the right answer for `guard`. |
+| **`gateway` routes nothing.** | `/v1/me` proves auth and forwards nothing. There is no path-based routing behind the gateway. |
+| **`gateway` sessions are per process.** The `SessionStore` is a `Map`, and Redis does not change that. | A browser's session dies with the replica it signed in on, and is lost on restart. This is the "login loops back to the sign-in page" entry in [troubleshooting](/troubleshooting/), and it is why one replica is still the right answer for `gateway`. |
 | **`identity` has no OIDC refresh tokens, admin API or scoped API tokens.** Each is absent from the discovery document rather than stubbed. | Access tokens live fifteen minutes and cannot be renewed. MFA *is* built, but `MFA_ENCRYPTION_KEY` must be supplied — unset and the management routes are absent. |
 | **`identity`'s password reset and email verification are built, published and unconfigured by default** — an earlier version of this table claimed they were absent from the discovery document, and they are not: all five recovery paths are in `identity/openapi/v1.yaml` and `site` implements the flow. | The recovery surface is mounted only with a mailer behind it, so without `COURIER_BASE_URL`, `COURIER_TOKEN` and `PASSWORD_RESET_LINK_TEMPLATE` the routes answer **503** rather than 404. A deployment should still have somebody on the other end of a support channel. |
 | **`muse` auth is a stub.** | The bearer header's presence is checked and the token is not verified. Do not put `muse` behind anything you care about. |
@@ -458,7 +464,7 @@ the reason one of the [runbooks](/runbooks/) reads the way it does.
 | **`courier` publishes one event.** Only `courier.email.delivered`. The other four declared types need a provider webhook that is a later packet. | A bounced or complained address is not yet visible anywhere, and suppression is not yet automatic. |
 | **`parlor`'s manifest does not validate,** and there is no admin surface and no Playwright suite. | `caf contract lint` is red on it, and the shell is not a finished template to clone. |
 | **No collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing is running to receive them. The stack is shipped by `kit` and `bin/dev` runs it, so the gap is a deployment step rather than a missing component. | You have no fleet-wide trace or error view until you run it. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. See [Observability](/observability/). |
-| **No TLS termination in the services.** | `identity` binds plain HTTP. Terminate TLS at the edge, and note that `guard`'s default issuer is already an `https://` origin. |
+| **No TLS termination in the services.** | `identity` binds plain HTTP. Terminate TLS at the edge, and note that `gateway`'s default issuer is already an `https://` origin. |
 
 ## Cross-repo drift audit
 
@@ -529,7 +535,7 @@ repositories, and **four of the six are about the database**:
 | `darkroom` | Its `postgres` service runs `postgres:17-alpine`, "which is the image kit's stack already ships". A service does not get its own copy of the shared infrastructure: it joins kit's, and its own file becomes an override beside the fetched stack. |
 | `darkroom` | It publishes `5432:5432` in a file that is **merged** with the fetched stack, not substituted for it — compose appends a second file's `ports:` list, so the repository ends up with postgres on kit's port *and* on 5432. |
 | `muse` | Its `db` service runs `postgres:17-alpine`, the same finding under a different service name. |
-| `darkroom`, `guard`, `muse` | No `kit.ref`, so none of them has said which bytes of `kit` it runs. |
+| `darkroom`, `gateway`, `muse` | No `kit.ref`, so none of them has said which bytes of `kit` it runs. |
 
 **These are warnings, not failures, and the reason is in the gate's own output:**
 a finding inside a repository that *has* a `kit.ref` is a `FAIL`, and inside one
@@ -554,7 +560,7 @@ because a reader will hit one.
 | `identity`'s emitted events | It declares **five** types — `identity.user.created`, `identity.oidc_client.created`, `identity.oidc_client.revoked`, `identity.mfa.enabled`, `identity.mfa.disabled` — and writes **ten**. `identity.account.created`, `identity.member.invited`, `identity.member.accepted`, `identity.member.role_changed` and `identity.member.removed` are written and **declared in none of them**. Of the ten, only `identity.user.created` has a payload schema in core; six more have a catalog row and no schema. |
 | `identity.member.accepted`, `identity.oidc_client.created` / `.revoked` | **No catalog row and no payload schema in core at all.** `accepted` is also not core's spelling — core's catalog row says `identity.member.joined`, and `accepted` is not in core's action vocabulary. The two OIDC types are advertised in the manifest with no published contract behind them, which is the exact gap core's catalog assertions exist to close. |
 | `billing`'s subscription and plan payloads | `billing` emits its own ids; core's schemas describe the processor's. `billing`'s own contract test lists the four missing and four unexpected fields rather than absorbing them. See [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-cafaye-prefixed-ids). |
-| `courier`, `guard`, `identity` | Still pin `core: ^0.1.0`, which does not admit the `0.2` spec several of them compile against. Every service has to move at the same time, so the pin is a manager's decision rather than a per-repo edit. |
+| `courier`, `gateway`, `identity` | Still pin `core: ^0.1.0`, which does not admit the `0.2` spec several of them compile against. Every service has to move at the same time, so the pin is a manager's decision rather than a per-repo edit. |
 | `courier`'s README | Calls the repository "the v0 scaffold… deliberately no notification logic yet" and lists Swoosh, preferences, Oban and outbound webhooks as "not here yet". All of them landed. The manifest in the same repository is current; the prose above it is not. |
 | `identity`'s README | Opens with "**v0 is a skeleton.** There is no auth logic here yet", which stopped being true several packets ago. Its "Not built yet" list further down is current. |
 | `pantry`'s README | Says "the cafaye repositories are private, so a hosted runner cannot clone them", which contradicts the org being public. It is also the stated reason its `workspace-drift` CI job is disabled rather than merely absent. |

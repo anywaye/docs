@@ -5,7 +5,7 @@ description: Auth, sessions, accounts and tenancy, and the OIDC provider — caf
 
 `identity` is the service that knows who someone is. It owns users and sessions,
 accounts and tenancy, roles and invitations, and the **OIDC provider** — which
-means every other service (`billing`, `courier`, `guard`, `parlor`, `darkroom`)
+means every other service (`billing`, `courier`, `gateway`, `parlor`, `darkroom`)
 asks this one who is calling and what they may do. It is written in **Go**
 because it holds the keys to everything and wants a static binary and a
 compiler's worth of discipline around them.
@@ -14,7 +14,7 @@ compiler's worth of discipline around them.
 Password auth with lockout, **accounts, memberships, roles and invitations**, the
 **OIDC provider**, and **MFA** are built and tested. The OIDC provider means
 discovery, client registration, the authorization-code flow with PKCE, token
-issuance, and **`/.well-known/jwks.json`** — so `guard` has a real key set to
+issuance, and **`/.well-known/jwks.json`** — so `gateway` has a real key set to
 verify against. There are two OpenAPI documents: `openapi/v1.yaml` for the `/v1`
 surface and `openid/openid.yaml` for the OIDC one.
 

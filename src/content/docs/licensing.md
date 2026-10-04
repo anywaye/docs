@@ -89,7 +89,7 @@ table.
 | [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) | **`LICENSE.txt`, MIT**, "Copyright (c) 2026 cafaye" |
 | [`cafaye-ts`](https://github.com/cafaye/cafaye-ts) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
 | [`darkroom`](https://github.com/cafaye/darkroom) · [`pantry`](https://github.com/cafaye/pantry) | `license = "MIT"` in `Cargo.toml`. No licence file. |
-| [`guard`](https://github.com/cafaye/guard) · `docs` | `"license": "MIT"` in `package.json`. No licence file. |
+| [`gateway`](https://github.com/cafaye/gateway) · `docs` | `"license": "MIT"` in `package.json`. No licence file. |
 | [`muse`](https://github.com/cafaye/muse) | **`license = { text = "AGPL-3.0-only" }` in `pyproject.toml`, and a README that says the same** |
 | `identity` · `billing` · `courier` · `parlor` · [`core`](https://github.com/cafaye/core) · [`caf`](https://github.com/cafaye/caf) · [`kit`](https://github.com/cafaye/kit) | **nothing.** No licence file, no field in any manifest. |
 
@@ -111,7 +111,7 @@ the repository rather than the marketing page. So:
 
 - **For `cafaye-py`, `cafaye-rb`, and `cafaye-ts`, the MIT grant is written down**
   and you can rely on it today.
-- **For `darkroom`, `pantry`, `guard`, and `docs`, an MIT identifier is declared
+- **For `darkroom`, `pantry`, `gateway`, and `docs`, an MIT identifier is declared
   in a manifest.** That is a clear statement of intent from the copyright
   holder, and it is what the ecosystem's tooling reads. The full text is not in
   the tree.
@@ -186,7 +186,7 @@ covers the same fifteen repositories the organisation publishes:
 
 ```sh
 for repo in billing caf cafaye-py cafaye-rb cafaye-ts core courier darkroom \
-            docs guard identity kit muse pantry parlor; do
+            docs gateway identity kit muse pantry parlor; do
   file=none
   for name in LICENSE LICENSE.txt; do
     git -C "$repo" show "HEAD:$name" >/dev/null 2>&1 && file=$name && break

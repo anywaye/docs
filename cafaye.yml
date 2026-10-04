@@ -27,7 +27,7 @@ language: typescript
 core: ^0.2.0
 
 # `exposes` is deliberately absent, and this is NOT a gap in the way it is for
-# billing or guard. Convention rule 3 says a service that serves or receives
+# billing or gateway. Convention rule 3 says a service that serves or receives
 # traffic must declare `exposes`; this repository serves no HTTP traffic of its
 # own — it builds a directory of static files that a host (or CDN) then serves.
 # The same shape a library takes. /404.html is generated output, not an API.

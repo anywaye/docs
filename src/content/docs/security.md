@@ -194,7 +194,7 @@ is no inline allowlist.
 
 **Ten of the fifteen repositories run it**, being every repository that calls
 `cafaye/kit/.github/workflows/ci.reusable.yml@master`: `billing`, `caf`, `core`,
-`courier`, `darkroom`, `guard`, `identity`, `kit`, `muse`, `parlor`.
+`courier`, `darkroom`, `gateway`, `identity`, `kit`, `muse`, `parlor`.
 
 **Five do not**, and saying so is the point of this section: `cafaye-py`,
 `cafaye-rb`, `cafaye-ts`, `pantry`, and **`docs`, this repository**. `docs`
@@ -230,9 +230,9 @@ only safe operation is a restore — dump, generate a new key, re-seal every row
 window at all. Put the new key in the environment and the old one stops signing
 immediately, which makes a rotation a **cutover**, so it has to be scheduled.
 And withdrawing a compromised signing key does not take effect for up to
-`IDENTITY_JWKS_TTL_MS` — **five minutes by default** — because `guard` holds a
+`IDENTITY_JWKS_TTL_MS` — **five minutes by default** — because `gateway` holds a
 fetched key set in memory for that long. That TTL is also the revocation window,
-and it is stated in `guard`'s own README.
+and it is stated in `gateway`'s own README.
 
 Full procedures and the two things not to do are in [rotating
 secrets](/runbooks/secret-rotation/).
@@ -256,7 +256,7 @@ secrets](/runbooks/secret-rotation/).
   discovery document, and `MFA_ENCRYPTION_KEY` to mount the MFA routes. Unset,
   the routes are **absent** rather than present-and-broken, and the process says
   so twice at startup. `caf dev` sets none of them.
-- **`guard` forwards nothing and keeps sessions in one process's memory.** It
+- **`gateway` forwards nothing and keeps sessions in one process's memory.** It
   serves `/v1/me` and `/auth/*` and routes no request onward; a browser session
   dies with the replica it signed in on. **Run one replica** until that changes.
 - **No broker, so no event leakage — and no event delivery.** Nothing publishes
