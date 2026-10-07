@@ -133,7 +133,7 @@ queue backpressure, not the query timeout. An orchestrator with a shorter timeou
 times out and reaches the same verdict the slower way, which is to restart a
 service that is answering correctly.
 
-### `COURIER_FORCE_SSL` — the runtime HTTPS signal
+### `COURIER_FORCE_SSL`: the runtime HTTPS signal
 
 Whether `courier` redirects plain HTTP to HTTPS is a **runtime signal**, not a
 compile-time setting.
