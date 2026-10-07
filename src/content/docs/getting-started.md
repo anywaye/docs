@@ -503,7 +503,8 @@ loop instead.
 
 The table above is per-service local development.
 When somebody says "bring up the platform", there are three different stacks,
-three different commands, and they are not interchangeable:
+and they are not interchangeable — with four commands, because `install.sh`
+drives `bin/launch` rather than being a stack of its own:
 
 **`bin/launch` (in `site`) is the launch tier — the product's local face.**
 It brings up the launch four (`identity` + `gateway` + `courier` + `parlor`) on
@@ -534,7 +535,13 @@ The port block is kit's `15000-15999`, declared in
 `site/e2e/docker-compose.launch.yml`, which is an override on kit's stack —
 read that file's header before changing anything about the topology.
 
-**`install.sh` / `bin/up` (in `site`) is the e2e tier, not the launch stack.**
+**`install.sh` (in `site`) is the stranger path onto the launch tier.**
+It clones the launch four (`identity`, `gateway`, `courier`, `parlor` — at their default branch tips, because the tier builds whatever is checked out) plus `kit` at `master` beside the `site` checkout, then drives `bin/launch` — so what comes up is the launch stack above, not a second topology: the launch four on kit's pinned stack (one Postgres cluster, NATS with JetStream, Redis, the OTel collector), plus the mailpit SMTP sink.
+It is safe to re-run: a checkout that is already beside `site` is left alone, and a stack that is already up is reported with its URLs rather than rebuilt.
+When it finishes, `bin/launch` prints where to look — `parlor` on `15083` (the front door), mailpit on `15025`, `identity` on `15080`, `gateway` on `15081`, `courier` on `15082` — including the launch owner's sign-in for the stack it just brought up.
+It does not clone `pantry` or `oauth-stub`: those are the e2e tier's services, and the launch compose names neither.
+
+**`bin/up` (in `site`) is the e2e tier, not the launch stack.**
 It brings up `identity` + `gateway` + `pantry` + `oauth-stub` (+ `site`) from
 published artifacts, on its own `16000-16099` port block — so the two tiers can
 run on one machine without meeting.

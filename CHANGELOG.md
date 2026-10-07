@@ -59,6 +59,20 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   The substrate path (CNPG, `caf backup`, `kubectl cnpg`, rclone) is documented
   and marked unverified where the implementation does not exist.
 
+- **`install.sh` follows W106: it brings up the launch tier, not the e2e
+  topology.** Site master `1591ecb` (W106) changed `install.sh` to clone the
+  launch four (`identity`, `gateway`, `courier`, `parlor` at their default
+  branch tips) plus `kit` at `master`, then drive `bin/launch` — so the
+  middle entry of "Which bring-up command is which", which m103 wrote
+  truthfully as "`install.sh`/`bin/up` is the e2e tier", is now split in two:
+  `install.sh` is the stranger path onto the launch tier (same stack, same
+  five printed ports, safe to re-run), and `bin/up` keeps its e2e-tier
+  meaning (pantry, oauth-stub, `16000-16099`) unchanged.
+  Verified against `site/install.sh`, `site/bin/launch` and
+  `site/e2e/docker-compose.launch.yml` on site master, not against the
+  packet brief: mailpit port, walk-script name and the `COURIER_FORCE_SSL`
+  cross-link needed no change.
+
 - **`guard` is `gateway`, everywhere on this site that meant the service.** The
   gateway repository's rename merged into `master` at `15cf59b`, and this site
   described a service that no longer exists under that name: **155 occurrences**
