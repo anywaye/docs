@@ -11,10 +11,11 @@ Each one is a procedure, not an explanation: preconditions, exact commands, the
 verification step that proves it worked, and — importantly — **what not to do**.
 A runbook that does not say what not to do gets read as a menu.
 
-## The five
+## The six
 
 | Runbook | Use it when |
 | --- | --- |
+| [Deployment](/runbooks/deployment/) | The substrate is not installed yet, or you are changing what it runs. The launch path: one box, one command, and a deploy that is a commit and nothing else. |
 | [Tenant provisioning](/runbooks/tenant-provisioning/) | A new customer's account has to exist, end to end, with somebody in it who can sign in. |
 | [Backup and restore](/runbooks/backup-and-restore/) | You need a database you have actually restored, not a database you have actually backed up. |
 | [Rotating secrets](/runbooks/secret-rotation/) | A signing key, a Stripe secret, a provider credential, or a bucket credential has to change without downtime. |
@@ -37,20 +38,25 @@ Dockerfile on infrastructure you control. [Getting started](/getting-started/)
 has the build and run steps; [Topology](/architecture/topology/) has every port
 and environment variable in one table.
 
-**The deployment mechanism is Kamal, and adoption is partial — nothing is
-deployed through it yet.** `kit/templates/kamal/` ships three files:
-`deploy.yml.erb` (→ `config/deploy.yml`), `kamal-backup.yml.erb` (→
-`config/kamal-backup.yml`) and `drill.sh` (→ `bin/drill`). **Three repositories
-carry a `config/deploy.yml`:** `identity` and `courier` have adopted kit's
-template, and `billing`'s is the stock Rails-generated file from its first commit
-with its `proxy:` and `accessories:` blocks commented out. Two carry a
-`config/kamal-backup.yml` — `identity` and `courier`. **No repository carries
-`bin/drill`.** So the `docker` and `kamal` commands in these runbooks are
-addressed to the two situations that actually exist: a container you started
-yourself, and a host you are logged into. Where a command only works in one of
-those, the page says so. [Backup and
-restore](/runbooks/backup-and-restore/) is the runbook that measured this gap
-rather than assuming it.
+**The launch deployment mechanism is the substrate — k3s + Traefik +
+cert-manager + ArgoCD + CloudNativePG — decided in
+[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
+not yet built.** [Deployment](/runbooks/deployment/) is the runbook for it: one
+box, `curl https://kit.cafaye.com | sh`, and a deploy path that is a values
+commit and nothing else. The install script (`kit/templates/substrate/`) does not
+exist yet, so that page marks its install steps unverified rather than inventing
+flags.
+
+**Kamal retires at parity, not before.** The fleet's gates run on compose/Kamal
+today and keep running until the substrate exists (DEPLOYMENT.md:49-51), so the
+Kamal path is still the path for the fleet's own gates — it is not the launch
+path, and no new launch work is Kamal work. `kit/templates/kamal/` ships three
+files (`deploy.yml.erb`, `kamal-backup.yml.erb`, `drill.sh`); `identity` and
+`courier` have adopted the first two, and **no repository carries `bin/drill`**.
+The `docker` and `kamal` commands in these runbooks are addressed to the two
+situations that actually exist today: a container you started yourself, and a
+host you are logged into. Where a command only works in one of those, the page
+says so.
 
 **Migrations are a deploy step, not a boot step.** No service migrates on boot.
 Run them as a job before the new image rolls out, and fail the deploy on a

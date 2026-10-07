@@ -108,6 +108,10 @@ export default defineConfig({
           label: 'Runbooks',
           items: [
             { slug: 'runbooks' },
+            // `deployment` sits first because it is the runbook an operator
+            // reaches for before any other: it is how the stack gets installed
+            // and how it changes afterwards. The rest are incident procedures.
+            { slug: 'runbooks/deployment' },
             { slug: 'runbooks/tenant-provisioning' },
             { slug: 'runbooks/backup-and-restore' },
             { slug: 'runbooks/secret-rotation' },
