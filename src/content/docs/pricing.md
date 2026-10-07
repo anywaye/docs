@@ -75,7 +75,7 @@ estimate.
 
 | Unit | What it would be | Today |
 | --- | --- | --- |
-| Platform | a cafaye-operated control plane, and `caf deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `caf deploy` is implemented: it deploys a service with Kamal, building the image, pushing it and rolling it out behind `kamal-proxy`. What does not exist is a cafaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. |
+| Platform | a cafaye-operated control plane, and `caf deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `caf deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a cafaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md); Kamal is the current implementation and retires at parity. |
 | identity | your deployment, our pager | **Does not exist.** Today "hosted" means you run it in your own account and we help you get it running — which is consulting, not a product. |
 | courier | your deployment, our pager, and a configured email provider | **Does not exist.** Separately, no email provider adapter is configured in any cafaye checkout, so nothing is delivered until you set one. |
 
@@ -186,8 +186,10 @@ Stated here rather than left for you to infer from the tables:
   `caf new`.** They parse their flags and return `not implemented in v0`. The
   other nine — `backup`, `contract`, `deploy`, `dev`, `doctor`, `env`, `mcp`,
   `reclaim`, `version` — work, **including `caf deploy`**, which builds, pushes
-  and rolls out with Kamal. It deploys to infrastructure you already pay for;
-  what it does not have is a cafaye-operated remote.
+  and rolls out. It deploys to infrastructure you already pay for;
+  what it does not have is a cafaye-operated remote. The launch path is the
+  substrate (k3s + ArgoCD + CloudNativePG); Kamal is the current implementation
+  and retires at parity.
 - **`identity`'s password reset and email verification are built but unconfigured
   by default.** Both are served, published in `identity`'s OpenAPI document, and
   implemented end to end by `site` — but the recovery surface is mounted only

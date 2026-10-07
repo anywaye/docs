@@ -111,8 +111,9 @@ failure is how a healthy service generates work:
 Not `billing`'s problem. Check, in order:
 
 1. **The endpoint URL** in the Stripe dashboard resolves and terminates TLS.
-   The services bind plain HTTP; TLS is the edge's job — and in a Kamal
-   deployment `proxy.ssl: true` in `config/deploy.yml` is what terminates it.
+   The services bind plain HTTP; TLS is the edge's job. On the substrate that
+   edge is Traefik + cert-manager (DEPLOYMENT.md:28); on the retiring Kamal
+   path it is `proxy.ssl: true` in `config/deploy.yml`.
 2. **The endpoint is enabled** in Stripe, and pointed at the environment you
    think it is. Staging and production endpoints are separate objects.
 3. **`STRIPE_WEBHOOK_SECRET` matches.** See case 2.
@@ -137,7 +138,8 @@ description of a running deployment**, for two reasons worth keeping separate:
   template's `/up` proxy healthcheck to `/readyz` while they were there. What is
   adopted **as a deployment** is nothing: `bin/drill` exists nowhere in the
   fleet, and `billing`'s `config/deploy.yml` is the stock Rails-generated file
-  from its first commit with the whole `proxy:` block commented out. There is
+  from its first commit with the whole `proxy:` block commented out. The
+  substrate that replaces it is decided and not yet built. There is
   therefore no accessory, no published port and no TLS termination story to check
   against — which is why step 1 above is written as "does the endpoint answer at
   all" rather than as a recipe against a known topology. See [backup and

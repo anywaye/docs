@@ -284,9 +284,9 @@ applies `REVOKE ALL ON DATABASE … FROM PUBLIC` when it provisions a database, 
 **it only runs on a fresh volume** — `docker-entrypoint-initdb.d` cannot
 re-apply itself to a database that did not exist when it ran. So:
 
-- a database created with `psql`, or by a restore, or by a drill's scratch, has
-  **no boundary at all**; the service connects fine, which is why nothing looks
-  broken;
+- a database created with `psql`, or by a restore, or by a backup drill's
+  scratch, has **no boundary at all**; the service connects fine, which is why
+  nothing looks broken;
 - check #3 names the offending database rather than telling you things are fine.
 
 The fix is the same statement, not a service change:
@@ -329,7 +329,7 @@ cause is still there.
 | --- | --- | --- |
 | `none` | the boundary is in place on every database in the cluster | the service is pointed at the wrong database, or over its connection limit |
 | a database name | that database was never given the revoke, so every role can open it | apply the two statements above, then re-run the check |
-| a service's **own** name | that database exists but was created outside the init script — by hand, by a restore, or by a drill | same two statements, and then find out who created it |
+| a service's **own** name | that database exists but was created outside the init script — by hand, by a restore, or by a backup drill | same two statements, and then find out who created it |
 
 **Adding a service to a cluster that is already running** is
 `bin/dev db grant <service>`, which **prints** the statements rather than running

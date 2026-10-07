@@ -226,8 +226,9 @@ scheduled job and a new thing to operate.
 **So the honest position is:** the boundary holds **by construction** for every
 database declared in `KIT_POSTGRES_DATABASES` on a fresh volume, and a database
 added afterwards is the operator's to close. That includes the scratch database
-a [restore drill](/runbooks/backup-and-restore/#level-2--the-data-comes-back-and-you-checked-it)
-creates, and any database you create while debugging.
+a restore creates — on the retiring Kamal path that was the `bin/drill` scratch
+database, and on the substrate it is the scratch database `caf backup` creates
+to prove the restore — and any database you create while debugging.
 
 **How to check the whole shape rather than the one property**, including that
 each service's role exists, is not a superuser, and has a connection limit:
@@ -546,10 +547,11 @@ Read this section before you rely on the boundary.
   that creates a database. [Backup and
   restore](/runbooks/backup-and-restore/) says what a restore replaces and what
   it does not.
-- **A restore drill creates a scratch database on the cluster** and it gets
-  Postgres's default for the same reason. `bin/drill` drops it, including after
-  a failure, but a drill interrupted hard enough to leave it is a hole the sweep
-  query will find.
+- **A restore creates a scratch database on the cluster** and it gets
+  Postgres's default for the same reason. On the retiring Kamal path, `bin/drill`
+  dropped it, including after a failure; on the substrate, `caf backup` drops it
+  as part of proving the restore. A scratch database interrupted hard enough to
+  be left behind is a hole the sweep query will find.
 - **Isolation is by privilege, never by secret.** Every development role takes
   the same password, because it runs on your machine and a shared development
   password is the point — which is also why the boundary above can be

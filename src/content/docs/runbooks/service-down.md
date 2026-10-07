@@ -124,20 +124,24 @@ question. `docker logs --tail 100 <name>` is where the answer is.
 
 :::caution[`docker` addresses a daemon, not a fleet]
 Every command in this step is a **local Docker daemon** command, so it is right
-for a laptop stack and for a host you are already logged into, and wrong for a
-Kamal deployment you are watching from somewhere else. Under Kamal the container
-names carry the app and role as prefixes, and `kamal app ps` / `kamal app logs /
-<service>` are the commands that address them by the name you already know.
+for a laptop stack and for a host you are already logged into. It is the wrong
+tool for the two deployments that exist: a **Kamal** deployment you are watching
+from somewhere else, where the container names carry the app and role as
+prefixes and `kamal app ps` / `kamal app logs / <service>` address them by the
+name you already know; and the **substrate** (k3s + ArgoCD), where the commands
+are `kubectl`-based and the workloads are pods, not containers on a Docker
+daemon. The substrate is decided and not yet built —
+[Deployment](/runbooks/deployment/) is its runbook.
 
-**And nothing in the fleet is deployed through it yet** — that is covered in [the
-backup runbook](/runbooks/backup-and-restore/). Three repositories carry a
-`config/deploy.yml`: `identity` and `courier` have adopted kit's template (and
-changed its `/up` proxy healthcheck to `/readyz` while they were there), and
-`billing`'s is the stock Rails-generated file from its first commit with the whole
-`proxy:` and `accessories:` blocks commented out. What **no** repository has is
-`bin/drill`, and no `config/kamal-backup.yml` has ever run anywhere. So "the
-deployment" is presently a container you started yourself, which is what makes
-the local commands the right ones and the Kamal ones the shape to learn.
+**And nothing in the fleet is deployed through either yet.** Three repositories
+carry a `config/deploy.yml`: `identity` and `courier` have adopted kit's Kamal
+template (and changed its `/up` proxy healthcheck to `/readyz` while they were
+there), and `billing`'s is the stock Rails-generated file from its first commit
+with the whole `proxy:` and `accessories:` blocks commented out. What **no**
+repository has is `bin/drill`, and no `config/kamal-backup.yml` has ever run
+anywhere. So "the deployment" is presently a container you started yourself,
+which is what makes the local commands the right ones and the Kamal and
+substrate ones the shapes to learn.
 :::
 
 **Did it fail to start?** Every service validates its environment at startup and
