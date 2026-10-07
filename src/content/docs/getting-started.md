@@ -499,6 +499,54 @@ the host". It is not: its Compose file builds and publishes `billing` on
 up. The commands are in that repository's README if you want the host-side
 loop instead.
 
+### Which bring-up command is which
+
+The table above is per-service local development.
+When somebody says "bring up the platform", there are three different stacks,
+three different commands, and they are not interchangeable:
+
+**`bin/launch` (in `site`) is the launch tier — the product's local face.**
+It brings up the launch four (`identity` + `gateway` + `courier` + `parlor`) on
+kit's pinned stack (one Postgres cluster, NATS with JetStream, Redis, the OTel
+collector), plus an SMTP sink a person can read (mailpit), built from the
+checkouts beside `site`.
+`scripts/walk-the-loop.sh` then walks the loop the product is sold on against
+that stack — signup, the confirmation mail, confirm, signin, signin with MFA,
+forgot password, the reset mail redeemed, create-an-account/invite-a-member,
+settings — with every mail read out of mailpit over its HTTP API.
+`COURIER_FORCE_SSL` is unset there on purpose: the launch network is plain HTTP
+(see [courier](/services/courier/#courier_force_ssl-the-runtime-https-signal)).
+
+```sh
+bin/launch                  # fetch kit, mint the courier key, up --wait, print URLs
+scripts/walk-the-loop.sh    # the loop, with real curls against the launch stack
+```
+
+| What | Host port | Container port |
+| --- | --- | --- |
+| `identity`, the auth service | `${LAUNCH_IDENTITY_PORT:-15080}` | 8080 |
+| `gateway`, the API edge | `${LAUNCH_GATEWAY_PORT:-15081}` | 8080 |
+| `courier`, the mail service | `${LAUNCH_COURIER_PORT:-15082}` | 4000 |
+| `parlor`, the product UI — the front door | `${LAUNCH_PARLOR_PORT:-15083}` | 3000 |
+| mailpit web UI, the SMTP sink (`COURIER_SMTP_HOST: mailpit`, port `1025` inside the network) | `${KIT_MAILPIT_PORT:-15025}` | 8025 |
+
+The port block is kit's `15000-15999`, declared in
+`site/e2e/docker-compose.launch.yml`, which is an override on kit's stack —
+read that file's header before changing anything about the topology.
+
+**`install.sh` / `bin/up` (in `site`) is the e2e tier, not the launch stack.**
+It brings up `identity` + `gateway` + `pantry` + `oauth-stub` (+ `site`) from
+published artifacts, on its own `16000-16099` port block — so the two tiers can
+run on one machine without meeting.
+Do not describe it as bringing up the launch tier: it runs `pantry` and
+`oauth-stub`, which the launch stack does not contain, and it does not run
+`courier`, `parlor`, NATS, Redis, or mailpit in the launch shape.
+
+**`curl https://kit.cafaye.com | sh` (kit) is the production path.**
+It installs the substrate — k3s + Traefik + cert-manager + ArgoCD +
+CloudNativePG + Redis + Alloy/Loki/Grafana + Prometheus — on one box.
+[Deployment](/runbooks/deployment/) is the runbook for it.
+
 ### The ports, and the one collision that is not a port collision
 
 | | |

@@ -10,6 +10,25 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Added
 
+- **`COURIER_FORCE_SSL` documented on the courier page.** Courier master
+  `2263d32` moved `force_ssl` out of compile-time `config/prod.exs` into a
+  runtime plug gated on `COURIER_FORCE_SSL`, and the docs said nothing about
+  it — a deployer reading the site could not learn the knob exists.
+  `services/courier.md` now states the closed set (`true`/`1` = redirect,
+  anything else/unset = plain HTTP), the always-exempt probes, the two knobs
+  (`chart/values.yaml` env and `config/deploy.yml` clear), and why a 307 on a
+  plain-HTTP peer breaks mail into a 405. The rule is cited to
+  `courier/config/runtime.exs` and
+  `courier/lib/courier_web/plugs/force_ssl.ex`, not restated as ours.
+- **The three bring-up commands told apart in getting-started.** `bin/launch`
+  (site) is the launch tier — the launch four on kit's pinned stack plus
+  mailpit, with the real ports from `e2e/docker-compose.launch.yml` and
+  `scripts/walk-the-loop.sh` named as the loop walk.
+  `install.sh`/`bin/up` (site) is the e2e tier (pantry, oauth-stub,
+  `16000-16099`), stated as not-the-launch-stack.
+  `curl https://kit.cafaye.com | sh` (kit) is the production path, cross-linked
+  to the Deployment runbook rather than redescribed.
+
 - **`runbooks/deployment.md` — the operator runbook for the substrate.** The
   launch deploy path (k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
   Redis + Alloy/Loki/Grafana + Prometheus) had no runbook; what the site had

@@ -123,8 +123,8 @@ composes the two files.
 | `/healthz` | liveness — never touches the database | never |
 | `/readyz` | readiness — really checks | `{"status":"error","checks":{"database":"unavailable"}}` |
 
-Both sit at the root, outside `/api`, and both are exempt from the production SSL
-redirect: an orchestrator that gets a `301` to https from `/healthz` reads
+Both sit at the root, outside `/api`, and both are exempt from the HTTPS
+redirect below: an orchestrator that gets a redirect from `/healthz` reads
 `courier` as dead.
 
 **Set your probe timeout above 5 seconds.** With a database gone underneath a
@@ -132,6 +132,47 @@ running pool, `/readyz` takes about **4.4 seconds** to answer 503 — the pool's
 queue backpressure, not the query timeout. An orchestrator with a shorter timeout
 times out and reaches the same verdict the slower way, which is to restart a
 service that is answering correctly.
+
+### `COURIER_FORCE_SSL`: the runtime HTTPS signal
+
+Whether `courier` redirects plain HTTP to HTTPS is a **runtime signal**, not a
+compile-time setting.
+Set `COURIER_FORCE_SSL` to `true` (or `1`) and every plain-HTTP request gets the
+redirect a real deployment wants; leave it unset — or set it to anything else —
+and `courier` serves plain HTTP, which is what the launch tier and local compose
+networks need, because courier-to-courier traffic inside those networks is plain
+HTTP on a private network.
+The closed set is deliberate: an unset or misspelled value is plain HTTP rather
+than a crash, because the failure direction of a wrong redirect is every mail
+send failing, while plain HTTP behind a TLS-terminating proxy just gets the
+redirect the proxy already performs.
+`/healthz` and `/readyz` answer plain HTTP in every environment, signal or not,
+so a healthcheck never reads a redirect as a dead service.
+
+The deployer's two knobs are the chart value (`COURIER_FORCE_SSL` in the
+environment block of `chart/values.yaml`, default `"false"`) and the Kamal clear
+(`COURIER_FORCE_SSL: "false"` in `config/deploy.yml`).
+Turn either to `"true"` only where a TLS-terminating proxy sits in front of the
+service and plain HTTP must never pass it — the launch tier leaves it unset on
+purpose.
+
+The rule lives in the tree, not here: `config/runtime.exs` reads the variable at
+boot into `:force_ssl_enabled` (only `true`/`1` count), and
+`lib/courier_web/plugs/force_ssl.ex` enforces the redirect per request with the
+two probes exempt by path.
+It is a plug and not `force_ssl:` in `config/prod.exs` because that key is
+compile-time endpoint configuration — a release bakes whatever `prod.exs` said,
+so no boot-time variable could ever switch it, and `prod.exs` therefore says
+nothing.
+
+Why a wrong value here breaks mail instead of just redirecting a browser: the
+redirect is a `307`, which preserves the method, and an API peer does not follow
+redirects the way a browser does — a `POST /v1/messages` that gets 307'd is
+reissued against an endpoint that answers `405`, which is how the loop proof's
+mail failure stayed invisible for a whole run.
+If mail sends fail with a redirect-then-`405` shape, read this variable first,
+and see [Getting started](/getting-started/#which-bring-up-command-is-which) for
+which local stack is supposed to have it unset.
 
 Migrations are `mix ecto.migrate`, which is also what `bin/dev` falls back to
 here — this repository ships no `bin/migrate`, and `bin/prime` runs `mix
