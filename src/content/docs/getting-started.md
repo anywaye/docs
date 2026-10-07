@@ -11,14 +11,14 @@ output is quoted where it matters.
 
 ## Status, first
 
-**cafaye is in early development.** Of the twelve `caf` subcommands, **nine** do
+**cafaye is in early development.** Of the thirteen `caf` subcommands, **eleven** do
 real work today — `backup`, `contract lint`/`contract resolve`, `deploy`, `dev`,
-`doctor`, `env`, `mcp`, `reclaim`, `version`. The remaining three (`gen`, `init`,
-`new`) parse their flags, check their argument count, and return `not
-implemented in v0`. That is stated on every step below rather than hidden,
-because a command that silently half-works is worse than one that refuses.
-`caf/internal/cli/stub_test.go` holds the table this sentence is derived from,
-and it is checked rather than remembered.
+`doctor`, `env`, `gen telemetry`, `lock`, `mcp`, `reclaim`, `version`. The
+remaining two (`init`, `new`) parse their flags, check their argument count,
+and return `not implemented in v0`. That is stated on every step below rather
+than hidden, because a command that silently half-works is worse than one that
+refuses. `caf/internal/cli/stub_test.go` holds the table this sentence is
+derived from, and it is checked rather than remembered.
 
 What *is* real: the [contracts](/contracts/) are frozen and validated, the
 services have
@@ -58,26 +58,27 @@ checked 10 tools, 10 ok, 0 missing
 It checks ten tools, in that order: `git`, `docker`, `docker compose`, `tilt`,
 `go`, `ruby`, `elixir`, `python` (looked up as `python3` then `python`), `bun`,
 `rust` (`rustc` then `cargo`). That list is the `tools` table in
-`caf/internal/cli/doctor.go`, one row each, in that order. `doctor`
-**always exits 0** — it is a report about a machine, not a gate — so a `missing`
-row is something you read, not a CI failure.
+`caf/internal/cli/doctor.go`, one row each, in that order. `doctor` **exits 1
+when any row in the project or reclamation tables is `fail`** — a `warn` never
+moves it — so a red `doctor` is a real signal, not a decoration.
 
 You do not need all ten. You need the languages of the services you intend to
-run, plus `git` and `docker`. `identity` alone needs `go`; `parlor` needs `bun`.
+run, plus `git` and `docker`. `identity` alone needs `go`; `parlor` needs `node`.
 
-Run it with no argument and, having no project to plan, it prints one line after
-the table:
+Run it with no argument and, having no project to plan, the project table still
+prints — with a `plan` row that fails:
 
 ```
-project .: no manifest: no cafaye.yml in .; a project declares its service in one
-(run "caf init" to create it, or pass the project directory as the argument)
+project .
+check  state  detail  fix
+plan   fail   could not be planned: no manifest: no cafaye.yml in .; a project declares its service in one (run "caf init" to create it, or pass the project directory as the argument)  caf contract lint .
 ```
 
-That is not a failure. Point it at a project directory to get the **second
-table**, which is the one the first cannot answer — whether the container
-runtime is *answering*, whether the machine has the memory and CPUs a stack
-needs, whether the ports the stack publishes are free, and whether the
-toolchain for the language in that project's `cafaye.yml` is installed:
+That **is** a failure — `doctor` exits 1. Point it at a project directory to get
+the full project table, which is the one the tool table cannot answer — whether
+the container runtime is *answering*, whether the machine has the memory and
+CPUs a stack needs, whether the ports the stack publishes are free, and whether
+the manifest is one that plans:
 
 ```sh
 caf doctor ../identity
@@ -85,22 +86,22 @@ caf doctor ../identity
 
 ```
 project /path/to/identity: identity (go), 3 services in identity-dev
-check              status  detail
-container runtime  ok      /usr/local/bin/docker
-runtime running    ok      server 29.4.0
-memory             ok      16 GiB, need 4 GiB
-cpu                ok      8, need 4
-port 8080          free    -
-toolchain go       ok      /Users/kaka/.local/share/mise/shims/go
-checked 6 project checks, 6 ok
+check  state  detail  fix
+runtime  ok    server 29.4.0  -
+machine  ok    16 GiB and 8 CPUs  -
+ports    ok    every published port is free and inside 15000-15999  -
+plan     ok    3 services in identity-dev  -
+4 state check(s): 4 ok, 0 warn, 0 fail
 ```
 
-Three rows there are invisible from the tool table. `runtime running` asks the
-Docker **server**, so an installed-but-stopped runtime reads `unreachable` while
-the table above says `ok`. `memory` and `cpu` hold a floor of 4 GiB and 4 CPUs
-for a database, a cache and a service at once. And the ports come from the same
-plan `caf dev` would build, so the two cannot drift. `-tools-only` prints the
-first table alone.
+Four rows there are invisible from the tool table. `runtime` asks the Docker
+**server**, so an installed-but-stopped runtime reads `fail` while the table
+above says `ok`. `machine` holds a floor of 4 GiB and 4 CPUs for a database, a
+cache and a service at once. And the ports come from the same plan `caf dev`
+would build, so the two cannot drift. A third table, **reclamation**, follows:
+whether the ledger holds stacks and port reservations nothing has reclaimed,
+and whether anything outside caf's ledger is holding a port in 15000-15999.
+`-tools-only` prints the first table alone.
 
 :::caution[What the check is not]
 `doctor` proves a binary is on `PATH`. It does not prove the version, and in the
@@ -164,14 +165,18 @@ Usage:
   caf help <command>
 
 Commands:
+  backup    take one real backup and prove it restores, into a scratch database it then drops
   contract  validate cafaye manifests and resolve core version constraints
-  deploy    deploy a service or app to the cafaye platform
-  dev       run the local development stack
-  doctor    report which cafaye toolchains this machine has
-  gen       generate code and configuration from cafaye contracts
+  deploy    deploy a service with Kamal: build, push, roll out behind kamal-proxy
+  dev       run the local development stack for a project
+  doctor    report which cafaye toolchains this machine has, and whether it can run this project
+  env       provision the local stack for a command, and reclaim it when the command is done
+  gen       generate code and config from cafaye contracts
   init      create a cafaye.yml manifest for the current project
+  lock      pin this tree's specs, vendored schemas and generated clients, and check the pins
   mcp       serve the cafaye tools over the Model Context Protocol
   new       scaffold a new cafaye service or app
+  reclaim   reclaim what a caf session left behind: containers first, then volumes
   version   print the caf version
   help      show help for a command
 ```
@@ -187,11 +192,14 @@ prose is a flag list that drifts.
 | `caf contract lint <path>` | 1 argument | yes |
 | `caf contract resolve <constraint> <version>` | 2 arguments | yes |
 | `caf dev [project]` | 0 or 1 | yes |
+| `caf backup <service>` | 1 argument | yes |
+| `caf env <verb>` | 1 argument | yes |
+| `caf gen <target>` | 1 argument | yes |
+| `caf lock <path>` | 1 argument | yes |
+| `caf mcp` | 0 arguments | yes |
+| `caf reclaim` | 0 arguments | yes |
 | `caf init` | 0 arguments | flags only |
 | `caf new <name>` | 1 argument | flags only |
-| `caf deploy <service>` | 1 argument | flags only |
-| `caf gen <target>` | 1 argument | flags only |
-| `caf mcp` | 0 arguments | flags only |
 
 *Flags only* means exactly what it says: the flags parse, the argument count is
 checked, and the command returns `not implemented in v0` with exit code 1.
@@ -369,29 +377,12 @@ a dependency the registry does not know how to run is reported as `skipped`
 rather than silently omitted. It does not deploy, and it does not start a broker —
 nothing in the platform publishes events off the outbox.
 
-:::caution[Not every service has a Compose stack you can bring up on its own]
-`darkroom`, `muse` and `gateway` ship a complete `docker-compose.yml`, and
-`docker compose up -d` works in each of them (`muse` needs `MUSE_VAULT_KEY` set,
-or compose refuses to interpolate it). With one of those, the shape is:
-
-```sh
-git clone git@github.com:cafaye/darkroom.git
-cd darkroom
-docker compose up -d            # or just `up -d postgres` and `cargo run` on the host
-curl -s localhost:8080/healthz
-curl -s localhost:8080/readyz
-```
-
-```
-{"status":"ok"}
-{"status":"ok"}
-```
-
-**`identity`, `courier` and `billing` do not.** Their `docker-compose.yml` is an
-**override**, not a stack: the service, its database name and role, and the
-crash layer — and deliberately **no `image:` on `postgres`**, because kit's
-fetched stack ships that container. Run alone, it stops before starting anything,
-which is what this page used to tell you to do in all three:
+:::caution[No service has a Compose stack you can bring up on its own]
+Every service's `docker-compose.yml` is an **override**, not a stack: the service,
+its database name and role, and nothing else. None of them can be brought up with
+a bare `docker compose up -d` — the Postgres cluster, NATS, Redis, the collector
+and the observability backends all come from `kit`, at the commit named in the
+service's `kit.ref`. Run alone, each one stops before starting anything:
 
 ```sh
 git clone git@github.com:cafaye/identity.git
@@ -404,12 +395,14 @@ service "postgres" has neither an image nor a build context specified: invalid c
 ```
 
 (`courier` fails one step earlier still, on a missing
-`COURIER_SECRET_BOX_KEY`.) **Those three use `bin/dev`**, which every one of them
-carries: it fetches kit's stack at the ref in `kit.ref` and merges your file
-beside it. It reads the pin, resolves that exact ref of `kit` — from a local
-checkout, a cache, a vendored copy, or a fetch — runs compose with `kit`'s stack
-as the base file and yours as the override, then migrates, seeds the local admin
-and prints the URLs that actually work:
+`COURIER_SECRET_BOX_KEY`.)
+
+**`identity`, `courier` and `billing` carry `bin/dev`**, which does the merge for
+you: it fetches kit's stack at the ref in `kit.ref` and merges your file beside
+it. It reads the pin, resolves that exact ref of `kit` — from a local checkout,
+a cache, a vendored copy, or a fetch — runs compose with `kit`'s stack as the
+base file and yours as the override, then migrates, seeds the local admin and
+prints the URLs that actually work:
 
 ```sh
 bin/dev                              # fetch kit at kit.ref, merge, up --wait, migrate, print URLs
@@ -421,41 +414,28 @@ curl -s localhost:8080/readyz
 shows in the readiness answer: the database is in kit's stack rather than the
 service's, so readiness carries the dependency by name —
 `{"status":"ok","deps":"postgres"}`.
-:::
 
-:::caution[`bin/dev` currently does not finish for `identity`, `courier` or `billing`]
-Run it and the infrastructure comes up healthy — Postgres, NATS, Redis, the
-collector, Grafana, Tempo, Loki, Mimir — and then this, with **nothing about the
-database in the message**:
-
-```
-Error response from daemon: failed to create task for container:
-failed to initialize logging driver: dial tcp: lookup otel-collector on
-0.250.250.200:53: no such host
-```
-
-All three of those repositories set `logging.driver: syslog` with
-`syslog-address: "tcp://otel-collector:15514"`, and **Docker resolves a
-log-driver address with the host's resolver rather than the compose network's**.
-`otel-collector` exists only inside the network, so the container never starts.
-
-The shape of today's loop is therefore: bring the infrastructure up, notice the
-service did not come up, and remove the `logging:` block from a local copy of the
-compose file before starting the service. The minimal reproduction, which has
-nothing to do with cafaye:
+**`darkroom`, `muse` and `gateway` do the merge by hand.** They carry a
+`kit.ref` but no `bin/dev`, so the two-file form is yours to run — and
+`KIT_COMPOSE_DIR` is not optional, because compose resolves kit's initdb mount
+against the project directory without it:
 
 ```sh
-docker run --rm --log-driver syslog \
-  --log-opt syslog-address=tcp://otel-collector:15514 alpine:3 echo hi
+kit=/path/to/kit    # a checkout of kit at the ref in kit.ref
+KIT_COMPOSE_DIR=$kit/templates/compose \
+docker compose --project-directory . \
+  -f $kit/templates/compose/docker-compose.yml \
+  -f ./docker-compose.yml up -d --wait
 ```
 
-**This is a finding against `identity`, `courier` and `billing`. It is also why
-`caf dev`, above, is worth knowing: it renders its own compose file from the
-manifest, needs no kit pin, and brings the service up.**
+`darkroom` then applies its own migrations with `psql` and runs
+`DARKROOM_OBJECT_STORE=memory go run ./cmd/darkroom`; `muse` applies its with
+`docker compose … exec -T postgres psql`. The probes answer the same way once
+the service is up.
 :::
 
-With the service actually up — through `caf dev`, or with the `logging:` block
-removed from a local copy of the compose file — both probes answer:
+With the service actually up — through `bin/dev` or the two-file merge — both
+probes answer:
 
 ```
 {"status":"ok"}
@@ -486,22 +466,22 @@ kinds are not interchangeable — that is the whole table:
 | `identity` | `kit` override | `bin/dev` — see the caution above | 8080 | `{"status":"ok","deps":"postgres"}` |
 | `courier` | `kit` override | `bin/dev`, or `mix phx.server` — see the caution above | 4000 | `{"status":"ok"}` |
 | `billing` | `kit` override | `bin/dev` — see the caution above | 3000 | `{"status":"ok","checks":{"database":"ok"}}` |
-| `darkroom` | standalone | `docker compose up -d postgres`, then `cargo run` | 8080 | `{"status":"ok"}` |
-| `muse` | standalone | `docker compose up --build` (needs `MUSE_VAULT_KEY`) | 8000 | `{"status":"ok","deps":{"db":"ok"}}` |
-| `gateway` | standalone | `docker compose up -d --build` | 8080 | `{"deps":{…}}` |
-| `parlor` | none — no Compose file | `bun run dev` | 3000 | `{"status":"ok","deps":"none"}` |
+| `darkroom` | `kit` override | two-file merge, `psql` migrations, `go run ./cmd/darkroom` | 8080 | `{"status":"ok"}` |
+| `muse` | `kit` override | two-file merge (needs `MUSE_VAULT_KEY`), `psql` migrations | 8000 | `{"status":"ok","deps":{"db":"ok"}}` |
+| `gateway` | `kit` override | two-file merge | 8080 | `{"deps":{…}}` |
+| `parlor` | none — no Compose file | `npm run dev` | 3000 | `{"status":"ok","deps":"none"}` |
 
-The first three ship **`bin/dev`** and a `kit.ref` pin; the next three ship no
-`bin/dev` and own every image they need, so plain `docker compose` is correct
-for them and only for them. `parlor` ships no Compose file at all — it is a
-Next.js app and `bun run dev` is the whole story.
+The first three ship **`bin/dev`** and a `kit.ref` pin; the next three ship a
+`kit.ref` but no `bin/dev`, so the two-file merge is yours to run. `parlor`
+ships no Compose file at all — it is a Vite app and `npm run dev` is the whole
+story.
 
 **Two stacks refuse to start until you tell them a secret**, and that refusal is
 the right one: `muse` will not render without `MUSE_VAULT_KEY`, and `courier`
-will not render without `COURIER_SECRET_BOX_KEY` — nor boot without
-`COURIER_INBOUND_RESEND_SECRET`, which is a different refusal in a different
-place. The compose message names the variable and, for `muse`, the command that
-generates a valid one.
+will not render without `COURIER_SECRET_BOX_KEY`. (`courier` also reads
+`COURIER_INBOUND_RESEND_SECRET`, but that one has a default — it is not a
+refusal, just a placeholder you should replace.) The compose message names the
+variable and, for `muse`, the command that generates a valid one.
 
 `billing` is the one that used to be described as "database only, application on
 the host". It is not: its Compose file builds and publishes `billing` on
@@ -515,51 +495,42 @@ loop instead.
 | --- | --- |
 | 8080 | `identity`, `gateway`, `darkroom` — three services, one port |
 | 3000 | `billing`, `parlor` — two services, one port |
-| 5432 | `darkroom`'s Postgres only |
-| 5433 | `muse`'s Postgres only |
-| **15500** | **the Postgres `identity`, `courier` and `billing` all use** |
+| **15500** | **the Postgres every `kit` override uses** |
 
-**There is no `POSTGRES_PORT`.** An earlier version of this page told you to
-move a service's database with `POSTGRES_PORT=5433 docker compose up -d`; that
-does nothing. No compose file in the fleet reads that variable — the only
-`POSTGRES_PORT` anywhere is inside `identity`'s `gate.yml` prose and `parlor`'s
-e2e stack's own `E2E_IDENTITY_POSTGRES_PORT` — and none of these repositories
-publishes a Postgres host port you can move with it anyway. The variable that
-exists is **`KIT_POSTGRES_PORT`**, it is `kit`'s rather than a service's, it
-lives in **kit's `.env`**, and it moves kit's shared container rather than any
-service's. Set it there if 15500 is taken.
-
-**The trap worth knowing is `darkroom`'s.** Its Postgres binds host 5432, so a
-native Postgres already listening there means the container comes up
-**healthy** — the healthcheck is `pg_isready`, which reports a server accepting
-connections and does not authenticate — while your command reaches the *other*
-database and fails with `role "darkroom" does not exist`, which reads like a
-missing migration.
+**No service publishes its own Postgres host port.** `darkroom` and `muse` used
+to bind 5432 and 5433; they no longer do — their `postgres:` services carry no
+`ports:` at all, and the cluster they share with `identity`, `courier` and
+`billing` is the one kit publishes, on `${KIT_POSTGRES_PORT:-15500}`. The
+variable that moves it is **`KIT_POSTGRES_PORT`**, it is `kit`'s rather than a
+service's, it lives in **kit's `.env`**, and it moves kit's shared container
+rather than any service's. Set it there if 15500 is taken.
 
 **The real reason you run one of `identity`, `courier` and `billing` at a time
-is not a port.** They share one Postgres container and each renames its
-database — `POSTGRES_DB: identity`, then `courier`, then `billing` — and compose
-merges those overrides last-one-wins. Bring two up together and one service's
-DSN points at a database that does not exist, which surfaces as
+is not a port.** They share one Postgres container and each names its own
+database — `KIT_POSTGRES_DATABASES: identity`, then `courier`, then `billing` —
+and compose merges those overrides last-one-wins. Bring two up together and one
+service's DSN points at a database that does not exist, which surfaces as
 `role "…" does not exist` and looks exactly like a wrong password. `darkroom`
-and `muse` own their own Postgres containers and can run alongside anything.
+and `muse` share that same cluster, so the same rule holds for them.
 
 To stop one, without losing its data: `bin/dev down`. `bin/dev nuke` is the
 destructive one and says so.
 
-:::caution[Which Postgres you get is not the one the compose file defaults to]
-`kit`'s stack writes `image: postgres:${KIT_POSTGRES_TAG:-17-alpine}`, so **17 is
-the default** — but the `.env` that `bin/dev` creates on a first run comes
-from `kit`'s `.env.example`, and that file sets `KIT_POSTGRES_TAG=16.6-alpine`.
-**Run it and the container reports `postgres:16.6-alpine`.** Change it in your
-`.env` if you need 17; do not assume it from the compose file. `darkroom` and
-`muse`, which own their own stacks, are on `postgres:17-alpine`.
+:::caution[kit's Postgres is built, not pulled, and it is Debian]
+`kit`'s stack writes `image: kit-postgres:${KIT_POSTGRES_TAG:-17}` — an image
+**built** from `templates/compose/postgres/Dockerfile` on a `postgres:17` (Debian)
+base, because `postgres:17-alpine` cannot carry pgvector: pglayers publishes
+glibc-linked layers and the alpine base is musl, so the extension fails to load
+at run time on an image that builds cleanly. The `.env` that `bin/dev` creates on
+a first run comes from `kit`'s `.env.example`, and that file sets
+`KIT_POSTGRES_TAG=17` — the same default, so there is nothing to change.
 :::
 
 `darkroom`'s compose stack defaults to `DARKROOM_OBJECT_STORE=memory`, which is
 what makes the local path work with no bucket and no credentials. Its
-deployment build is the `s3` feature — and that is already the default, so
-`docker build` needs no flag to get it (see the container table below).
+deployment build defaults to the `s3` object store — `docker/Dockerfile` sets
+`DARKROOM_OBJECT_STORE=s3` — so `docker build` needs no flag to get it (see the
+container table below).
 
 ### Migrations are a step you run, not something that runs itself
 
@@ -709,10 +680,10 @@ logs.
 | `identity` | `docker build -t identity .` | 8080 | `gcr.io/distroless/static-debian12:nonroot` |
 | `billing` | `docker build -t billing .` | 80 | `ruby:4.0.1-slim`, entrypoint `/rails/bin/docker-entrypoint` |
 | `courier` | `docker build -t courier .` | 4000 | `debian:trixie-20260918-slim`, `USER nobody` |
-| `darkroom` | `docker build -f docker/Dockerfile -t darkroom .` | 8080 | a Rust static binary; **the Dockerfile is under `docker/`, not the root** |
+| `darkroom` | `docker build -f docker/Dockerfile -t darkroom .` | 8080 | a Go binary on the same distroless base as `identity`; **the Dockerfile is under `docker/`, not the root** |
 | `muse` | `docker build -t muse .` | 8000 | `python:3.14-slim` |
-| `gateway` | `docker build -t gateway .` | 8080 | `oven/bun:1.3.12-slim` |
-| `parlor` | `docker build -t parlor .` | 3000 | `node:22-slim`, `ENV PORT=3000` — the build stages pin `node:22.22.2-slim`, the runtime stage does not |
+| `gateway` | `docker build -t gateway .` | 8080 | `gcr.io/distroless/static-debian12:nonroot` |
+| `parlor` | `docker build -t parlor .` | 3000 | `node:22.22.2-slim` (pinned in every stage), `ENV PORT=3000` |
 
 **Two of those build lines used to carry flags that do not exist.** `courier`'s
 Dockerfile declares no `SERVICE_NAME` build argument, and its compose file passes
@@ -727,10 +698,9 @@ flag needs an argument: --build-arg
 ```
 
 `darkroom` needs no flag for its deployment build either way: `docker/Dockerfile`
-already runs `cargo build --release --locked --features s3`, so the default
-build **is** the S3 build. What is not available from a plain `docker build` is
-the opposite direction — the `dev-auth` verifier behind `--features dev-auth` is
-not the default and the file says so.
+already sets `DARKROOM_OBJECT_STORE=s3`, so the default build **is** the S3
+build. There is no `dev-auth` verifier to enable — the Go tree's only verifier
+is `auth.New`, and it is always on.
 
 The order that works, and the order that bites:
 
