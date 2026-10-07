@@ -8,7 +8,37 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ## [Unreleased]
 
+### Added
+
+- **`runbooks/deployment.md` — the operator runbook for the substrate.** The
+  launch deploy path (k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
+  Redis + Alloy/Loki/Grafana + Prometheus) had no runbook; what the site had
+  described the retiring Kamal path. The new page documents prerequisites and
+  sizing, the install sequence, TLS and domains (launch blocker B7's
+  documentation half), the deploy loop (Argo pull-only; no helm-from-CI path
+  and one may never be added), backup and restore (CloudNativePG, `caf backup`,
+  `kubectl cnpg`, rclone offsite), and what is deliberately not here. Every
+  claim cites `DEPLOYMENT.md` or a file:line; the install steps are marked
+  **unverified** because `kit/templates/substrate/` does not exist on this
+  base — no flag, env var or `Application` name is invented.
+
 ### Changed
+
+- **The launch deploy path is the substrate, not Kamal, and the site now says
+  so.** Kamal retires at parity, not before, so the Kamal mechanics are kept
+  but framed as the retiring path. Fixed across: `runbooks/index.md` (the
+  "deployment mechanism is Kamal" claim), `getting-started.md` (status line and
+  step 6), `runbooks/service-down.md` (the docker/Kamal caution),
+  `runbooks/billing-webhooks.md` (TLS termination is Traefik + cert-manager on
+  the substrate), `architecture/one-cluster.md` and `troubleshooting.md` (the
+  `bin/drill` references), `pilot.md`, `pricing.md`, and `guides/index.md`.
+
+- **`runbooks/backup-and-restore.md` rewritten around the two paths.** The
+  Kamal drill instructions (`bin/drill`) are deleted — the path retires at
+  parity and an operator following them today gets nothing. Kept: the
+  per-service durable-state table and the keys table, both mechanism-independent.
+  The substrate path (CNPG, `caf backup`, `kubectl cnpg`, rclone) is documented
+  and marked unverified where the implementation does not exist.
 
 - **`guard` is `gateway`, everywhere on this site that meant the service.** The
   gateway repository's rename merged into `master` at `15cf59b`, and this site

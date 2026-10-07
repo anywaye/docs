@@ -24,10 +24,20 @@ What *is* real: the [contracts](/contracts/) are frozen and validated, the
 services have
 HTTP surfaces you can call, container images you can build, a local stack you can
 run, `caf dev` will render and bring up a compose file from a manifest, and
-`caf deploy` will build, push and roll a service out with Kamal. What
+`caf deploy` will build, push and roll a service out. What
 is not real: `caf gen`, and the broker. The
 [runbooks](/runbooks/) assume you have already got the services running on your
 own infrastructure.
+
+**The launch deploy path is the substrate, not Kamal.** The customer-facing
+deployment substrate — k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
+Redis + Alloy/Loki/Grafana + Prometheus — is decided in
+[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
+is what the launch stack ships on. `caf deploy` drives Kamal today; the k3s/Argo
+implementation lands behind the same `deploy.Runner` interface, so the command
+does not change — the infrastructure it drives does. Kamal retires at parity,
+not before. [Deployment](/runbooks/deployment/) is the runbook for the
+substrate.
 
 ## Step 1 — check the toolchain
 
@@ -584,6 +594,19 @@ lacks it, boots the accessories, builds and pushes the image, and rolls the
 release out behind `kamal-proxy` only once the new container answers its
 healthcheck. What it does not have is a cafaye-operated remote, so it deploys
 to infrastructure you already pay for.
+
+:::caution[This is the retiring path. The launch path is the substrate]
+The Kamal mechanics below are real and they are what runs today — but Kamal
+retires at parity, not before, and the launch stack does not ship on it. The
+customer-facing substrate (k3s + ArgoCD + CloudNativePG, installed by
+`curl https://kit.cafaye.com | sh`) is decided in
+[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
+is documented in [Deployment](/runbooks/deployment/). The k3s/Argo
+implementation of `caf deploy` lands behind the same `deploy.Runner` interface
+(`caf/internal/cli/deploy.go`), so the command you type does not change — the
+infrastructure it drives does. Read this section to understand the shape; read
+the Deployment runbook for the path that replaces it.
+:::
 
 ```sh
 caf deploy --dry-run identity

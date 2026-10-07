@@ -19,10 +19,13 @@ ones that matter are the ones you can re-run.
 
 **There is no hosted cafaye.** Not "not yet" — there is no platform of ours for
 you to point at, and nothing behind it to authenticate against. `caf deploy`
-itself is implemented: it deploys a service with Kamal, building the image,
-pushing it and rolling it out behind `kamal-proxy`, to infrastructure you
-already pay for. What is missing is the cafaye-operated remote. What exists is
-**public GitHub repositories** and a CLI.
+itself is implemented: it deploys a service, building the image, pushing it and
+rolling it out, to infrastructure you already pay for. What is missing is the
+cafaye-operated remote. What exists is **public GitHub repositories** and a CLI.
+The launch deploy path is the substrate (k3s + ArgoCD + CloudNativePG), decided
+in [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md);
+Kamal is the current implementation and retires at parity, not before.
+[Deployment](/runbooks/deployment/) is its runbook.
 
 So "hosted pilot" means: *you run it, in your own infrastructure, on your own
 cloud account or your own metal, and we help you get it running and keep it
