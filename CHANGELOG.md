@@ -43,6 +43,18 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Changed
 
+- **`pricing.md` states the selling mechanism and the decided prices.** The
+  page opened with "nothing is purchasable today, and there is no price on this
+  page"; the second half is still true and the first is not. Per D2 and D8 we
+  sell: Stripe Payment Links, reconciled by hand — a human confirms the payment
+  and grants a one-year entitlement, with no billing service, no Stripe code in
+  conductor, no payment webhook, no receipt page, and no subscription portal.
+  The prices are annual one-time per unit — Platform $120/yr, `identity`
+  $240/yr, `courier` $240/yr, all three $420/yr — with renewal as a second
+  link. The two open questions D8 answered (is there a price at all; what does
+  managed hosting cost) are recorded as decided above; the rest remain listed
+  as open. The code-free and `parlor`-free claims and their where-to-check
+  table are unchanged.
 - **The launch deploy path is the substrate, not Kamal, and the site now says
   so.** Kamal retires at parity, not before, so the Kamal mechanics are kept
   but framed as the retiring path. Fixed across: `runbooks/index.md` (the

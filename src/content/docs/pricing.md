@@ -1,18 +1,16 @@
 ---
 title: Pricing
-description: What a cafaye unit costs, what is free, and which of the three paid products exists — with no invented numbers, and the open questions listed.
+description: What a cafaye unit costs, how a payment becomes an entitlement, what is free, and which questions are still open — no invented numbers.
 ---
 
-:::caution[Status: nothing is purchasable today, and there is no price on this page]
-**There is no managed cafaye, no checkout, no account, and no published
-price.** The three paid products — managed hosting, upgrades, support — are
-described below in the shape each will take, and every row says which of them
-exists. As of **2026-10-01**, none of the three is in operation.
-
-This page exists because a stranger deciding whether to buy a unit had no way to
-find out what it costs, and a page that read like a price list without one would
-be worse than no page. The numbers we have not decided are
-[listed](#the-numbers-we-have-not-decided) rather than guessed.
+:::note[Status: we sell — via Stripe Payment Link, reconciled by hand]
+**There is a price on this page, and a way to pay it.** We sell the three units
+below at annual one-time prices, decided 2026-10-09. Payment is a Stripe
+Payment Link; a human confirms the payment and grants the entitlement. Access
+is not instant, and there is no receipt page, no subscription portal, and no
+webhook yet. As of **2026-10-09**, the three paid products — managed hosting,
+upgrades, support — are still not in operation. What exists today is the
+selling mechanism and the prices.
 :::
 
 The commercial model, in four sentences, and it is not complicated:
@@ -20,11 +18,58 @@ The commercial model, in four sentences, and it is not complicated:
 - **The code is free.** Every repository is public, every command is
   installable, and nothing is gated behind a purchase. There is no paid tier of
   the software, no source drop, and no feature that arrives with a receipt.
-- **What we sell is hosting, upgrades, and support.** The engineering, not the
-  licence.
+- **What we sell is a one-year entitlement to a unit** — the engineering around
+  it: managed hosting, upgrades, and support. The engineering, not the licence.
 - **You buy one unit, not the fleet.** The platform, `identity`, or `courier` —
   take the one you need. Nobody is made to take all three to get one.
 - **`parlor`, the app shell, is free** and always will be.
+
+## What we sell, and what it costs
+
+Three units, four prices, all of them annual and one-time:
+
+| Unit | Price |
+| --- | --- |
+| **Platform** (`caf` + `kit`) | **$120/yr** |
+| **identity** | **$240/yr** |
+| **courier** | **$240/yr** |
+| All three | **$420/yr** |
+
+**Annual one-time, not monthly.** Each payment buys a one-year entitlement;
+renewal is a second link. The reconciliation is manual, so the billing interval
+is too: a monthly subscription would mean a human cancelling by hand forever,
+and a one-year grant with a one-year expiry is the interval a human can
+reconcile.
+
+What an entitlement buys is the paid work around the unit's repositories —
+managed hosting, upgrades, and support — and that work's `today` column is
+[the whole honesty of this page](#what-each-level-would-include): none of the
+three products is in operation yet. You would be buying the engineering around
+the unit, and buying it before it exists.
+
+## How a payment becomes an entitlement
+
+The mechanism, in three steps:
+
+1. **You pay a Stripe Payment Link.** The payment happens on Stripe's page;
+   the card never touches our systems. The links themselves live on the
+   landing page.
+2. **A human confirms the payment.** Nobody is paid automatically — a person
+   checks that the money arrived before anything is granted.
+3. **The entitlement is granted.** One payment, one grant, a one-year expiry.
+   Renewal is a second link and a second manual step.
+
+**What "manual reconciliation" means for you:**
+
+- **Access is not instant.** A human confirms the payment before the
+  entitlement is granted, so there is a gap between paying and being entitled.
+- **There is no receipt page, no subscription portal, and no webhook.** You
+  cannot log in to see your entitlement, manage it, or cancel it online.
+- **Renewal is a second link.** When the year ends, renewing is another payment
+  and another manual step. Nothing auto-renews.
+- **There is no billing service, no Stripe code in conductor, and no payment
+  webhook.** The mechanism is deliberately thin: a Stripe link, a human, a
+  grant.
 
 ## What "the code is free" means concretely
 
@@ -145,25 +190,25 @@ live in one process's memory.
 ## The numbers we have not decided
 
 Every one of these is a question for us rather than an omission from this page.
-A guessed number is worse than a blank one, so they are blank.
+A guessed number is worse than a blank one, so they are blank. Two questions
+that were on this list — is there a price at all, and what does managed hosting
+cost — are answered above; the prices are decided and published.
 
-1. **Is there a price at all, or is every engagement scoped?** We have not
-   decided. Day rate, monthly, or per-request is a real fork.
-2. **What does managed hosting cost, and what does it promise?** No price, no
-   uptime target, no support hours, no SLA, and no data-processing terms.
-3. **What is an "upgrade" worth when the thing being upgraded has no release
+1. **What is an "upgrade" worth when the thing being upgraded has no release
    tag?** Until `identity` and `courier` are tagged, the product is not
    definable, let alone priceable.
-4. **How do the three units price relative to each other?** A buyer who wants
-   `identity` should not have to buy the platform to get it, and the relative
-   weights are unset.
-5. **Is a design-partner engagement a discount, a credit against a later
+2. **How do the three units price relative to each other?** The first cut is
+   published above — Platform $120, `identity` and `courier` $240 each, all
+   three $420 — and a buyer who wants `identity` does not have to buy the
+   platform to get it. Whether those weights are final is not decided.
+3. **Is a design-partner engagement a discount, a credit against a later
    purchase, or simply a different kind of arrangement?** Undecided, and it
    changes what a pilot is worth to us.
-6. **What are the payment and invoicing terms?** No processor is chosen, no
-   entity is named on this page, and there is no checkout — by design, until the
-   terms exist.
-7. **What happens to a unit's support if the unit is self-hosted and you change
+4. **What are the payment and invoicing terms beyond the mechanism?** The
+   processor is chosen — Stripe Payment Links, reconciled by hand — and there
+   is no checkout of ours. What is not decided: the entity an invoice names,
+   and any formal terms beyond the one-year grant.
+5. **What happens to a unit's support if the unit is self-hosted and you change
    the code?** Scope of responsibility is unset, and pretending otherwise would
    be a warranty we have not written.
 
