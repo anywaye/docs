@@ -8,6 +8,30 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ## [Unreleased]
 
+### Added
+
+- **`runbooks/entitlement-reconciliation.md` — the runbook that unblocks the
+  first sale.** D2's mechanism is a Stripe Payment Link, a human, and a `POST`,
+  and until this page nothing wrote it down. Every endpoint, request body and
+  status code is read out of `conductor/config/routes.rb`,
+  `conductor/app/controllers/**`, `conductor/app/models/entitlement*.rb` and
+  `conductor/db/schema.rb`, with the `409`-on-duplicate-grant quoted from
+  `operator/entitlements_controller.rb` in full — including the
+  `RecordNotUnique` rescue that only fires under a race, and the partial unique
+  index in the schema that makes the database refuse rather than the code.
+
+  Three things on this page are marked **[UNVERIFIED]** rather than invented,
+  because they are the three an operator would otherwise guess at:
+  - **no identity endpoint resolves a user id to an account id.** The staff
+    directory search returns users and no accounts, and every account route is
+    member-scoped;
+  - **no endpoint serves `entitlement_events`.** The audit trail behind a grant
+    is readable only by SQL — `GET /v1/accounts/{id}/audit-events` serves the
+    release and approval tables, not the entitlement one;
+  - **the buyer's own read cannot see a paid unit.**
+    `EntitlementsController#index` is hard-coded to `product: "kit"`, so a grant
+    of `identity` or `platform` is active, real and invisible there.
+
 ### Fixed
 
 - **`gateway` stops being described as a gateway that routes nothing.** Seven

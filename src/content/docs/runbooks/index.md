@@ -23,10 +23,8 @@ A runbook that does not say what not to do gets read as a menu.
 | [A service is down](/runbooks/service-down/) | Something is answering 5xx, 503, or nothing at all, and you do not yet know what. |
 | [Billing webhooks failing](/runbooks/billing-webhooks/) | Stripe is delivering and billing is not acting, or billing is answering 4xx/5xx. **`billing` is out of launch scope** — the code claims are verified, the network path is yours to define. |
 
-A sixth page sits with these and is the one to read **before** you trust a green
-badge anywhere in the fleet:
-
-- **[Running the gates](/running-the-gates/)** — the exact command for every
+A seventh page sits with these and is the one to read **before** you trust a green
+badge anywhere in the fleet:- **[Running the gates](/running-the-gates/)** — the exact command for every
   cafaye repository, and the tiers that do **not** run by default. A gate that
   skips is green and has proved less than it appears to, and most repositories
   have no CI at all.
