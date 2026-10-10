@@ -201,8 +201,8 @@ flat, at the top level of the JSON body, **not** nested under a wrapper key:
 
 ```sh
 export C=http://conductor.example          # wherever conductor really is
-export ACC=<the account id from step 3>
-export STAFF_TOKEN=<your staff session token>
+export ACC='<the account id from step 3>'
+export STAFF_TOKEN='<your staff session token>'
 
 curl -s -o grant.json -w 'HTTP %{http_code}\n' \
   -X POST "$C/v1/operator/entitlements" \
@@ -262,6 +262,20 @@ The docs say `409` with the existing row. That is in
 `conductor/app/controllers/operator/entitlements_controller.rb`, and it is
 worth quoting in full because there are **two** code paths that produce it, and
 the second one is the one that matters under concurrency:
+
+:::caution[The 409 is not in `entitlements_controller.rb`]
+There are two controllers with near-identical names and only one of them
+grants anything:
+
+| File | Surface | What it has |
+| --- | --- | --- |
+| `app/controllers/operator/entitlements_controller.rb` | `POST /v1/operator/entitlements` | **grant, list, revoke — and the `409`** |
+| `app/controllers/entitlements_controller.rb` | `GET /v1/accounts/:account_id/entitlements` | the customer's read, `kit`-only, and nothing that writes |
+
+If you go looking for the duplicate-grant `409` in the customer controller you
+will not find it, and will conclude the docs are wrong. They are not — the
+grant lives one directory down, in `Operator::`.
+:::
 
 ```ruby
 def create
