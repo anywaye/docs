@@ -120,6 +120,15 @@ claim a reader cannot check.
   committed was verified by two full gate runs before being kept; nothing it
   touched was weakened to get there. The stray `brief.txt` it re-committed is
   removed again, per `310e141`.
+- **Two concurrent `bin/prime` runs in one worktree corrupt each other.** A
+  second session of this same packet was dispatched into this worktree while the
+  first was still running, and one gate run failed with
+  `astro: command not found` (exit 127) — not a defect in the tree, but
+  `npm ci` from the other run deleting `node_modules` mid-build. The run was
+  re-executed clean and passed. The lesson for the dispatcher is that a
+  re-dispatch into a worktree whose session is still live produces exactly this,
+  and a gate log with `command not found` in it should be re-run before it is
+  believed.
 
 ## What a successor should do first
 
