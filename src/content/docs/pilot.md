@@ -17,22 +17,41 @@ ones that matter are the ones you can re-run.
 
 ## Read this before anything else
 
-**There is no hosted cafaye.** Not "not yet" — there is no platform of ours for
-you to point at, and nothing behind it to authenticate against. `caf deploy`
-itself is implemented: it deploys a service, building the image, pushing it and
-rolling it out, to infrastructure you already pay for. What is missing is the
-cafaye-operated remote. What exists is **public GitHub repositories** and a CLI.
-The launch deploy path is the substrate (k3s + ArgoCD + CloudNativePG), decided
-in [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md);
+**There are two ways to run cafaye, and one of them is ours.** They are not the
+same product and they are priced differently.
+
+**Self-hosted** is the first. You run the stack in your own infrastructure, on
+your own cloud account or on your own metal, and your Postgres, your bucket,
+your TLS terminator and your keys stay yours. It is free and complete, and
+nothing about it requires an account with us. What exists here is public
+repositories and a CLI.
+
+**Cafaye Ops** is the second, and it is the one we operate. We provision and
+watch the box, patch it, prove your backups restore, hold its history, and apply
+upstream upgrades when they are safe to apply. It is a flat monthly price banded
+on countable things — applications deployed, accounts created, services enabled
+— with no usage metering and no per-box charge. You keep root, kubectl, ArgoCD,
+Grafana and the git repository, so it is your box with our attention on it rather
+than ours with your data in it. We do not page anybody yet: response is on a
+stated schedule during business hours, and the tier we sell says so.
+
+Two things that have *not* changed. `caf deploy` itself is implemented — it
+builds the image, pushes it and rolls it out — but it still has no
+cafaye-operated remote to target automatically, so it deploys to infrastructure
+you already pay for. And Cafaye Ops is a service rather than a remote: the box
+lives on your cloud account, and what you buy is the operation of it, not a
+destination for the command. The launch deploy path is the substrate (k3s +
+ArgoCD + CloudNativePG), decided in
+[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md);
 Kamal is the current implementation and retires at parity, not before.
 [Deployment](/runbooks/deployment/) is its runbook.
 
-So "hosted pilot" means: *you run it, in your own infrastructure, on your own
-cloud account or your own metal, and we help you get it running and keep it
-running.* Your Postgres, your bucket, your TLS terminator, your keys. That is the
-product as it stands, and it is the thing to decide about before you spend an
-afternoon on it — if what you wanted was a vendor-operated SaaS platform, this is
-not that yet, and we would rather say so now than in month two.
+So "pilot" means one of two things, and you should decide which before you spend
+an afternoon on it: *we run it with you* — we help you get it running and keep
+it running, and you own the machine — or *we run it for you*, which is Cafaye Ops
+and is billed monthly. If what you wanted was a vendor-operated platform with an
+SLA behind it, that is not what Cafaye Ops is yet, and we would rather say so now
+than in month two.
 
 Read the [what is not ready](#what-is-not-production-ready-yet) section before
 you commit. It is the honest list, and it is short.
@@ -115,8 +134,11 @@ one.** Here is what the code actually asserts, and it is all of it:
   `caf dev` on `identity` renders `identity` plus `postgres:16-alpine` plus
   `redis:7-alpine`.
 
-There is no managed tier, no per-seat pricing, and no hosted control panel to
-subscribe to. What a pilot pays for is engineering time, not a licence fee.
+There is a managed option — **Cafaye Ops** — priced as a flat monthly band on
+countable things rather than per seat, per box or by usage. Self-hosting is free
+and complete. If you would rather not own the machine, see the section above;
+you still keep root, kubectl, ArgoCD, Grafana and the git repository, and what
+you pay for is the operation rather than a licence.
 
 ### What leaves your infrastructure
 

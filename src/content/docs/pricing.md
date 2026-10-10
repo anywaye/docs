@@ -15,9 +15,12 @@ selling mechanism and the prices.
 
 The commercial model, in four sentences, and it is not complicated:
 
-- **The code is free.** Every repository is public, every command is
-  installable, and nothing is gated behind a purchase. There is no paid tier of
-  the software, no source drop, and no feature that arrives with a receipt.
+- **The code is free.** The framework and the services are free to run and free
+  to self-host, every command is installable, and nothing about using them is
+  gated behind a purchase. There is no paid tier of the software, no source drop,
+  and no feature that arrives with a receipt. What is *not* public is the
+  operated layer — the conductor and the artifact distribution — because that is
+  the product rather than a paywall placed in front of the code.
 - **What we sell is a one-year entitlement to a unit** — the engineering around
   it: managed hosting, upgrades, and support. The engineering, not the licence.
 - **You buy one unit, not the fleet.** The platform, `identity`, or `courier` —
