@@ -86,10 +86,10 @@ Change License `Apache-2.0`.
 
 The grant, in the licence's own words: you may copy, modify, create derivative
 works, redistribute, and make **non-production use** of the service
-(`billing/LICENSE:13-15`, identical in the other six). With the Additional Use
+(`billing/LICENSE:13-16`, identical in the other six). With the Additional Use
 Grant set to `None`, production use is not granted by the file — the licence
 says you must then buy a commercial licence from cafaye or refrain from using it
-(`billing/LICENSE:23-25`). On the Change Date each version becomes Apache-2.0.
+(`billing/LICENSE:25-28`). On the Change Date each version becomes Apache-2.0.
 
 The fleet's shorthand for the split is "free to run, free to self-host, never
 to offer a competing service". The parameters do not carry the first half of

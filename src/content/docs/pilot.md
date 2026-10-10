@@ -79,11 +79,43 @@ these rows are a summary, the service pages are the claim.
 
 ### The licence — read this one
 
-**We have not finished licensing the platform, and the state is not uniform.**
+**The split has landed, and a grant is written down in every repository.**
+Measured **2026-10-10** from committed `master`, all fifteen public
+repositories carry a `LICENSE`. The framework — `core`, `caf`, `kit`, `pantry`
+— is MIT, because its job is adoption and it should carry no strings. The seven
+services — `identity`, `gateway`, `courier`, `darkroom`, `billing`, `parlor`,
+`muse` — are under a Business Source Licence: free to run, free to self-host,
+never to offer a competing service. `conductor` and the artifact distribution
+it serves are proprietary: they are the product rather than a paywall placed in
+front of the code. [Licensing](/licensing/) is the measurement, the command
+that re-derives every row, and the BSL's parameters in full.
 
-Checked across all thirteen repositories on 2026-09-30:
+**What the BSL does not grant is production use without a commercial licence.**
+The `Additional Use Grant` is `None`, so the file permits development,
+evaluation and self-hosting, and then says you must buy a commercial licence or
+refrain from using the service (`billing/LICENSE:13-16`,
+`billing/LICENSE:25-28`). On the Change Date, 2030-10-10, each version becomes
+Apache-2.0. That is the question to settle before you build on it commercially,
+and it is a question for us rather than a blank on this page — [the open
+questions](/pricing/#the-numbers-we-have-not-decided) are where unanswered
+money questions live.
 
-| Repository | What it declares |
+**`muse` changed grant twice, and anyone holding an earlier copy keeps it.** It
+was AGPL-3.0-only, then MIT, and since 2026-10-01 it is BSL 1.1 with the rest
+of the services. The reversal from AGPL is deliberate and is stated in `muse`'s
+own README rather than left for a reader to discover by diffing the manifest
+(`muse/README.md:594-608`); a copy taken while `pyproject.toml` said
+`AGPL-3.0-only` is still AGPL-3.0-only, and BSL governs copies taken from here
+on.
+
+**What this section said on 2026-09-30, kept because the move is the point.**
+The table below is a dated snapshot from before the grants landed, and it is
+superseded — every row of it is wrong today. It stays because it is the reason
+the [Licensing](/licensing/) page exists: ten of the thirteen repositories it
+covered stated no licence at all, which for a public repository means "all
+rights reserved" — not MIT, and not what we are offering.
+
+| Repository | What it declared on 2026-09-30 |
 | --- | --- |
 | `cafaye-rb` | **`LICENSE.txt`, MIT**, "Copyright (c) 2026 cafaye" — the only repository with a licence file |
 | `darkroom`, `pantry` | `license = "MIT"` in `Cargo.toml`. No licence file. |
@@ -91,35 +123,13 @@ Checked across all thirteen repositories on 2026-09-30:
 | **`muse`** | **`license = { text = "AGPL-3.0-only" }` in `pyproject.toml`, and a README that says the same** |
 | `identity`, `billing`, `courier`, `parlor`, `core`, `caf`, `kit` | **nothing.** No licence file, no field in any manifest. |
 
-Three consequences, and the third is the one that matters:
-
-1. **Ten of thirteen repositories state no licence at all.** GitHub's default
-   for a public repository with no licence is "all rights reserved". We do not
-   think that is the intent and it is not what we are offering.
-2. **`muse` is AGPL-3.0-only**, not MIT. AGPL has network-use copyleft: modify
-   `muse`, run it as a service others reach over a network, and section 13 asks
-   you to offer them your modified source. That may be exactly right for an LLM
-   gateway. It is also a different licence from the one the rest of the platform
-   is heading towards, and it is the only copyleft in the fleet.
-3. **So: do not self-host this on a commercial assumption without a written
-   answer from us.** Ask, and get the grant in writing, before you build on it.
-   We would rather have that conversation on day one than discover an
-   `AGPL-3.0` `pyproject.toml` in month two.
-
 :::caution[What "open source" means on the org page]
 [github.com/cafaye](https://github.com/cafaye) is a public organization and the
-repositories are public. Public is not the same as licensed, and this section
-is the reason: the code is readable, and the grant is not written down.
+repositories are public. Public is not the same as licensed, and that was the
+state of the fleet when this snapshot was taken: the code was readable and the
+grant was not written down. Both halves have since changed, and the page that
+measures the current one is [Licensing](/licensing/).
 :::
-
-**This table is a dated snapshot — 2026-09-30, before the grant landed.** The
-state has moved, and the move is the point: the fleet is being split three ways
-(framework MIT, services under a Business Source Licence, `conductor` and the
-artifact distribution proprietary), and the split is mid-flight. Read
-[Licensing](/licensing/) for the current measurement and the command that
-re-derives it; the advice in consequence three above — get the grant in writing
-before you build on it commercially — is exactly what the proprietary notices
-now say out loud.
 
 ### What it costs to run
 
@@ -723,7 +733,7 @@ because it will get shorter and this page will be updated when it does.
 | **No vault key rotation.** | `MUSE_VAULT_KEY` cannot be rotated in place. | `key_version` is always 1 |
 | **`parlor` is not a finished template,** and its manifest does not validate. | Do not clone it expecting a product shell. | the [drift audit](/architecture/topology/#cross-repo-drift-audit) |
 | **A green badge may have skipped its hard half.** `kit`'s reusable workflow is callable and eight repositories now call it, but in most of the fleet the interesting tests are a second tier that does not run by default — so "the gate is green" often means somebody ran the suite by hand, that day. The exception is `identity`, whose CI refuses to skip its own database tier. | Check what ran before you check the colour. | [Running the gates](/running-the-gates/) |
-| **The licensing is unfinished.** See the section above. | Get a written answer before you build on it commercially. | the table above |
+| **The licence is a file in eight of the fifteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those eight, so the `LICENSE` file is the only declaration — and for `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity`, `kit` and `pantry` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `caf contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/licensing/#what-each-repository-declares-today) and its `re-derive it yourself` command |
 
 One more that decides whether you can put anything in front of a customer:
 **`docs` is the only cafaye repository with no CI workflow at all.** The other
