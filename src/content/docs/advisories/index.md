@@ -42,11 +42,10 @@ it, and the advisory stands for operators whose copy predates the fix.
 
 ## What an advisory is not
 
-Not a changelog. Not a CVE feed — cafaye publishes no package a third party
-consumes, and a security notice with nothing to upgrade is not a security notice.
-Not a substitute for your own monitoring: an advisory is a condition somebody
-else already met, and the first responder on your box is still the thing you
-already run.
+Not a changelog. Not a CVE feed — an advisory names a condition and the fix
+you make, not a package version you upgrade. Not a substitute for your own
+monitoring: an advisory is a condition somebody else already met, and the first
+responder on your box is still the thing you already run.
 
 ## Reading one
 

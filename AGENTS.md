@@ -48,9 +48,16 @@ bin/prime             # or: mise run prime
   the `caf help` output **quoted in `getting-started.md`** lists. That last one
   reads its vocabulary out of the repository's own prose rather than from a list
   written beside it, so there is one place that says what `caf` can do.
+- `tests/advisories.mjs` asserts the advisory feed: every page under
+  `advisories/` carries its whole `advisory` block and no page anywhere else
+  carries one at all, ids are unique and well-formed, the hand-written index
+  lists every advisory exactly once in newest-first order with a working link,
+  and every advisory states the four parts the format promises. It derives the
+  expected metadata from the pages rather than restating it, so an advisory the
+  index forgot is a failure and not a page nobody finds.
 - The counts are printed, because a check that reports nothing looks like a
-  check that found nothing: 136 shell fences, 12 JSON fences, 2 manifests, 6
-  `caf` subcommands, 69 external links, 0 redirects. Measured on this branch by
+  check that found nothing: 130 shell fences, 10 JSON fences, 2 manifests, 6
+  `caf` subcommands, 79 external links, 0 redirects. Measured on this branch by
   running the suite; this sentence said 103 and 50, which is the failure it
   exists to prevent, in the file that states it.
 
@@ -146,7 +153,7 @@ Four things about this CI that are not obvious and that the file argues in full:
   `${PIPESTATUS[0]}`.** Under zsh there is no `PIPESTATUS`, so a piped exit code
   is the exit code of `tail`, which is always zero. That has already produced
   one false green in this fleet.
-- **The suite size is held by equality, not as a floor.** `16 tests, 0 skipped`
+- **The suite size is held by equality, not as a floor.** `22 tests, 0 skipped`
   is the number measured on this branch. A floor would accept a suite that lost
   `tests/links.mjs` and `tests/examples.mjs` entirely — which is the whole
   deliverable of this packet. Adding a test turns CI red until `BASELINE_TESTS`
@@ -211,8 +218,11 @@ in the same commit as a real domain change, never locally.
 
 ```
 astro.config.mjs          site URL, Starlight config, the sidebar (a promise about pages)
-src/content.config.ts     Starlight's docs collection + an empty i18n collection
+src/content.config.ts     Starlight's docs collection + an empty i18n collection,
+                          with the advisory fields extended onto it
 src/content/docs/         every page; index.mdx is the splash home
+                          advisories/ is the public feed — an index and one file
+                          per condition, each carrying an `advisory:` block
 src/pages/404.astro       /404, owned here rather than injected by Starlight
 tests/smoke.mjs           the build-output half: dist/index.html, every sidebar page,
                           every internal link, every icon, both directions
@@ -222,6 +232,8 @@ tests/links.mjs           the link half, offline: every #fragment resolves, ever
 tests/examples.mjs        the examples: every sh fence parses, every json fence is JSON,
                           every yaml fence is a manifest, every caf invocation is a
                           subcommand caf lists
+tests/advisories.mjs      the advisory feed: complete advisory metadata on every
+                          advisory and nowhere else, and an index that lists all of it
 tests/contracts.mjs       the contract tier, run by `bin/prime --contracts`: manifests
                           through the real `caf contract lint`, event types against
                           core's catalog, span names against core's span-naming schema,

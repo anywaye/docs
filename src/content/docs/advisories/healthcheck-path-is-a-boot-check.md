@@ -54,14 +54,16 @@ questions a path can be answering:
 cafaye's services serve the second kind. `identity`, `courier`, `gateway`,
 `parlor`, `darkroom` and `muse` all expose `/healthz` (liveness) and `/readyz`
 (readiness), and none of them serves `/up`. The one service that does serve
-`/up` is `billing`, which is Rails — and even there, `/up` is the boot check
-alone, with `/readyz` beside it as the check that actually queries Postgres.
+`/up` is `billing`, which is Rails — and even there the three sit side by side
+in its routes file: `/healthz` for liveness, `/readyz` as the check that
+actually queries Postgres, and Rails' own `/up` as the boot check.
 
 kit's Kamal template set `proxy.healthcheck.path: /up`. A proxy pointed at a
 path the service does not serve reads `404`, and a deploy that cannot go green
-is a deploy that cannot succeed. Every adopter had hand-patched their own copy
-before it was fixed — which is the tell that this was the template's fault and
-not the adopters'.
+is a deploy that cannot succeed. The two services that had adopted the template
+— `identity` and `courier` — had each hand-patched their own copy to `/readyz`
+before the template was fixed, which is the tell that this was the template's
+fault and not the adopters'.
 
 ## How to check whether you have it
 
@@ -121,6 +123,6 @@ mounted, not that the application failed to start.
 kit's Kamal template carried `path: /up` until it was corrected on 2026-10-07,
 and the block in the current template records the defect, the services affected,
 and the fact that `identity` and `courier` had each hand-patched their own copy
-first. `billing`'s routes file is the one that shows both a boot check and a
-readiness check mounted side by side, which is the clearest statement of the
-distinction available in the fleet.
+first. `billing`'s routes file is the one that shows a boot check, a liveness
+check and a readiness check mounted side by side, which is the clearest
+statement of the distinction available in the fleet.

@@ -8,6 +8,10 @@ you think is broken. This page is organised by **what you can see** — because
 that is what a customer tells you, and often it is not the component you would
 have guessed.
 
+The conditions below that turned out to be fleet-wide are also published as
+[advisories](/advisories/): the symptom, the cause, and the fix, written for a
+reader who does not run cafaye at all.
+
 Each entry: **what to check**, **what it usually means**, **what to do**.
 
 ## Login loops back to the sign-in page
