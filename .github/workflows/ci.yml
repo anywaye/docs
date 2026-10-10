@@ -93,7 +93,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # 16 tests, measured on this branch with `npm test` after a build. Held by
+  # 18 tests, measured on this branch with `npm test` after a build. Held by
   # **equality**, not as a floor: a floor would accept a suite that lost the
   # link and example checks entirely, and those are the two files that make this
   # a gate rather than a build.
@@ -101,7 +101,7 @@ env:
   # Raising this number is the intended direction. Lowering it is not a way to
   # make a build green — it is the deletion of a check, and the change that
   # lowers it should have to argue for the deletion in the diff.
-  BASELINE_TESTS: '16'
+  BASELINE_TESTS: '18'
   # core, unpinned, on purpose. This tier exists to catch a change in core, and
   # a pinned ref would blind it to the one thing it exists to detect. A red run
   # caused by a core change is the guard working, not a flake. The revision read
