@@ -28,10 +28,10 @@
 //   it derives the expected metadata from every page under advisories/ and
 //   fails when one is missing, malformed, duplicated, or absent from the index.
 import { defineCollection } from 'astro:content';
-// `z` comes from astro/zod and NOT from astro:content. They are two different
-// zod instances, and Starlight's docsSchema() deep-merges an extended schema
-// into its own using internals (`_zod.def`) that only resolve for the zod it
-// imported itself. Getting this wrong fails `astro sync` with
+// `z` comes from astro/zod and NOT from astro:content. `astro:content`'s export
+// is the raw `zod/v4` core surface (`z.core.$strip` and friends); Starlight's
+// docsSchema() reads `_zod.def` off whatever it deep-merges, which is a shape
+// only `astro/zod`'s `z` produces. Getting this wrong fails `astro sync` with
 // "Cannot read properties of undefined (reading 'def')" at build time, which
 // names neither the file nor the field.
 import { z } from 'astro/zod';
@@ -42,7 +42,10 @@ export const collections = {
   docs: defineCollection({
     loader: docsLoader(),
     schema: docsSchema({
-      extend: {
+      // `extend` takes a **zod schema**, not a plain object of fields. Passing
+      // `{ advisory: … }` compiles, type-checks against nothing, and fails
+      // `astro sync` with a message about an undefined `def` three files away.
+      extend: z.object({
         // Advisory metadata. Present on every page under
         // src/content/docs/advisories/ except the index, absent everywhere
         // else — asserted in tests/advisories.mjs, in both directions, because
@@ -77,7 +80,7 @@ export const collections = {
             status: z.enum(['open', 'fixed']),
           })
           .optional(),
-      },
+      }),
     }),
   }),
   // Starlight queries the i18n collection on every build even for an
