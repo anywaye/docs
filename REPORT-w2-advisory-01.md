@@ -126,11 +126,19 @@ claim a reader cannot check.
 1. Read `tests/advisories.mjs` before adding a third advisory — it derives the
    expected index from the pages, so a new advisory fails until the index lists
    it. That is the intended direction.
-2. The next two advisories worth writing from the library table are the
-   `identity` MFA routes (404 from an unset `MFA_ENCRYPTION_KEY`, absent rather
-   than broken, no error ever printed) and `gateway`'s per-process sessions
-   (works at one replica, a live outage at two). Both are recorded conditions
-   with a measurement behind them, not suspicions.
+2. The next advisories worth writing from the library table are the `identity`
+   MFA routes (404 from an unset `MFA_ENCRYPTION_KEY`, absent rather than broken,
+   no error ever printed) and the two pockets of Postgres across five services
+   (`KIT_POSTGRES_DATABASES` merging last-one-wins in compose). Both are
+   recorded conditions with a measurement behind them, not suspicions.
+3. **One row of that table is already stale and must not be written as an
+   advisory.** It records `gateway`'s sessions as per-process, with "run one
+   replica; scaling to two is a live outage". `gateway` now has a Redis session
+   store shared by every replica — `services/gateway.md` records the correction,
+   and the Go session store is Redis. Writing that row as an advisory would
+   publish a defect the fleet has since fixed. That is the drift the table is
+   prone to: it is a seed, not a source, and every row needs the re-derivation
+   advisory 002 got before it becomes a page.
 3. `BASELINE_TESTS` is 22 and is held by **equality**. Raising it is the
    intended direction; lowering it is a deletion of a check.
 4. If the 29 `github.com/cafaye/<repo>` 404s are ever going to be fixed, the fix
