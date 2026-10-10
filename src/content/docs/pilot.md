@@ -112,6 +112,15 @@ repositories are public. Public is not the same as licensed, and this section
 is the reason: the code is readable, and the grant is not written down.
 :::
 
+**This table is a dated snapshot — 2026-09-30, before the grant landed.** The
+state has moved, and the move is the point: the fleet is being split three ways
+(framework MIT, services under a Business Source Licence, `conductor` and the
+artifact distribution proprietary), and the split is mid-flight. Read
+[Licensing](/licensing/) for the current measurement and the command that
+re-derives it; the advice in consequence three above — get the grant in writing
+before you build on it commercially — is exactly what the proprietary notices
+now say out loud.
+
 ### What it costs to run
 
 **We have not published a sizing guide, and this page is not going to invent
@@ -135,10 +144,12 @@ one.** Here is what the code actually asserts, and it is all of it:
   `redis:7-alpine`.
 
 There is a managed option — **Cafaye Ops** — priced as a flat monthly band on
-countable things rather than per seat, per box or by usage. Self-hosting is free
-and complete. If you would rather not own the machine, see the section above;
-you still keep root, kubectl, ArgoCD, Grafana and the git repository, and what
-you pay for is the operation rather than a licence.
+countable things rather than per seat, per box or by usage. The ladder's prices
+are still placeholders, and [pricing](/pricing/#cafaye-ops-on-top-the-monthly-operated-tier)
+is where that is stated rather than smoothed over. Self-hosting is free and
+complete. If you would rather not own the machine, see the section above; you
+still keep root, kubectl, ArgoCD, Grafana and the git repository, and what you
+pay for is the operation rather than a licence.
 
 ### What leaves your infrastructure
 
@@ -685,9 +696,13 @@ headers, a retry budget and a circuit breaker — not events on a bus.
 
 **"Self-hosted" means what it says.** Your Postgres, your bucket, your keys,
 your TLS terminator. Your backups, on your schedule. There is no cafaye-operated
-component in the stack, no account, and no telemetry leaving it unless you
-configure it. If you want us to run it for you, that is consulting work we have
-not productised — ask, and we will scope it honestly.
+component in the data plane and no telemetry leaves unless you configure it;
+the one cafaye-operated component in the architecture is conductor, and it
+holds no readable customer secret — [Security and trust](/security/#read-this-first-there-is-nothing-of-ours-to-breach)
+argues it from the code. If you want us to run it for you, that is Cafaye Ops,
+the monthly operated tier: billed monthly, ladder prices still placeholders,
+sold by Stripe Payment Link and a human, like everything else on this site.
+[pricing](/pricing/#cafaye-ops-on-top-the-monthly-operated-tier) is the page.
 
 ## What is not production-ready yet
 

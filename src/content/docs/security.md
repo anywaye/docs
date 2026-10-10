@@ -17,8 +17,20 @@ relative to each repository's root.
 
 **You operate the deployment.** Your Postgres, your object-storage bucket, your
 TLS terminator, your keys, your cloud account. There is no cafaye-operated
-component in the stack, no cafaye account, and no cafaye-operated endpoint any
-service talks to.
+component in the customer data plane, no cafaye account, and no cafaye-operated
+endpoint any service talks to.
+
+**The one cafaye-operated component in the architecture is conductor**, and the
+sentence above says *data plane* because of it. `boxd` on your box dials it —
+outbound-only, mutual TLS, to `conductor.cafaye.com` — and your services never
+do. It holds no readable customer secret, and each half of that is a mechanism
+rather than a promise: a capability it mints is stored only as a SHA-256
+digest, and is single-use, minutes-lived and box-bound; a provider credential
+it carries is sealed to your box's public key and only your box can open it;
+it holds no SSH key, no box credential and no root, and it never dials your
+box back. The boundary is stated in `conductor`'s own `docs/BOUNDARIES.md`, and
+`caf`'s boxd tests hold it — every route the daemon can answer is walked for
+Secret-shaped answers and refused.
 
 **By default, nothing leaves your infrastructure.** No service exports telemetry
 unless you configure it, there is no licence check, no update check, and no
@@ -348,8 +360,9 @@ coordinated disclosure window exists.
 
 ## See also
 
-- [Licensing](/licensing/) — what MIT permits a buyer to do, and the seven
-  repositories that do not carry the grant yet.
+- [Licensing](/licensing/) — the split across the fleet, what each grant
+  permits a buyer to do, and the one row where the record and the tree
+  disagree.
 - [Pricing](/pricing/) — what is free, what is sold, and which of the three paid
   products is in operation.
 - [Rotating secrets](/runbooks/secret-rotation/) — the inventory, what can be

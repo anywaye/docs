@@ -1,37 +1,36 @@
 ---
 title: Licensing
-description: MIT across the fleet, what that means for a buyer, and the measured state of the grant in each repository — including the seven that do not carry one yet.
+description: The licence split actually being applied — framework MIT, services under a Business Source Licence, conductor and the artifact distribution proprietary — and the measured state of the grant in every repository, with the command that re-derives it.
 ---
 
-**The decision: the whole fleet is MIT.** Every repository, including the three
-you can [buy a unit of](/pricing/), is MIT licensed. There is no source gating,
-no paid code, and no licence a buyer has to sign to use a service commercially.
+**The decision: the fleet is split three ways.** The framework — `core`, `caf`,
+`kit`, `pantry` — is open under MIT: genuinely free, no strings, because its job
+is adoption. The services — `identity`, `gateway`, `courier`, `darkroom`,
+`billing`, `parlor`, `muse` — are under a Business Source Licence: free to run,
+free to self-host, never to offer a competing service. `conductor` and the
+artifact distribution are proprietary: they are the product, not a paywall in
+front of the code.
 
-**The state of the grant: seven of the fifteen repositories do not carry a
-licence at all yet**, and one carries a different one. Both halves of that
-sentence are load-bearing and the second half is the one that matters to you, so
-this page states the decision and then states the gap rather than letting the
-decision stand in for it.
-
-The table is [below](#what-each-repository-declares-today), and it is a
-measurement, not a recollection: it was re-derived on **2026-10-01** by reading
-each repository's own committed files, and the command that does it is
-[published at the end](#re-derive-it-yourself) so you can re-run it. A licence
-table copied from the last page that quoted one is a changelog with a table in
-it.
+**The state of the grant: the split has landed, and the tree matches the
+decision on every row.** Re-derived **2026-10-10** by reading each
+repository's own committed files — the command is [published at the
+end](#re-derive-it-yourself) so you can re-run it. Every one of the fifteen
+public repositories now carries a `LICENSE`. A licence table copied from the
+last page that quoted one is a changelog with a table in it, and this one is a
+measurement, not a recollection.
 
 :::caution[This page measures committed `master`, and that is a choice]
 Every row below was read with `git show HEAD:`, not out of a working tree. The
-difference is not academic: **a licence grant is being landed across the fleet
-right now**, and in a checkout with uncommitted work on it the answer is
-different from the answer on `master`. A reader evaluating a licence needs the
-answer for the commit they would actually depend on, and that is the committed
-one.
+difference is not academic: **the grants landed across the fleet on
+2026-10-01, and `kit`'s MIT grant landed on 2026-10-10** — in a checkout
+from even a day ago the answer is different from the answer on `master`. A
+reader evaluating a licence needs the answer for the commit they would actually
+depend on, and that is the committed one.
 
 So: if you clone today and see a `LICENSE` this page says is missing, the page is
 behind and the repository is right — [re-run the
-command](#re-derive-it-yourself) and believe the repository. When the grant
-lands on `master`, this table changes in the same commit.
+command](#re-derive-it-yourself) and believe the repository. When the next
+grant lands, this table changes in the same commit.
 :::
 
 ## What MIT means for you, as a buyer
@@ -74,108 +73,94 @@ There is no clause about:
 **The commercial model follows from this rather than sitting beside it.** We sell
 [managed hosting, upgrades, and support](/pricing/), none of which is a licence
 fee and none of which changes what the licence permits. `parlor` is free
-permanently. The thing you are buying is engineering, and the code is MIT
+permanently. The thing you are buying is engineering: the code is MIT or BSL
+depending on which side of the split it sits on, and the purchase is the same
 either way.
+
+## What the Business Source Licence means for you, as a buyer
+
+The seven services carry BSL 1.1, and the parameters are the same in each:
+Licensor `Cafaye`, Additional Use Grant `None`, Change Date `2030-10-10`,
+Change License `Apache-2.0`.
+
+The grant, in the licence's own words: you may copy, modify, create derivative
+works, redistribute, and make **non-production use** of the service
+(`billing/LICENSE:13-15`, identical in the other six). With the Additional Use
+Grant set to `None`, production use is not granted by the file — the licence
+says you must then buy a commercial licence from cafaye or refrain from using it
+(`billing/LICENSE:23-25`). On the Change Date each version becomes Apache-2.0.
+
+The fleet's shorthand for the split is "free to run, free to self-host, never
+to offer a competing service". The parameters do not carry the first half of
+that sentence, and the discrepancy is recorded rather than smoothed over —
+`courier`'s README says so out loud (`courier/README.md:566-573`). What is true
+and checkable today: you may run any service for development and evaluation,
+you may self-host it, and you may not offer it as a competing service. What the
+file does not grant is production use without a commercial licence. What that
+licence is, and what it costs, is a question for us rather than a blank on this
+page — [the open questions](/pricing/#the-numbers-we-have-not-decided) are
+where unanswered money questions live.
 
 ## What each repository declares today
 
-Measured **2026-10-01** across all fifteen cafaye repositories, from committed
-`master` in each. "Nothing" is not a synonym for MIT — see the row below the
-table.
+Measured **2026-10-10** across all fifteen cafaye repositories, from committed
+`master` in each. A public repository with no licence file defaults to "all
+rights reserved" on GitHub — readable is not the same as licensed — which is
+why this table is a measurement of files, not of intentions.
 
 | Repository | What it declares |
 | --- | --- |
-| [`cafaye-py`](https://github.com/cafaye/cafaye-py) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
-| [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) | **`LICENSE.txt`, MIT**, "Copyright (c) 2026 cafaye" |
-| [`cafaye-ts`](https://github.com/cafaye/cafaye-ts) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
-| [`darkroom`](https://github.com/cafaye/darkroom) · [`pantry`](https://github.com/cafaye/pantry) | `license = "MIT"` in `Cargo.toml`. No licence file. |
-| [`gateway`](https://github.com/cafaye/gateway) · `docs` | `"license": "MIT"` in `package.json`. No licence file. |
-| [`muse`](https://github.com/cafaye/muse) | **`license = { text = "AGPL-3.0-only" }` in `pyproject.toml`, and a README that says the same** |
-| `identity` · `billing` · `courier` · `parlor` · [`core`](https://github.com/cafaye/core) · [`caf`](https://github.com/cafaye/caf) · [`kit`](https://github.com/cafaye/kit) | **nothing.** No licence file, no field in any manifest. |
+| [`caf`](https://github.com/cafaye/caf) · [`core`](https://github.com/cafaye/core) · [`kit`](https://github.com/cafaye/kit) · [`pantry`](https://github.com/cafaye/pantry) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
+| [`cafaye-py`](https://github.com/cafaye/cafaye-py) · [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) · [`cafaye-ts`](https://github.com/cafaye/cafaye-ts) · `docs` | **`LICENSE`, MIT** (`cafaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `cafaye-py`'s `pyproject.toml` points at the file, `cafaye-rb`'s gemspec names it, `cafaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
+| [`identity`](https://github.com/cafaye/identity) · [`billing`](https://github.com/cafaye/billing) · [`courier`](https://github.com/cafaye/courier) · [`darkroom`](https://github.com/cafaye/darkroom) · [`gateway`](https://github.com/cafaye/gateway) · [`muse`](https://github.com/cafaye/muse) · [`parlor`](https://github.com/cafaye/parlor) | **`LICENSE`, Business Source License 1.1** — Licensor Cafaye, Additional Use Grant None, Change Date 2030-10-10, Change License Apache-2.0. `muse`'s `pyproject.toml` points at the file, `courier`'s `mix.exs` and `parlor`'s `package.json` declare `BUSL-1.1` |
 
-### What "nothing" means, precisely
+`conductor` is the sixteenth repository and is not public: it is proprietary by
+decision, and it is the operated control plane rather than something you
+download. The artifact distribution it serves is proprietary with it.
 
-This is the row that decides whether you can build on a repository today, so it
-is worth being exact rather than reassuring.
-
-**GitHub's default licence for a public repository with no licence file is
-"all rights reserved".** The code is readable. Readable is not the same as
-licensed. Absent a grant, the default copyright position applies: the copyright
-holder reserves all rights, and nobody else has permission to do anything with
-it — including commercially, and including the thing the decision above says we
-intend.
-
-We do not think that is the intent. It is not what we are offering. But **an
-intent is not a grant**, and a legal department at your company is right to read
-the repository rather than the marketing page. So:
-
-- **For `cafaye-py`, `cafaye-rb`, and `cafaye-ts`, the MIT grant is written down**
-  and you can rely on it today.
-- **For `darkroom`, `pantry`, `gateway`, and `docs`, an MIT identifier is declared
-  in a manifest.** That is a clear statement of intent from the copyright
-  holder, and it is what the ecosystem's tooling reads. The full text is not in
-  the tree.
-- **For `identity`, `billing`, `courier`, `parlor`, `core`, `caf`, and `kit`,
-  there is nothing at all.** **Do not self-host these on a commercial assumption
-  without a written answer from us.** Ask, and get the grant in writing, before
-  you build. We would rather have that conversation on day one than discover an
-  absent grant in month two.
-
-**The units you can buy are `identity`, `courier`, and the platform (`caf` +
-`kit`) — and all three are in the "nothing" row.** That is not an accident of
-this page's ordering; it is the gap, and it is the first thing on the work list
-below. It is also the single most likely reason a purchase would be held up
-inside your own legal review, so it is worth raising with us before you raise it
-with them.
-
-### `muse` is AGPL-3.0-only, and it is the only copyleft in the fleet
+## `muse` is BSL now, and the reversal from AGPL is said out loud
 
 `muse` is the LLM gateway: it holds provider credentials and routes completions.
-It declares **AGPL-3.0-only**, in its `pyproject.toml` and in its own README, and
-that is a different licence from the one the rest of the platform is heading
-towards. It is not a purchasable unit, and you are not being asked to buy it.
+Its grant has moved twice, and each move was published rather than drifted: it
+was **AGPL-3.0-only**, then MIT, and as of 2026-10-01 it is **BSL 1.1** with
+the rest of the services. Its `pyproject.toml` now points at the `LICENSE`
+file, and its README states the sequence and the reason: "the services are
+licensed under a Business Source Licence — free to run, free to self-host, never
+to offer a competing service… BSL rather than AGPL, because the buyers are
+teams and AGPL makes their lawyers twitchy" (`muse/README.md:594-608`).
 
-If you run `muse` anyway, AGPL's section 13 is the part that matters: **modify
-it, run it as a service others reach over a network, and you must offer those
-users your modified source.** That may be exactly right for an LLM gateway, and
-it is a decision somebody made deliberately rather than a default. It is also
-incompatible with putting a modified `muse` inside a closed-source product, which
-is the arrangement most buyers here have in mind.
+**Anyone who holds a copy keeps the grant it was published under.** A copy of
+`muse` taken while `pyproject.toml` said AGPL-3.0-only is still AGPL-3.0-only;
+the BSL governs copies taken from here on. That is the whole of the obligation
+owed to existing holders, and it is a matter of the grant they accepted rather
+than a courtesy — the same rule `billing`, `courier` and `darkroom` state in
+their own READMEs.
 
-**What is not going to happen is a silent change.** Whether `muse` moves to MIT
-with the fleet or stays AGPL-3.0-only with a stated reason is a decision for the
-people who own it, and this page does not get a vote on it. What this page
-commits to is narrower and is the part a reader can hold us to: **any change to a
-licence lands in the same commit as this table, with the commit named, and is
+What this page commits to is the part a reader can hold us to: **any change to
+a licence lands in the same commit as this table, with the commit named, and is
 announced** — not left for you to discover by diffing a `pyproject.toml`. If you
-re-run [the command](#re-derive-it-yourself) and get a different answer from the
-table, that is a bug in this page and the repository is right.
+re-run [the command](#re-derive-it-yourself) and get a different answer from
+the table, that is a bug in this page and the repository is right.
 
-## The work that closes this gap
+## The work that remains
 
-Not a plan with dates attached — a list of specific files, so that when the
-grant lands you can see that it landed.
+The grants have landed. What is left is the machine-readable layer, and it is
+specific:
 
-1. **A `LICENSE` file at the root of all fifteen repositories**, MIT, with
-   "Copyright (c) 2026 cafaye" — matching the three that already have one.
-   That single step takes **seven** repositories from "no grant" to "grant", and
-   it is most of the blocker.
-2. **A decision on `muse`, written down.** Either it moves to MIT with the
-   fleet, or it stays AGPL-3.0-only with a stated reason in its own README. Both
-   are defensible; leaving it ambiguous in a `pyproject.toml` is not. **A change
-   here is expected and may already be in flight** — see the
-   [caution at the top](#this-page-measures-committed-master-and-that-is-a-choice)
-   for why this page measures committed `master` rather than a working tree.
-3. **A `license` field in every manifest**, so the identifier is machine-readable
-   by the tooling that already reads `cafaye.yml` and not only by a human
-   reading a file listing.
-4. **`caf contract lint` checking it**, once core's manifest schema has a field
+1. **A `license` field in every manifest.** Seven of the fifteen declare their
+   licence in a field the tooling reads (`cafaye-py`, `cafaye-rb`, `cafaye-ts`,
+   `docs`, `courier`, `parlor`, `muse`); the other eight carry it only as a
+   file. For `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity`,
+   `kit` and `pantry` there is no package manifest in their ecosystem that could
+   carry one, so the file is the only declaration — which is a fact about
+   ecosystems, not a gap.
+2. **`caf contract lint` checking it**, once core's manifest schema has a field
    for it — so a repository that drops its licence is a red build rather than a
    drift nobody notices. That is a change to `core`, and `core` is
    manager-owned.
-5. **A `SECURITY.md` and a disclosure address** in each repository. Related, and
-   [not done either](/security/#reporting-a-problem-today) — a licence tells you
-   what you may do; it does not tell you where to report a bug.
+3. **A `SECURITY.md` and a disclosure address** in each repository. Related,
+   and [not done either](/security/#reporting-a-problem-today) — a licence tells
+   you what you may do; it does not tell you where to report a bug.
 
 ## Re-derive it yourself
 
@@ -191,20 +176,27 @@ for repo in billing caf cafaye-py cafaye-rb cafaye-ts core courier darkroom \
   for name in LICENSE LICENSE.txt; do
     git -C "$repo" show "HEAD:$name" >/dev/null 2>&1 && file=$name && break
   done
+  kind=$(git -C "$repo" show "HEAD:$file" 2>/dev/null | head -1)
   field=$(git -C "$repo" show HEAD:package.json 2>/dev/null |
             grep -oE '"license"[[:space:]]*:[[:space:]]*"[^"]+"' | head -1)
   for manifest in pyproject.toml Cargo.toml; do
     field=$field$(git -C "$repo" show "HEAD:$manifest" 2>/dev/null |
                     grep -oE '^license[[:space:]]*=.*' | head -1)
   done
-  printf '%-12s %-14s %s\n' "$repo" "$file" "${field:-no field}"
+  field=$field$(git -C "$repo" show HEAD:mix.exs 2>/dev/null |
+                  grep -oE 'licenses:[[:space:]]*\[[^]]*\]' | head -1)
+  field=$field$(git -C "$repo" show HEAD:cafaye.gemspec 2>/dev/null |
+                  grep -oE 'spec\.license[[:space:]]*=.*' | head -1)
+  printf '%-12s %-12s %-32s %s\n' "$repo" "$file" "$kind" "${field:-no field}"
 done
 ```
 
 `git show HEAD:` rather than `ls`, and that is the load-bearing word: a working
 tree answers a different question from the one a buyer has, and answering the
 working-tree question is how a documentation page ends up reporting somebody
-else's uncommitted work as a shipped fact.
+else's uncommitted work as a shipped fact. The `kind` column prints the first
+line of the grant, so `MIT License` and `Business Source License 1.1` sort
+apart at a glance.
 
 Run it against fresh clones of the organisation and the table above is what it
 prints. **If the two disagree, the code is right and this page is the bug** —

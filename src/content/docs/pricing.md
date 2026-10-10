@@ -1,6 +1,6 @@
 ---
 title: Pricing
-description: What a cafaye unit costs, how a payment becomes an entitlement, what is free, and which questions are still open — no invented numbers.
+description: What a cafaye unit costs, how a payment becomes an entitlement, the monthly operated tier on top of the units, and which questions are still open — no invented numbers.
 ---
 
 :::note[Status: we sell — via Stripe Payment Link, reconciled by hand]
@@ -10,7 +10,9 @@ Payment Link; a human confirms the payment and grants the entitlement. Access
 is not instant, and there is no receipt page, no subscription portal, and no
 webhook yet. As of **2026-10-09**, the three paid products — managed hosting,
 upgrades, support — are still not in operation. What exists today is the
-selling mechanism and the prices.
+selling mechanism and the prices. On top of the units sits Cafaye Ops, the
+monthly operated tier, sold the same way — its ladder prices are still
+placeholders, and the section below says so rather than burying it.
 :::
 
 The commercial model, in four sentences, and it is not complicated:
@@ -74,6 +76,46 @@ The mechanism, in three steps:
   webhook.** The mechanism is deliberately thin: a Stripe link, a human, a
   grant.
 
+## Cafaye Ops, on top: the monthly operated tier
+
+The units above are one product. Cafaye Ops is the other, and it is a
+different product rather than a fourth unit: cafaye operates your *running
+stack* for you. We provision and watch the box, patch it, prove your backups
+restore, hold its history, and apply upstream upgrades when they are safe to
+apply. The box stays yours — your cloud account, your root, your kubectl,
+ArgoCD, Grafana and git repository — so it is your box with our attention on
+it rather than ours with your data in it. Nobody is paged: response is on a
+stated schedule during business hours, and the tier copy says so rather than
+implying an SLA.
+
+It is a flat monthly band on countable things — applications deployed,
+accounts created, services enabled — never metered, with no per-box charge.
+The open-source stack *is* the free tier, and making it less than complete to
+feed a paywall would destroy the only trust argument we have.
+
+Three tiers, and their prices are **placeholders, not decisions**:
+
+| Tier | Price today | What they get |
+| --- | --- | --- |
+| **Attended** | ~$200/mo — placeholder | monthly report, proven backup restores, secret inventory and rotation, CVE surface, the cafaye failure-mode library watching your box, upgrade **recommendations** — you apply them |
+| **Managed** | ~$500/mo — placeholder | we patch, we apply within an approved policy, we hold the maintenance window, and we watch with our own systems and respond on the stated schedule |
+| **Managed HA / dedicated** | ~$1,200/mo — placeholder | multi-node, isolation, SLA, compliance export |
+
+**A placeholder is not a number you can hold us to.** These are the figures
+the operated-layer plan carries — one line each, trivially revisable — and
+they are marked placeholders until somebody decides they are right. A number
+you get by email is a number you can hold us to; one invented for a pricing
+page is not. So ask.
+
+It is sold the same way as the units: a Stripe Payment Link, a human confirms
+the payment, the entitlement is granted. Same thin mechanism — no billing
+service, no payment webhook, no automatic renewal. And the same honest status
+as everything else on this page: none of the three paid products behind any
+tier is in operation yet. What exists is the selling mechanism, the decided
+unit prices, and the ladder's shape. [The pilot page](/pilot/#read-this-before-anything-else)
+says what the tier is; [the open questions](#the-numbers-we-have-not-decided)
+include the ladder's.
+
 ## What "the code is free" means concretely
 
 Not a trial that expires and not a tier that unlocks: the grant does not depend
@@ -109,9 +151,9 @@ are the claim.
 
 `core` is not a unit and is not separately sold. It publishes the schemas that
 `caf` and `kit` read — the manifest format, the event catalog, the telemetry
-contract — and it is public like everything else. The reasoning is worth stating
-plainly: a contract that is not open cannot be read by the person deciding
-whether to depend on it.
+contract — and it is public like the rest of the framework. The reasoning is
+worth stating plainly: a contract that is not open cannot be read by the person
+deciding whether to depend on it.
 
 ## What each level would include
 
@@ -130,8 +172,12 @@ estimate.
 **What we would be taking on:** running your containers, your Postgres, your
 bucket, your TLS terminator and your keys, with an uptime target and somebody
 paged when it breaks. **What we would not be taking on:** holding your customer
-data's keys. Nothing in the architecture requires a cafaye-operated component in
-the stack, and we would rather not add one.
+data's keys. Nothing in the customer data plane requires a cafaye-operated
+component — the seven services run on what you run them on. The one
+cafaye-operated component in the architecture is conductor, the control plane
+`boxd` dials, and it holds no readable customer secret; [Security and
+trust](/security/#read-this-first-there-is-nothing-of-ours-to-breach) argues it
+from the code.
 
 ### Upgrades
 
@@ -197,7 +243,8 @@ keys** since it was rewritten in Go.
 Every one of these is a question for us rather than an omission from this page.
 A guessed number is worse than a blank one, so they are blank. Two questions
 that were on this list — is there a price at all, and what does managed hosting
-cost — are answered above; the prices are decided and published.
+cost — are answered above: the unit prices are decided and published, and the
+operated tier's ladder prices are placeholders, as the section above states.
 
 1. **What is an "upgrade" worth when the thing being upgraded has no release
    tag?** Until `identity` and `courier` are tagged, the product is not
@@ -258,8 +305,8 @@ and it is the page to read before you commit to anything on this one.
 
 ## See also
 
-- [Licensing](/licensing/) — what MIT means for a buyer, and the part of the
-  grant that is not written down yet.
+- [Licensing](/licensing/) — the licence split across the fleet, what each
+  grant permits, and the one row where the record and the tree disagree.
 - [Security and trust](/security/) — how credentials and secrets are handled,
   with every claim pointing at the code that makes it.
 - [Hosted pilot onboarding](/pilot/) — the path from nothing to a running
