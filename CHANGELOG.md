@@ -8,6 +8,48 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`gateway` stops being described as a gateway that routes nothing.** Seven
+  pages carried the claim; none of them was true of the source. `gateway` has a
+  static configured `ROUTE_TABLE` validated at startup, a pass-through that
+  relays a configured prefix to the upstream that owns it, a real RS256 verifier
+  with a bounded JWKS cache, and a short-lived signed principal assertion minted
+  for an upstream that declared what it needs. What it still does *not* have is
+  named rather than dropped: no service registry, no discovery, no health check
+  and no dynamic registration, and no Go route carries a scope check.
+- **`gateway` is Go, not TypeScript, and that is a regression the docs hid.**
+  `src/` was deleted at cutover (`f87c891`, 2026-10-05) and `cafaye.yml` says
+  `language: go`; five pages still called it TypeScript (Bun). Two capabilities
+  left with `src/` and are now recorded as gaps rather than features: **API keys**
+  (`src/middleware/apiKey.ts` had no Go counterpart at any depth, and
+  `openapi/v1.yaml` declares zero `api-keys` operations, so a bearer JWT is the
+  only script credential) and the **mounted scope check** (`auth.RequireScope` is
+  implemented and tested, and `httpapi.go` says a later packet mounts it). The
+  limit table still carries `gateway-api-keys` for a route that does not exist,
+  which is said plainly.
+- **`gateway`'s browser sessions are Redis, not a per-process `Map`, and
+  `REDIS_URL` is now required for the browser surface at all.** Four pages told
+  an operator to run one replica because sessions died with it. The Go session
+  store is Redis and the four `/auth` routes are built only when `IDENTITY_URL`
+  **and** `REDIS_URL` are both set — so a gateway without `REDIS_URL` serves no
+  browser surface rather than a degraded one. The troubleshooting entry and the
+  service-down runbook were rewritten around the causes that remain: a missing
+  `REDIS_URL`, a dropped `__Host-` cookie on a plain-HTTP origin, and Redis
+  being down.
+- **`muse`'s auth stops being described as a stub.** The pilot page, topology
+  and the architecture index all said the bearer was not verified. `muse`
+  `e3f53b0` (2026-10-01) verifies it against `identity`'s JWKS with RS256 pinned
+  at the decoder, requires `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and
+  `account_id`, checks the capability separately from the signature, and refuses
+  unauthenticated traffic when `identity` is down. The two pages that already
+  recorded the drift no longer say the sibling pages are unedited: they now
+  agree, and the drift is still recorded on
+  [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over).
+- **There is still no `SECURITY.md`, no `security@` address and no
+  `security.txt`.** Unchanged, and left unchanged on purpose — the security page
+  calls it a gap rather than a route, and this packet did not invent one.
+
 ### Added
 
 - **`COURIER_FORCE_SSL` documented on the courier page.** Courier master

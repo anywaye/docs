@@ -65,13 +65,15 @@ cafaye. Note also that `DARKROOM_OBJECT_STORE` defaults to `memory`, and
 with a real `DARKROOM_S3_BUCKET`, there is nothing to back up *and* nothing to
 lose, which is a worse problem than it sounds.
 
-**`gateway` has no database, and the state it does have is not backup material.**
-Its browser sessions and its API keys are held in a bare in-process `Map` and are
-gone on every restart and on every deploy, by design and independent of any
-backup. Rate-limit counters are in-process too, *unless* `REDIS_URL` is set, in
-which case they live in Redis. **If you run Redis, its data is not in any
-database backup** — losing it resets your rate limits, which is an inconvenience
-and not an incident.
+**`gateway` has no database, and the state it does have is barely backup
+material.** Its browser sessions live in **Redis** — not in a `Map` — and are
+gone if Redis is lost, which is an inconvenience (a user signs in again) rather
+than an incident. Its rate-limit counters are in-process unless `REDIS_URL` is
+set, in which case they live in Redis too. **It has no API keys any more**: the
+TypeScript implementation that kept a key store in an in-process `Map` was
+deleted at the Go cutover, and nothing replaced it. **If you run Redis, its data
+is not in any database backup** — losing it resets your rate limits and signs
+your browsers out, which is an inconvenience and not an incident.
 
 **`parlor` is a stateless Next.js frontend.** There is no server-side state to
 lose. Its `NEXT_PUBLIC_*` values are baked in at build time, so it is rebuilt

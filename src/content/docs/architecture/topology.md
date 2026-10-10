@@ -27,7 +27,7 @@ concluding anything from this table about who can see what.
 | `courier` | Elixir | 4000 | 4000 | Postgres via `kit`'s container, own database **on the shared cluster** | `^0.1.0` |
 | `darkroom` | Rust | 8080 | 8080 | Postgres 17, own database — **its own container, not the cluster** | `^0.2.0` |
 | `muse` | Python | 8000 | 8000 | Postgres 17, own database — **its own container, not the cluster** | `^0.2.0` |
-| `gateway` | TypeScript (Bun) | 8080 | 8080 | **none** — `Map`s and, with `REDIS_URL`, Redis | `^0.1.0` |
+| `gateway` | Go | 8080 | 8080 | **none** — every replica's counters in memory and, with `REDIS_URL`, Redis for both the counters and the browser sessions | `^0.2.0` |
 | `parlor` | Next.js | 3000 | 3000 | **none** | *manifest is a pre-`core` draft* |
 
 **The two bolded clauses in the Database column are different arrangements, not
@@ -436,10 +436,13 @@ Drawn from the `dependencies` and `consumes` blocks of each `cafaye.yml`.
 `caf dev` and `pantry` to start them. `courier` and `billing` declare no
 dependencies — they depend on Postgres, not on a sibling service.
 
-**`gateway` proxies nothing yet.** Its dependency on `identity` is real (it dials
-it for `/auth/*` and fetches its JWKS) but no request is routed to any cafaye
-service. The thing that decides where a path goes does not exist — `pantry`
-answers *what a service is*, not *where a path goes*.
+**`gateway` proxies what `ROUTE_TABLE` names.** Its dependency on `identity` is
+real (it dials it for `/auth/*` and fetches its JWKS), and a configured prefix is
+relayed to the service that owns it — gateway attaches its own credential and,
+on a route that declared what it needs, a short-lived signed assertion of the
+caller. What does not exist is discovery, health or dynamic registration: the
+table is static configuration validated at startup, and unset it means no routing
+at all. `pantry` answers *what a service is*, not *where a path goes*.
 
 ## What is not wired yet
 
@@ -449,11 +452,16 @@ the reason one of the [runbooks](/runbooks/) reads the way it does.
 | Gap | Consequence for an operator |
 | --- | --- |
 | **No broker.** No service starts an outbox publisher loop. `identity`'s only `Publisher` is a no-op, on purpose. | Events accumulate in `outbox_events` unpublished. No cross-service reaction happens. Alert on the age of the oldest unpublished row. |
-| **`gateway` routes nothing.** | `/v1/me` proves auth and forwards nothing. There is no path-based routing behind the gateway. |
-| **`gateway` sessions are per process.** The `SessionStore` is a `Map`, and Redis does not change that. | A browser's session dies with the replica it signed in on, and is lost on restart. This is the "login loops back to the sign-in page" entry in [troubleshooting](/troubleshooting/), and it is why one replica is still the right answer for `gateway`. |
+| **`gateway` has no service registry.** | Routing is a **static configured table**: `ROUTE_TABLE` says which prefix goes where, validated at startup, and unset means no routing at all. There is no discovery and no dynamic registration — a service appearing at runtime is a different packet. A prefix the table does not claim is gateway's own `404`. |
+| **`gateway` lost its API keys at the Go cutover.** | The TypeScript implementation had scoped, revocable keys; it had no Go counterpart and `src/` was deleted, so a bearer JWT is now the only script credential. `openapi/v1.yaml` declares zero `api-keys` operations, which is why nothing can be mounted. |
+| **No Go route carries a scope check.** | `auth.RequireScope` is implemented and tested and nothing mounts it, so the capabilities half of what the verifier proves is unused. A valid token without the scope a route needs is not refused. |
+| **The limiter does not count forwarded traffic.** | Gateway-owned routes are counted and refused; traffic a route table claims is relayed by a pass-through that wraps the router from outside and never reaches the limiter mounted inside it. |
+| **`gateway` needs `REDIS_URL` for the browser surface.** | The session store is Redis, and the four `/auth` routes are built only when `IDENTITY_URL` **and** `REDIS_URL` are both set. Without `REDIS_URL` a gateway serves no browser surface at all rather than a degraded one. |
+| **`muse` auth is verified.** | This row said the bearer's presence was checked and the token was not. That was true until `muse` `e3f53b0` (2026-10-01): `muse` verifies the bearer against `identity`'s JWKS with RS256 pinned at the decoder, requires `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and `account_id`, and refuses unauthenticated traffic when `identity` is down. See [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over). |
+| **`gateway` sessions are Redis-backed since the Go cutover.** The `SessionStore` was a `Map` in the TypeScript reference and is Redis now. | A browser's session survives a restart and is shared by every replica — but only when `REDIS_URL` is set, because that is what builds the browser surface at all. The old "login loops back to the sign-in page" entry in [troubleshooting](/troubleshooting/) is now about a missing `REDIS_URL` rather than a second replica. |
 | **`identity` has no OIDC refresh tokens, admin API or scoped API tokens.** Each is absent from the discovery document rather than stubbed. | Access tokens live fifteen minutes and cannot be renewed. MFA *is* built, but `MFA_ENCRYPTION_KEY` must be supplied — unset and the management routes are absent. |
 | **`identity`'s password reset and email verification are built, published and unconfigured by default** — an earlier version of this table claimed they were absent from the discovery document, and they are not: all five recovery paths are in `identity/openapi/v1.yaml` and `site` implements the flow. | The recovery surface is mounted only with a mailer behind it, so without `COURIER_BASE_URL`, `COURIER_TOKEN` and `PASSWORD_RESET_LINK_TEMPLATE` the routes answer **503** rather than 404. A deployment should still have somebody on the other end of a support channel. |
-| **`muse` auth is a stub.** | The bearer header's presence is checked and the token is not verified. Do not put `muse` behind anything you care about. |
+| **`muse` auth is verified, and was a stub until 2026-10-01.** | The bearer is verified against `identity`'s JWKS with RS256 pinned at the decoder; `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and `account_id` are all required, the operation's capability is checked separately from the signature, and an unreachable key set is a `503` rather than a `401`. What is still open: two claim names for one scope, with a token carrying both disagreeing refused rather than merged. See [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over). |
 | **No vault key rotation.** `key_version` exists in the table and is always 1. | `MUSE_VAULT_KEY` cannot be rotated in place. See [rotating secrets](/runbooks/secret-rotation/) for what that means today. |
 | **`courier` publishes one event.** Only `courier.email.delivered`. The other four declared types need a provider webhook that is a later packet. | A bounced or complained address is not yet visible anywhere, and suppression is not yet automatic. |
 | **`parlor`'s manifest does not validate,** and there is no admin surface and no Playwright suite. | `caf contract lint` is red on it, and the shell is not a finished template to clone. |

@@ -27,7 +27,7 @@ database.
 | [`courier`](https://github.com/cafaye/courier) | Transactional email, push, notification preferences, **every outbound webhook** | Elixir | HTTP; plus events every other service publishes to it |
 | [`darkroom`](https://github.com/cafaye/darkroom) | Media: uploads, variants, object storage | Rust | HTTP + presigned object-storage URLs |
 | [`muse`](https://github.com/cafaye/muse) | LLM routing, the provider-credentials vault, token metering | Python | HTTP `POST /v1/route` |
-| [`gateway`](https://github.com/cafaye/gateway) | The public edge: token verification, the browser session, rate limits | TypeScript | HTTP — **it is the door; nothing else is public** |
+| [`gateway`](https://github.com/cafaye/gateway) | The public edge: token verification, the browser session, rate limits, static routing | Go | HTTP — **it is the door; nothing else is public** |
 | [`parlor`](https://github.com/cafaye/parlor) | The app shell you clone, plus the admin surface | Next.js | A browser |
 
 Two boundaries do most of the work.
@@ -172,10 +172,12 @@ Stated plainly, because a page that only sells the design is a marketing page.
   `caf contract resolve` exist to gate it. The current drift is recorded in the
   [drift audit](/architecture/topology/#cross-repo-drift-audit) rather than
   smoothed over.
-- **The boundaries are younger than the design.** `gateway` routes nothing yet.
+- **The boundaries are younger than the design.** `gateway` routes through a
+  static configured table and nothing else — no registry, no discovery, and since
+  the Go cutover no API keys and no mounted scope check.
   `parlor`'s manifest is still the pre-`core` draft shape.
   `identity` cannot reset a password or renew an OIDC access token.
-  `muse` does not verify the token it is handed.
+  `muse` verifies the token it is handed, since `e3f53b0` on 2026-10-01.
   Read the status line on every service page before relying on it.
 
 ## Where the observability contract sits

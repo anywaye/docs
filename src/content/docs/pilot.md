@@ -17,22 +17,41 @@ ones that matter are the ones you can re-run.
 
 ## Read this before anything else
 
-**There is no hosted cafaye.** Not "not yet" — there is no platform of ours for
-you to point at, and nothing behind it to authenticate against. `caf deploy`
-itself is implemented: it deploys a service, building the image, pushing it and
-rolling it out, to infrastructure you already pay for. What is missing is the
-cafaye-operated remote. What exists is **public GitHub repositories** and a CLI.
-The launch deploy path is the substrate (k3s + ArgoCD + CloudNativePG), decided
-in [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md);
+**There are two ways to run cafaye, and one of them is ours.** They are not the
+same product and they are priced differently.
+
+**Self-hosted** is the first. You run the stack in your own infrastructure, on
+your own cloud account or on your own metal, and your Postgres, your bucket,
+your TLS terminator and your keys stay yours. It is free and complete, and
+nothing about it requires an account with us. What exists here is public
+repositories and a CLI.
+
+**Cafaye Ops** is the second, and it is the one we operate. We provision and
+watch the box, patch it, prove your backups restore, hold its history, and apply
+upstream upgrades when they are safe to apply. It is a flat monthly price banded
+on countable things — applications deployed, accounts created, services enabled
+— with no usage metering and no per-box charge. You keep root, kubectl, ArgoCD,
+Grafana and the git repository, so it is your box with our attention on it rather
+than ours with your data in it. We do not page anybody yet: response is on a
+stated schedule during business hours, and the tier we sell says so.
+
+Two things that have *not* changed. `caf deploy` itself is implemented — it
+builds the image, pushes it and rolls it out — but it still has no
+cafaye-operated remote to target automatically, so it deploys to infrastructure
+you already pay for. And Cafaye Ops is a service rather than a remote: the box
+lives on your cloud account, and what you buy is the operation of it, not a
+destination for the command. The launch deploy path is the substrate (k3s +
+ArgoCD + CloudNativePG), decided in
+[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md);
 Kamal is the current implementation and retires at parity, not before.
 [Deployment](/runbooks/deployment/) is its runbook.
 
-So "hosted pilot" means: *you run it, in your own infrastructure, on your own
-cloud account or your own metal, and we help you get it running and keep it
-running.* Your Postgres, your bucket, your TLS terminator, your keys. That is the
-product as it stands, and it is the thing to decide about before you spend an
-afternoon on it — if what you wanted was a vendor-operated SaaS platform, this is
-not that yet, and we would rather say so now than in month two.
+So "pilot" means one of two things, and you should decide which before you spend
+an afternoon on it: *we run it with you* — we help you get it running and keep
+it running, and you own the machine — or *we run it for you*, which is Cafaye Ops
+and is billed monthly. If what you wanted was a vendor-operated platform with an
+SLA behind it, that is not what Cafaye Ops is yet, and we would rather say so now
+than in month two.
 
 Read the [what is not ready](#what-is-not-production-ready-yet) section before
 you commit. It is the honest list, and it is short.
@@ -50,8 +69,8 @@ one you need rather than the whole platform.
 | [`billing`](https://github.com/cafaye/billing) | Plans, customers, subscriptions, prepaid credit, Stripe in and out | Ruby | No customer portal, no refunds, no usage-events API |
 | [`courier`](https://github.com/cafaye/courier) | Transactional email, preferences, **every outbound webhook** | Elixir | **No email provider adapter configured** — nothing is delivered until you set one |
 | [`darkroom`](https://github.com/cafaye/darkroom) | Signed uploads, tenant-scoped assets, variants, S3 and R2 | Rust | No transcoding, no CDN, no malware scanning |
-| [`muse`](https://github.com/cafaye/muse) | LLM routing, encrypted credentials vault, token metering | Python | **Auth is a stub** — the token is not verified |
-| [`gateway`](https://github.com/cafaye/gateway) | The public edge: JWT verification, API keys, rate limits | TypeScript | **Proxies nothing.** It serves `/v1/me` and `/auth/*` and forwards no request onward. Sessions are per-process, so one replica |
+| [`muse`](https://github.com/cafaye/muse) | LLM routing, encrypted credentials vault, token metering | Python | **Auth was a stub until 2026-10-01.** Since `muse` `e3f53b0` it verifies the bearer against `identity`'s JWKS. Two claim names for one scope are still an open ruling |
+| [`gateway`](https://github.com/cafaye/gateway) | The public edge: JWT verification, rate limits, static routing | Go | **No API keys and no mounted scope check.** The TypeScript implementation that had both was deleted at the Go cutover. It serves `/v1/me`, `/auth/*` and whatever `ROUTE_TABLE` names; unset, it forwards nothing |
 | [`parlor`](https://github.com/cafaye/parlor) | Next.js app shell: signup, login, accounts, billing screens | Next.js | No admin surface, no e2e suite, and its `cafaye.yml` does not validate |
 
 Each has a page here that states what is built and what is not in its own words:
@@ -115,8 +134,11 @@ one.** Here is what the code actually asserts, and it is all of it:
   `caf dev` on `identity` renders `identity` plus `postgres:16-alpine` plus
   `redis:7-alpine`.
 
-There is no managed tier, no per-seat pricing, and no hosted control panel to
-subscribe to. What a pilot pays for is engineering time, not a licence fee.
+There is a managed option — **Cafaye Ops** — priced as a flat monthly band on
+countable things rather than per seat, per box or by usage. Self-hosting is free
+and complete. If you would rather not own the machine, see the section above;
+you still keep root, kubectl, ArgoCD, Grafana and the git repository, and what
+you pay for is the operation rather than a licence.
 
 ### What leaves your infrastructure
 
@@ -676,9 +698,9 @@ because it will get shorter and this page will be updated when it does.
 | Not ready | What it means for you | Where to check |
 | --- | --- | --- |
 | **No broker. Nothing publishes events.** | Events accumulate unpublished. No cross-service reaction happens. | `outbox_events` in any service; the publisher loop in `core/docs/event-outbox.md` |
-| **`gateway` proxies nothing.** | It authenticates and forwards no request onward. Call services directly, or accept that `gateway` is an auth decorator today. | `gateway`'s route table; `/v1/me` |
-| **`gateway` sessions are per process.** | A browser session dies with the replica it signed in on, and is lost on restart. **Run one replica.** | the `SessionStore` in `gateway` |
-| **`muse` does not verify the token it is given.** | Do not put `muse` behind anything you care about. | `muse`'s auth stub |
+| **`gateway` has no API keys and no mounted scope check.** | The TypeScript implementation that had both was deleted at the Go cutover (`f87c891`, 2026-10-05), so a bearer JWT is the only script credential and no route refuses a token for lacking a scope. What it *does* do: verify RS256 bearers against identity's JWKS, serve a browser login on a Redis session store, and relay the prefixes `ROUTE_TABLE` names — statically, with no discovery. Set `ROUTE_TABLE` or nothing is forwarded. | `openapi/v1.yaml` (zero `api-keys` operations); `internal/auth/middleware.go`, where `RequireScope` is implemented and unmounted; `internal/httpapi/table.go` |
+| **`gateway` needs `REDIS_URL` for the browser surface.** | The session store is Redis and the four `/auth` routes are built only when `IDENTITY_URL` **and** `REDIS_URL` are both set, so a gateway without it serves no browser surface at all rather than a degraded one. | `browserSurfaceFromEnv` in `gateway`'s `internal/httpapi/runtime.go` |
+| **`muse`'s auth was a stub until 2026-10-01, and is not one now.** | This row said *do not put `muse` behind anything you care about*. `muse` `e3f53b0` verifies the bearer against `identity`'s JWKS with RS256 pinned at the decoder, requires `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and `account_id`, checks the operation's capability separately from the signature, and refuses unauthenticated traffic when `identity` is down. What is still true: `muse` accepts either of two authorisation claim names and refuses a token where they disagree, and that ruling is core's to make. | [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over); `src/muse/auth.py`; `tests/test_auth.py` |
 | **`caf gen`, `caf init` and `caf new` are stubs.** | Three of the twelve commands `caf help` lists parse their flags and return `not implemented in v0`. The other nine work, **including `caf deploy`** (Kamal) and `caf mcp`, so write your manifest by hand rather than scaffolding one. | `caf/internal/cli/stub_test.go`, whose `stubCommands` table is the single source of truth |
 | **Telemetry is instrumented; no collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing in a cafaye environment receives them. `kit` ships the stack and `bin/dev` runs it, so a pilot gets traces rather than a promise. | You will not have a fleet-wide trace view until you run the stack, and you should budget for wiring `<SERVICE>_OTEL_ENDPOINT` at whatever backend you already pay for. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. | [Observability](/observability/) |
 | **Password reset is built but unconfigured by default.** | `POST /v1/password-resets` and `/confirm` are served and published, and `site` ships the flow — but the recovery surface is mounted only with a mailer behind it, so without `COURIER_BASE_URL`, `COURIER_TOKEN` and `PASSWORD_RESET_LINK_TEMPLATE` it answers **503**, not 404. Set those, and **still plan a support channel.** | `cmd/identity/main.go`, `buildRecovery`; `identity/openapi/v1.yaml` |

@@ -48,8 +48,8 @@ whose two authorisation claim names disagree. An unreachable key set is a `503`,
 never a `401`, and **the service does not serve unauthenticated traffic when
 `identity` is down.** `tests/test_auth.py` asserts the token never reaches a log,
 a span or an error body. [Security and trust](/security/) carries the measured
-detail and the commit, and the [hosted-pilot page](/pilot/) still carries the
-older sentence — this repository does not edit that page.
+detail and the commit; [topology](/architecture/topology/) and the
+[services table](/services/) carry it too.
 :::
 
 Routing means fallbacks: when one provider is rate-limited or down, `muse` is

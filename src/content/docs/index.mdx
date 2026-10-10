@@ -65,7 +65,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 | [`courier`](https://github.com/cafaye/courier) | Transactional email, push, and every outbound webhook — signed and retried | Elixir |
 | [`darkroom`](https://github.com/cafaye/darkroom) | Signed media uploads, variants, S3 and Cloudflare R2 | Rust |
 | [`muse`](https://github.com/cafaye/muse) | LLM routing, credentials vault, token metering | Python |
-| [`gateway`](https://github.com/cafaye/gateway) | Public gateway / BFF — routing, JWT verification, rate limits | TypeScript |
+| [`gateway`](https://github.com/cafaye/gateway) | Public gateway / BFF — routing, JWT verification, rate limits | Go |
 | [`parlor`](https://github.com/cafaye/parlor) | The app shell: production-ready frontend template + admin | Next.js |
 
 ## The tooling
@@ -99,7 +99,9 @@ are built past their first milestone (`darkroom` ships signed uploads and
 Cloudflare R2; `courier` ships outbound webhooks over the Standard Webhooks spec;
 `gateway` ships Redis-backed rate limits), and two have a gap a reader will hit:
 **`identity` cannot reset a password or renew an access token**, and **`gateway`
-routes nothing**. Every service page states plainly what is built and what is not,
+has no API keys and no mounted scope check since it was rewritten in Go** — the
+TypeScript implementation that had both was deleted at cutover. Every service page
+states plainly what is built and what is not,
 and [Getting started](/getting-started/) runs the whole path end to end with the
 commands that actually exist today.
 
