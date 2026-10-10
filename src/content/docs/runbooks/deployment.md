@@ -168,10 +168,12 @@ story.** Observability data is the one stateful thing the box can afford to lose
 - **Traces.** Deferred. Services already emit OTLP (`caf gen telemetry`); Tempo
   slots in later as one more `Application`. Nothing re-architects
   (DEPLOYMENT.md:34).
-- **Hosted cafaye.** Does not exist. The customer brings their own server and
-  runs one command; there is no hosted tier yet (DEPLOYMENT.md:15-17). If hosted
-  cafaye ever exists, it is this same substrate deployed by us — not a rewrite
-  (DEPLOYMENT.md:108-110).
+- **Hosted cafaye.** Does not exist, and Cafaye Ops does not change that: the
+  customer brings their own server and runs one command; there is no hosted tier
+  and no cafaye-operated remote to deploy to (DEPLOYMENT.md:15-17). Cafaye Ops
+  is an operated tier we run on that same box — it is who does the work, not
+  where the substrate lives. If a cafaye-operated remote ever exists, it is this
+  same substrate deployed by us — not a rewrite (DEPLOYMENT.md:108-110).
 - **A second deploy path.** Never — see above (DEPLOYMENT.md:41-43).
 
 ## Where the old path still applies

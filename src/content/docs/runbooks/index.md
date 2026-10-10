@@ -33,8 +33,12 @@ badge anywhere in the fleet:
 ## What every one of these assumes
 
 **You are running the services yourself.** There is no hosted cafaye platform
-today, so "the environment" means containers you built from each repository's
-Dockerfile on infrastructure you control. [Getting started](/getting-started/)
+today — no `caf deploy` remote and no substrate we run for you — so "the
+environment" means containers you built from each repository's Dockerfile on
+infrastructure you control. What does exist is [Cafaye Ops](/pricing/#cafaye-ops-on-top-the-monthly-operated-tier),
+a monthly operated tier we run *on your box* rather than a hosted one, and it
+changes who does the work below rather than where the containers run.
+[Getting started](/getting-started/)
 has the build and run steps; [Topology](/architecture/topology/) has every port
 and environment variable in one table.
 
