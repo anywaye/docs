@@ -11,12 +11,13 @@ Each one is a procedure, not an explanation: preconditions, exact commands, the
 verification step that proves it worked, and — importantly — **what not to do**.
 A runbook that does not say what not to do gets read as a menu.
 
-## The six
+## The seven
 
 | Runbook | Use it when |
 | --- | --- |
 | [Deployment](/runbooks/deployment/) | The substrate is not installed yet, or you are changing what it runs. The launch path: one box, one command, and a deploy that is a commit and nothing else. |
 | [Tenant provisioning](/runbooks/tenant-provisioning/) | A new customer's account has to exist, end to end, with somebody in it who can sign in. |
+| [Entitlement reconciliation](/runbooks/entitlement-reconciliation/) | **Somebody has paid and you have to grant the unit by hand.** The D2 mechanism — a Stripe Payment Link, a human, a `POST`, and no billing service and no webhook anywhere. This is the runbook that unblocks the first sale. |
 | [Backup and restore](/runbooks/backup-and-restore/) | You need a database you have actually restored, not a database you have actually backed up. |
 | [Rotating secrets](/runbooks/secret-rotation/) | A signing key, a Stripe secret, a provider credential, or a bucket credential has to change without downtime. |
 | [A service is down](/runbooks/service-down/) | Something is answering 5xx, 503, or nothing at all, and you do not yet know what. |
