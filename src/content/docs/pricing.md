@@ -306,7 +306,7 @@ and it is the page to read before you commit to anything on this one.
 ## See also
 
 - [Licensing](/licensing/) — the licence split across the fleet, what each
-  grant permits, and the one row where the record and the tree disagree.
+  grant permits, and the command that re-derives every row.
 - [Security and trust](/security/) — how credentials and secrets are handled,
   with every claim pointing at the code that makes it.
 - [Hosted pilot onboarding](/pilot/) — the path from nothing to a running
