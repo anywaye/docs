@@ -13,8 +13,8 @@ single repository**: every service below lives in its own repo, versioned and
 installable on its own. You can take the one you need rather than adopting the
 whole platform, run the whole stack on your own infrastructure, and keep it
 alive with the runbooks on this site. The code is free — the framework under
-MIT, the services under a Business Source Licence, `conductor` and the artifact
-distribution proprietary;
+MIT, the services under a Business Source Licence, `conductor`, `pantry` and the
+artifact distribution proprietary;
 [what is sold is managed hosting, upgrades, and support](/pricing/), and the
 [licensing page](/licensing/) states the split and measures it against every
 repository.
@@ -76,7 +76,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 | --- | --- | --- |
 | [`caf`](https://github.com/cafaye/caf) | The CLI: `caf init · new · dev · deploy · gen · contract` | Go |
 | [`core`](https://github.com/cafaye/core) | The substrate: service manifests, OpenAPI & event specs, telemetry specs, generator engine | — |
-| [`pantry`](https://github.com/cafaye/pantry) | The registry: what a service is and how to reach it | Rust |
+| `pantry` | The registry: what a service is and how to reach it — closed source, public endpoint | Rust |
 | [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) | The shared Ruby gem: JWKS token verification, the transactional outbox, a Rails railtie | Ruby |
 | [`kit`](https://github.com/cafaye/kit) | Shared CI workflows, lint configs, Docker bases, OTel templates for six languages | — |
 | `docs` | This site | — |
@@ -111,7 +111,10 @@ and [Getting started](/getting-started/) runs the whole path end to end with the
 commands that actually exist today.
 
 **The licence split is decided, and the grant has landed in every repository.**
-The framework — `core`, `caf`, `kit`, `pantry` — is MIT.
+The framework — `core`, `caf`, `kit` — is MIT.
+`pantry` is closed by OPS-D10 (2026-10-10): the public catalog is part of the
+operated product, so its source is proprietary while its service stays publicly
+reachable — closed code, public endpoint, contract still open.
 The seven services are under a Business Source Licence: free to run, free to
 self-host, never to offer a competing service.
 `conductor` and the artifact distribution are proprietary.
