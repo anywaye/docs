@@ -113,6 +113,10 @@ export default defineConfig({
             // and how it changes afterwards. The rest are incident procedures.
             { slug: 'runbooks/deployment' },
             { slug: 'runbooks/tenant-provisioning' },
+            // Reconciliation sits beside provisioning because D2's mechanism
+            // makes a sale two procedures: the account exists, then a human
+            // grants the entitlement by hand.
+            { slug: 'runbooks/entitlement-reconciliation' },
             { slug: 'runbooks/backup-and-restore' },
             { slug: 'runbooks/secret-rotation' },
             { slug: 'runbooks/service-down' },
