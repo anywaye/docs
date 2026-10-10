@@ -21,16 +21,17 @@ measurement, not a recollection.
 
 :::caution[This page measures committed `master`, and that is a choice]
 Every row below was read with `git show HEAD:`, not out of a working tree. The
-difference is not academic: **the grants landed across the fleet on
-2026-10-01, and `kit`'s MIT grant landed on 2026-10-10** — in a checkout
-from even a day ago the answer is different from the answer on `master`. A
-reader evaluating a licence needs the answer for the commit they would actually
-depend on, and that is the committed one.
+difference is not academic: **`kit`'s grant moved three times in nine days** —
+MIT on 2026-10-01 (`04645fc`), proprietary text on 2026-10-08 (`4fd4b69`), MIT
+again on 2026-10-10 (`ffe8b8f`) — and a checkout from even a day ago answers a
+different question from the one `master` answers today. A reader evaluating a
+licence needs the answer for the commit they would actually depend on, and that
+is the committed one.
 
-So: if you clone today and see a `LICENSE` this page says is missing, the page is
-behind and the repository is right — [re-run the
-command](#re-derive-it-yourself) and believe the repository. When the next
-grant lands, this table changes in the same commit.
+So: if you clone a repository and its `LICENSE` disagrees with the table below,
+the repository is right and this page is behind — [re-run the
+command](#re-derive-it-yourself) and believe it. When the next grant lands,
+this table changes in the same commit.
 :::
 
 ## What MIT means for you, as a buyer
@@ -85,10 +86,10 @@ Change License `Apache-2.0`.
 
 The grant, in the licence's own words: you may copy, modify, create derivative
 works, redistribute, and make **non-production use** of the service
-(`billing/LICENSE:13-15`, identical in the other six). With the Additional Use
+(`billing/LICENSE:13-16`, identical in the other six). With the Additional Use
 Grant set to `None`, production use is not granted by the file — the licence
 says you must then buy a commercial licence from cafaye or refrain from using it
-(`billing/LICENSE:23-25`). On the Change Date each version becomes Apache-2.0.
+(`billing/LICENSE:25-28`). On the Change Date each version becomes Apache-2.0.
 
 The fleet's shorthand for the split is "free to run, free to self-host, never
 to offer a competing service". The parameters do not carry the first half of

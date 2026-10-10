@@ -361,8 +361,7 @@ coordinated disclosure window exists.
 ## See also
 
 - [Licensing](/licensing/) — the split across the fleet, what each grant
-  permits a buyer to do, and the one row where the record and the tree
-  disagree.
+  permits a buyer to do, and the dated measurement behind every row.
 - [Pricing](/pricing/) — what is free, what is sold, and which of the three paid
   products is in operation.
 - [Rotating secrets](/runbooks/secret-rotation/) — the inventory, what can be

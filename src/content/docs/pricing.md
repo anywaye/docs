@@ -279,14 +279,13 @@ Stated here rather than left for you to infer from the tables:
   point at.
 - **No release tags on any service.** `go install @latest` gives you `master`,
   and `core` is the only repository with a version tag.
-- **Three of `caf`'s twelve commands are stubs: `caf gen`, `caf init` and
-  `caf new`.** They parse their flags and return `not implemented in v0`. The
-  other nine — `backup`, `contract`, `deploy`, `dev`, `doctor`, `env`, `mcp`,
-  `reclaim`, `version` — work, **including `caf deploy`**, which builds, pushes
-  and rolls out. It deploys to infrastructure you already pay for;
-  what it does not have is a cafaye-operated remote. The launch path is the
-  substrate (k3s + ArgoCD + CloudNativePG); Kamal is the current implementation
-  and retires at parity.
+- **No `caf` command is a stub as of 2026-10-10.** The stub table that held
+  `caf gen`, `caf init` and `caf new` is empty (`caf/internal/cli/stub_test.go:25`),
+  and the command table beside it is the single source of truth for what works.
+  **`caf deploy`** builds, pushes and rolls out. It deploys to infrastructure you
+  already pay for; what it does not have is a cafaye-operated remote. The launch
+  path is the substrate (k3s + ArgoCD + CloudNativePG); Kamal is the current
+  implementation and retires at parity.
 - **`identity`'s password reset and email verification are built but unconfigured
   by default.** Both are served, published in `identity`'s OpenAPI document, and
   implemented end to end by `site` — but the recovery surface is mounted only
@@ -306,7 +305,7 @@ and it is the page to read before you commit to anything on this one.
 ## See also
 
 - [Licensing](/licensing/) — the licence split across the fleet, what each
-  grant permits, and the one row where the record and the tree disagree.
+  grant permits, and the command that re-derives every row.
 - [Security and trust](/security/) — how credentials and secrets are handled,
   with every claim pointing at the code that makes it.
 - [Hosted pilot onboarding](/pilot/) — the path from nothing to a running
