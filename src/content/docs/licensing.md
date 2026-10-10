@@ -1,20 +1,31 @@
 ---
 title: Licensing
-description: The licence split actually being applied — framework MIT, services under a Business Source Licence, conductor and the artifact distribution proprietary — and the measured state of the grant in every repository, with the command that re-derives it.
+description: The licence split actually being applied — framework MIT, services under a Business Source Licence, conductor, pantry and the artifact distribution proprietary — and the measured state of the grant in every public repository, with the command that re-derives it.
 ---
 
 **The decision: the fleet is split three ways.** The framework — `core`, `caf`,
-`kit`, `pantry` — is open under MIT: genuinely free, no strings, because its job
-is adoption. The services — `identity`, `gateway`, `courier`, `darkroom`,
+`kit` — is open under MIT: genuinely free, no strings, because its job is
+adoption. The services — `identity`, `gateway`, `courier`, `darkroom`,
 `billing`, `parlor`, `muse` — are under a Business Source Licence: free to run,
-free to self-host, never to offer a competing service. `conductor` and the
-artifact distribution are proprietary: they are the product, not a paywall in
+free to self-host, never to offer a competing service. `conductor`, `pantry` and
+the artifact distribution are proprietary: they are the product, not a paywall in
 front of the code.
+
+**`pantry` moved from the open half to the closed one on 2026-10-10 (OPS-D10), and
+the reason is the catalog rather than the code.** Once the catalog is public and
+multi-tenant it is part of the operated product: the discovery surface over the
+thing OPS-D2 already closed, and a MIT catalog is a forkable cafaye SaaS. So it
+takes the conductor pattern — closed source, a public HTTPS endpoint,
+capability- and identity-gated writes — while the contract stays open: the
+manifest format and the catalog's own API document are still published, and the
+service answers anyone. The cost of flipping is one `LICENSE` file, one manifest
+field and one row on this page, which is exactly why it was decided rather than
+drifted into.
 
 **The state of the grant: the split has landed, and the tree matches the
 decision on every row.** Re-derived **2026-10-10** by reading each
 repository's own committed files — the command is [published at the
-end](#re-derive-it-yourself) so you can re-run it. Every one of the fifteen
+end](#re-derive-it-yourself) so you can re-run it. Every one of the fourteen
 public repositories now carries a `LICENSE`. A licence table copied from the
 last page that quoted one is a changelog with a table in it, and this one is a
 measurement, not a recollection.
@@ -104,20 +115,26 @@ where unanswered money questions live.
 
 ## What each repository declares today
 
-Measured **2026-10-10** across all fifteen cafaye repositories, from committed
-`master` in each. A public repository with no licence file defaults to "all
-rights reserved" on GitHub — readable is not the same as licensed — which is
-why this table is a measurement of files, not of intentions.
+Measured **2026-10-10** across the fourteen public cafaye repositories, from
+committed `master` in each. A public repository with no licence file defaults to
+"all rights reserved" on GitHub — readable is not the same as licensed — which is
+why this table is a measurement of files, not of intentions. The two closed
+repositories are described above rather than measured here.
 
 | Repository | What it declares |
 | --- | --- |
-| [`caf`](https://github.com/cafaye/caf) · [`core`](https://github.com/cafaye/core) · [`kit`](https://github.com/cafaye/kit) · [`pantry`](https://github.com/cafaye/pantry) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
+| [`caf`](https://github.com/cafaye/caf) · [`core`](https://github.com/cafaye/core) · [`kit`](https://github.com/cafaye/kit) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
 | [`cafaye-py`](https://github.com/cafaye/cafaye-py) · [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) · [`cafaye-ts`](https://github.com/cafaye/cafaye-ts) · `docs` | **`LICENSE`, MIT** (`cafaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `cafaye-py`'s `pyproject.toml` points at the file, `cafaye-rb`'s gemspec names it, `cafaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
 | [`identity`](https://github.com/cafaye/identity) · [`billing`](https://github.com/cafaye/billing) · [`courier`](https://github.com/cafaye/courier) · [`darkroom`](https://github.com/cafaye/darkroom) · [`gateway`](https://github.com/cafaye/gateway) · [`muse`](https://github.com/cafaye/muse) · [`parlor`](https://github.com/cafaye/parlor) | **`LICENSE`, Business Source License 1.1** — Licensor Cafaye, Additional Use Grant None, Change Date 2030-10-10, Change License Apache-2.0. `muse`'s `pyproject.toml` points at the file, `courier`'s `mix.exs` and `parlor`'s `package.json` declare `BUSL-1.1` |
 
-`conductor` is the sixteenth repository and is not public: it is proprietary by
-decision, and it is the operated control plane rather than something you
-download. The artifact distribution it serves is proprietary with it.
+`conductor` and `pantry` are the two repositories this page cannot measure,
+because the source of both is closed. `conductor` is the operated control plane
+rather than something you download, and the artifact distribution it serves is
+proprietary with it. `pantry` is beside it by **OPS-D10** (2026-10-10): the
+public catalog is part of the operated product, so the source is proprietary
+while the service stays publicly reachable — closed code, public endpoint,
+capability- and identity-gated writes, with the contract still open. The same
+shape, decided for the same reason.
 
 ## `muse` is BSL now, and the reversal from AGPL is said out loud
 
@@ -148,13 +165,13 @@ the table, that is a bug in this page and the repository is right.
 The grants have landed. What is left is the machine-readable layer, and it is
 specific:
 
-1. **A `license` field in every manifest.** Seven of the fifteen declare their
+1. **A `license` field in every manifest.** Seven of the fourteen declare their
    licence in a field the tooling reads (`cafaye-py`, `cafaye-rb`, `cafaye-ts`,
-   `docs`, `courier`, `parlor`, `muse`); the other eight carry it only as a
-   file. For `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity`,
-   `kit` and `pantry` there is no package manifest in their ecosystem that could
-   carry one, so the file is the only declaration — which is a fact about
-   ecosystems, not a gap.
+   `docs`, `courier`, `parlor`, `muse`); the other seven carry it only as a
+   file. For `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity` and
+   `kit` there is no package manifest in their ecosystem that could carry one,
+   so the file is the only declaration — which is a fact about ecosystems, not
+   a gap.
 2. **`caf contract lint` checking it**, once core's manifest schema has a field
    for it — so a repository that drops its licence is a red build rather than a
    drift nobody notices. That is a change to `core`, and `core` is
@@ -168,11 +185,11 @@ specific:
 A licence table on a documentation site is exactly the kind of claim that goes
 stale silently, so here is the check. It reads **committed `master`** in each
 repository rather than the files on disk, it makes no network call, and it
-covers the same fifteen repositories the organisation publishes:
+covers the same fourteen public repositories the organisation publishes:
 
 ```sh
 for repo in billing caf cafaye-py cafaye-rb cafaye-ts core courier darkroom \
-            docs gateway identity kit muse pantry parlor; do
+            docs gateway identity kit muse parlor; do
   file=none
   for name in LICENSE LICENSE.txt; do
     git -C "$repo" show "HEAD:$name" >/dev/null 2>&1 && file=$name && break

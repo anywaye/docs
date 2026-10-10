@@ -32,9 +32,32 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     `EntitlementsController#index` is hard-coded to `product: "kit"`, so a grant
     of `identity` or `platform` is active, real and invisible there.
 
-### Fixed
+### Changed
 
-- **`gateway` stops being described as a gateway that routes nothing.** Seven
+- **`pantry` is described as closed, not MIT, on every page that named it.**
+  OPS-D10 (`CAFAYE-OPS.md`, 2026-10-10, user) moves pantry's licence from MIT
+  to proprietary while the service stays publicly reachable, amending the
+  `pantry` line of OPS-D2/OPS-P1: once the catalog is public and multi-tenant
+  it is part of the operated product, so it takes the conductor pattern —
+  closed source, public endpoint, capability- and identity-gated writes, with
+  the contract still open.
+  - `licensing.md` moves pantry out of the MIT set into the closed column
+    beside `conductor` with that reasoning, and says plainly that this is the
+    one row on the page which is **not a measurement**: a closed repository
+    cannot be read with `git show HEAD:` by a stranger, so the row's authority
+    is the register rather than the command.
+  - The re-derive command no longer covers pantry, and the measured set is
+    fourteen public repositories rather than fifteen — with the counts that
+    followed from fifteen following from fourteen (seven with a manifest
+    field, seven without).
+  - `index.mdx` no longer links `github.com/cafaye/pantry` as the source of an
+    open implementation; a closed repository's URL is a dead promise.
+  - `pilot.md`'s licence section and its licence risk row drop pantry from the
+    MIT set and from the fifteen. The 2026-09-30 snapshot on `pilot.md` stays
+    as history: it is labelled superseded and the move is the point of keeping
+    it.
+
+### Fixed
   pages carried the claim; none of them was true of the source. `gateway` has a
   static configured `ROUTE_TABLE` validated at startup, a pass-through that
   relays a configured prefix to the upstream that owns it, a real RS256 verifier

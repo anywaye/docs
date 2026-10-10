@@ -80,14 +80,17 @@ these rows are a summary, the service pages are the claim.
 ### The licence — read this one
 
 **The split has landed, and a grant is written down in every repository.**
-Measured **2026-10-10** from committed `master`, all fifteen public
-repositories carry a `LICENSE`. The framework — `core`, `caf`, `kit`, `pantry`
+Measured **2026-10-10** from committed `master`, the fourteen public
+repositories carry a `LICENSE`. The framework — `core`, `caf`, `kit`
 — is MIT, because its job is adoption and it should carry no strings. The seven
 services — `identity`, `gateway`, `courier`, `darkroom`, `billing`, `parlor`,
 `muse` — are under a Business Source Licence: free to run, free to self-host,
 never to offer a competing service. `conductor` and the artifact distribution
 it serves are proprietary: they are the product rather than a paywall placed in
-front of the code. [Licensing](/licensing/) is the measurement, the command
+front of the code. **`pantry` is closed by OPS-D10 (2026-10-10)** — the public
+catalog is part of the operated product, so its source is proprietary while its
+service stays publicly reachable, with the contract still open.
+[Licensing](/licensing/) is the measurement, the command
 that re-derives every row, and the BSL's parameters in full.
 
 **What the BSL does not grant is production use without a commercial licence.**
@@ -733,7 +736,7 @@ because it will get shorter and this page will be updated when it does.
 | **No vault key rotation.** | `MUSE_VAULT_KEY` cannot be rotated in place. | `key_version` is always 1 |
 | **`parlor` is not a finished template,** and its manifest does not validate. | Do not clone it expecting a product shell. | the [drift audit](/architecture/topology/#cross-repo-drift-audit) |
 | **A green badge may have skipped its hard half.** `kit`'s reusable workflow is callable and eight repositories now call it, but in most of the fleet the interesting tests are a second tier that does not run by default — so "the gate is green" often means somebody ran the suite by hand, that day. The exception is `identity`, whose CI refuses to skip its own database tier. | Check what ran before you check the colour. | [Running the gates](/running-the-gates/) |
-| **The licence is a file in eight of the fifteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those eight, so the `LICENSE` file is the only declaration — and for `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity`, `kit` and `pantry` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `caf contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/licensing/#what-each-repository-declares-today) and its `re-derive it yourself` command |
+| **The licence is a file in seven of the fourteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those seven, so the `LICENSE` file is the only declaration — and for `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity` and `kit` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `caf contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/licensing/#what-each-repository-declares-today) and its `re-derive it yourself` command |
 
 One more that decides whether you can put anything in front of a customer:
 **`docs` is the only cafaye repository with no CI workflow at all.** The other
