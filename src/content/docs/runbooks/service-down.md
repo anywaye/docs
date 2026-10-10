@@ -276,13 +276,14 @@ limiting, check the readiness body before you check the limiter.
 The probes cover liveness and the registered dependencies. They do not cover
 everything, and there are two known cases in this platform.
 
-**Sessions die on a restart or a second replica.** `gateway`'s session store is a
-`Map` in one process. A browser signed in on replica A gets a cookie that
-replica B has never heard of. The symptom is a login loop: `/auth/login` returns
-`200` with a fresh cookie and `/auth/me` answers 401 on the next request.
-**Run one replica, or treat this as a known limitation** — the `SessionStore`
-interface is the seam and a shared store is a later packet. Setting `REDIS_URL`
-does **not** fix this; it fixes the counters only.
+**Sessions survive a restart and a second replica, but only when the browser
+surface exists at all.** `gateway`'s session store was a `Map` in one process and
+is Redis now. What that changes is the *cause* of a login loop: the `/auth/*`
+routes are built only when `IDENTITY_URL` **and** `REDIS_URL` are both set, so a
+gateway without `REDIS_URL` serves no browser surface at all — `/auth/login` is
+a `404`, not a `200`. A browser signed in on replica A now has its cookie honoured
+on replica B, and a restart loses nothing. What is still worth checking is the
+`__Host-` cookie prefix, which a plain-HTTP origin will not store.
 
 **Rate limits mean different things depending on `REDIS_URL`.** Unset, the
 counters are one process's memory: a client gets its allowance from *each*

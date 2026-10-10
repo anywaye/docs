@@ -807,8 +807,9 @@ Set the probe timeout above 5s or you will restart a service that is answering
 correctly.
 
 `gateway`'s probes sit on the same port as its API, and it is **not** in the
-table above for `/v1/*` because `gateway` routes nothing yet: `/v1/me` proves the
-auth chain and forwards nothing.
+table above for `/v1/*` because `gateway` forwards only what `ROUTE_TABLE`
+configures: unset, it serves its own routes and nothing else. `/v1/me` is one of
+its own, and it proves the auth chain without forwarding anything.
 
 :::caution[kit's proxy healthcheck path is `/up`, and `/up` is a *boot* check]
 `config/deploy.yml.erb` sets `proxy.healthcheck.path: /up` with a 2-second

@@ -256,9 +256,13 @@ secrets](/runbooks/secret-rotation/).
   discovery document, and `MFA_ENCRYPTION_KEY` to mount the MFA routes. Unset,
   the routes are **absent** rather than present-and-broken, and the process says
   so twice at startup. `caf dev` sets none of them.
-- **`gateway` forwards nothing and keeps sessions in one process's memory.** It
-  serves `/v1/me` and `/auth/*` and routes no request onward; a browser session
-  dies with the replica it signed in on. **Run one replica** until that changes.
+- **`gateway` relays what `ROUTE_TABLE` names, and keeps sessions in Redis.** It
+  serves `/v1/me` and `/auth/*` always and forwards a configured prefix to the
+  service that owns it. The routing table is static — no discovery, no health
+  check, no dynamic registration — and **a gateway without `REDIS_URL` serves no
+  browser surface at all** rather than a degraded one, because the four `/auth`
+  routes are built only when `IDENTITY_URL` and `REDIS_URL` are both set. Since
+  the Go cutover there are **no API keys** and **no mounted scope check**.
 - **No broker, so no event leakage — and no event delivery.** Nothing publishes
   off the outbox, which is good for a data-egress argument and bad for anything
   that expected a service to react to another.
@@ -300,12 +304,19 @@ down** — the request is refused rather than admitted on an unverified credenti
 `tests/test_auth.py` asserts the credential never reaches a log, a span, or an
 error body, using a marker placed inside the token.
 
-**This repository does not edit that page.** The hosted-pilot page is
+**The sibling pages now agree with this one.** The hosted-pilot page is
 commit-pinned to an earlier measurement and is, on its own terms, a dated
 snapshot; the rule this site follows everywhere is that the code is right and a
-stale sentence is a finding, not a thing to quietly rewrite. The finding is
-recorded here and in this packet's report so the page's owner can re-measure it
-in the same commit that pins it forward.
+stale sentence is a finding, not a thing to quietly rewrite. The finding was
+recorded here first, and in the same pass that recorded it the pages that are
+*not* snapshots were corrected so that two truths do not sit side by side: the
+[services table](/services/), the [services page for `muse`](/services/muse/),
+[topology](/architecture/topology/) and the [architecture index](/architecture/)
+all state the verified behaviour now. The hosted-pilot page corrects its own rows
+too, and dates them — a snapshot row that names the date it was measured stops
+reading as a current claim without anything being quietly rewritten. What is
+recorded here stays recorded: the measurement, the commit, and the fact that the
+page carried the opposite sentence for eleven days.
 
 ## Reporting a problem today
 

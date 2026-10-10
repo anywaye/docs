@@ -187,8 +187,10 @@ is no fourth unit on this page, because inventing one would be a price list with
 a fiction in it.
 
 If you want `gateway` in front of your stack, read its page first: it
-[authenticates and forwards nothing](/services/gateway/), and its browser sessions
-live in one process's memory.
+[verifies tokens, rate limits, and relays the prefixes `ROUTE_TABLE`
+names](/services/gateway/), and its browser sessions live in Redis — which means
+`REDIS_URL` is required for the browser surface at all. It has had **no API
+keys** since it was rewritten in Go.
 
 ## The numbers we have not decided
 

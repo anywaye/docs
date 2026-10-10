@@ -23,25 +23,37 @@ docker ps --format '{{.Names}}' | grep -c gateway
 
 ### What it usually means
 
-**`gateway` runs more than one replica.** The session store is a `Map` in a single
-process, and the `__Host-bff-session` cookie holds a session id that only the
-replica that created it knows about. The user signs in on replica A and the
-next request lands on replica B, which has never heard of it. `/auth/login`
-returns `200` every time, so nothing looks broken from the outside.
+**`gateway` has no `REDIS_URL`, so it has no browser surface at all.** The
+`/auth/*` routes are built only when `IDENTITY_URL` **and** `REDIS_URL` are both
+set, so a gateway missing `REDIS_URL` answers `404` from `/auth/login` rather
+than signing anybody in. A user sees the same thing they always saw — a
+sign-in page that never accepts them — and the operator sees a `404` in the log.
 
-**Or `gateway` restarted between the login and the next request.** Same mechanism:
-the sessions are in memory and a restart loses them.
+**The `__Host-` cookie is being dropped by the browser.** `__Host-` prefixed
+cookies require HTTPS and `Path=/`, so a plain-HTTP local origin will not keep
+one even though `/auth/login` answered `200` with it. Check this before
+suspecting the service.
+
+**Redis is down.** The session store is Redis, so an unreachable store makes
+every `/auth/me` a refusal while `/auth/login` still answers `200`. `/readyz`
+names Redis as an unavailable dependency when this is the case.
+
+The two causes this entry used to list — more than one replica, and a restart
+between the login and the next request — are **gone**. The session store was a
+`Map` in the TypeScript implementation and is Redis now; the Go cutover that
+deleted `src/` took the per-process store with it.
 
 ### Do
 
-Run **one** replica of `gateway` until the session store is shared. This is a known
-limitation recorded in `gateway`'s own README, not a misconfiguration: the
-`SessionStore` interface is the seam, and a shared store is a later packet.
+Set `REDIS_URL` (and `IDENTITY_URL`) if `gateway` is serving a browser. Then run
+**one** replica only if you have not: it is no longer required for sessions, but
+it is still the simplest thing to debug.
 
-**Setting `REDIS_URL` does not fix this.** It shares the *rate-limit counters*
-across replicas and makes them survive a restart; sessions are in process memory
-either way. If you have set `REDIS_URL` and are still seeing this, that is the
-expected result rather than a Redis problem.
+**Setting `REDIS_URL` for the counters is not enough any more — it is now
+required for the browser surface too.** It shares the rate-limit counters across
+replicas and makes them survive a restart, *and* it is the condition that builds
+the `/auth/*` routes. If you have set it and a login still loops, check that
+`IDENTITY_URL` is set beside it and that Redis answers.
 
 If the user reports the loop on a single replica, the next thing to check is
 whether the browser is actually storing the cookie — `__Host-` prefixed cookies
