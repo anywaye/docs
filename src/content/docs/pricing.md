@@ -21,7 +21,7 @@ The commercial model, in four sentences, and it is not complicated:
   to self-host, every command is installable, and nothing about using them is
   gated behind a purchase. There is no paid tier of the software, no source drop,
   and no feature that arrives with a receipt. What is *not* public is the
-  operated layer — the conductor and the artifact distribution — because that is
+  operated layer — box and the artifact distribution — because that is
   the product rather than a paywall placed in front of the code.
 - **What we sell is a one-year entitlement to a unit** — the engineering around
   it: managed hosting, upgrades, and support. The engineering, not the licence.
@@ -72,7 +72,7 @@ The mechanism, in three steps:
   cannot log in to see your entitlement, manage it, or cancel it online.
 - **Renewal is a second link.** When the year ends, renewing is another payment
   and another manual step. Nothing auto-renews.
-- **There is no billing service, no Stripe code in conductor, and no payment
+- **There is no billing service, no Stripe code in box, and no payment
   webhook.** The mechanism is deliberately thin: a Stripe link, a human, a
   grant.
 
@@ -174,7 +174,7 @@ bucket, your TLS terminator and your keys, with an uptime target and somebody
 paged when it breaks. **What we would not be taking on:** holding your customer
 data's keys. Nothing in the customer data plane requires a cafaye-operated
 component — the seven services run on what you run them on. The one
-cafaye-operated component in the architecture is conductor, the control plane
+cafaye-operated component in the architecture is box, the control plane
 `boxd` dials, and it holds no readable customer secret; [Security and
 trust](/security/#read-this-first-there-is-nothing-of-ours-to-breach) argues it
 from the code.

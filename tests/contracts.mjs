@@ -755,3 +755,60 @@ test('the per-service telemetry table agrees with core fleet.yml', () => {
       `${exporting.length} services recorded as exporting traces, ${offenders.length} exclusivity claims`,
   );
 });
+
+test('the /errors/<code> page tree matches the contracts that generate it', () => {
+  // PLAN §3 L3: the docs site serves the page tree behind the frozen
+  // `docs.cafaye.com/errors/<code>` base, generated from the contracts rather
+  // than hand-written. `bin/generate-error-pages` is the generator and this is
+  // the guard that keeps it honest: drift between the contracts and the
+  // committed tree is a red build, the same philosophy as every other test in
+  // this file.
+  //
+  // TWO MODES, and the reason is CI's sparse checkout. The full check
+  // (`--check`) regenerates from core's conventions plus the fleet's OpenAPI
+  // documents and diffs byte-for-byte; it needs the fleet and core's harness,
+  // which the contracts job does not check out. The core check (`--check-core`)
+  // verifies from CORE_PATH alone that every code core promises has a faithful
+  // page. One of the two always runs — never a skip — and the log says which.
+  const generator = join(root, 'bin', 'generate-error-pages');
+  assert.ok(existsSync(generator), 'bin/generate-error-pages is missing');
+
+  // The fleet resolves when a sibling checkout holds at least one service
+  // OpenAPI document AND core's harness reader is beside it AND python3 runs.
+  // Each conjunct is checked rather than assumed, so a half-present fleet is
+  // the core check with a reason, not a full check over half the inputs.
+  const fleet = process.env.FLEET_ROOT ?? dirname(CORE_PATH);
+  let fleetUsable = false;
+  let fleetReason = '';
+  try {
+    const docs = readdirSync(fleet, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => join(fleet, e.name, 'openapi', 'v1.yaml'))
+      .filter((f) => existsSync(f));
+    if (docs.length === 0) {
+      fleetReason = `no <service>/openapi/v1.yaml under ${fleet}`;
+    } else if (!existsSync(join(CORE_PATH, 'harness', 'cafaye_contract.py'))) {
+      fleetReason = `core's harness reader is not at ${join(CORE_PATH, 'harness')}`;
+    } else {
+      execFileSync('python3', ['--version'], { stdio: 'pipe' });
+      fleetUsable = true;
+    }
+  } catch (err) {
+    fleetReason = String(err.message ?? err).split('\n')[0];
+  }
+
+  if (fleetUsable) {
+    execFileSync(
+      generator,
+      ['--check', '--core', CORE_PATH, '--fleet', fleet],
+      { encoding: 'utf8', stdio: 'pipe' },
+    );
+    console.log('    # error-tree drift check: full (core + fleet), byte-identical');
+  } else {
+    execFileSync(generator, ['--check-core', '--core', CORE_PATH], {
+      encoding: 'utf8',
+      stdio: 'pipe',
+    });
+    console.log(`    # error-tree drift check: core-only (${fleetReason})`);
+  }
+});
