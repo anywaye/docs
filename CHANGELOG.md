@@ -10,6 +10,18 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Added
 
+- **`/errors/<code>` — the error-contract page tree, generated from the
+  contracts.** PLAN §3 L3 makes `docs.cafaye.com/errors/<code>` the RFC 9457
+  `type` base, and this site now serves it: one page per envelope code (22 at
+  generation time) under `src/content/docs/errors/`, each carrying the code,
+  its fixed HTTP status, an example body, and the canonical-stability note
+  (contract infrastructure — the URI is permanent, DECISIONS.md MD30).
+  `bin/generate-error-pages` reads the enumeration the way the harness does —
+  reserved codes and statuses out of core's `docs/openapi-conventions.md`,
+  every further code out of the fleet's OpenAPI documents through the
+  harness's own reader — and `tests/contracts.mjs` holds the drift guard, so a
+  contracts/tree mismatch is a red build.
+
 - **`runbooks/entitlement-reconciliation.md` — the runbook that unblocks the
   first sale.** D2's mechanism is a Stripe Payment Link, a human, and a `POST`,
   and until this page nothing wrote it down. Every endpoint, request body and
@@ -33,6 +45,20 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     of `identity` or `platform` is active, real and invisible there.
 
 ### Changed
+
+- **The control plane is `box`, not `conductor`.** PLAN §3 L2 renames the
+  control plane service, and this site is the living-docs surface that named
+  it: `security.md`, `pilot.md`, `pricing.md`, `licensing.md`, `index.mdx` and
+  `runbooks/entitlement-reconciliation.md` now say `box`, dial
+  `box.svc.cafaye.com`, and read the boundary from `box`'s `docs/BOUNDARIES.md`.
+  Historical records (`REPORT-*`, `HANDOFF-*`, past CHANGELOG entries) are
+  byte-identical — they describe the past. One verbatim source quote in the
+  runbook still reads `CONDUCTOR_IDENTITY_URL`: it quotes
+  `box/app/clients/identity_client.rb` as measured and renames with the box
+  repo, not with prose. The wire code followed the same rename in flight:
+  the website repo renamed `conductor_not_configured` to `box_not_configured`
+  under L2 while this packet ran, the drift guard went red on it, and the tree
+  was regenerated — the generated page spells what the contracts spell.
 
 - **The CLI is `cafe` everywhere, not `caf`.** PLAN §3 L1 renames the framework
   CLI `caf` → `cafe` ("all `caf …` verbs become `cafe …` in docs"), and this

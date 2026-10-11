@@ -85,7 +85,7 @@ repositories carry a `LICENSE`. The framework — `core`, `cafe`, `kit`
 — is MIT, because its job is adoption and it should carry no strings. The seven
 services — `identity`, `gateway`, `courier`, `darkroom`, `billing`, `parlor`,
 `muse` — are under a Business Source Licence: free to run, free to self-host,
-never to offer a competing service. `conductor` and the artifact distribution
+never to offer a competing service. `box` and the artifact distribution
 it serves are proprietary: they are the product rather than a paywall placed in
 front of the code. **`pantry` is closed by OPS-D10 (2026-10-10)** — the public
 catalog is part of the operated product, so its source is proprietary while its
@@ -710,7 +710,7 @@ headers, a retry budget and a circuit breaker — not events on a bus.
 **"Self-hosted" means what it says.** Your Postgres, your bucket, your keys,
 your TLS terminator. Your backups, on your schedule. There is no cafaye-operated
 component in the data plane and no telemetry leaves unless you configure it;
-the one cafaye-operated component in the architecture is conductor, and it
+the one cafaye-operated component in the architecture is box, and it
 holds no readable customer secret — [Security and trust](/security/#read-this-first-there-is-nothing-of-ours-to-breach)
 argues it from the code. If you want us to run it for you, that is Cafaye Ops,
 the monthly operated tier: billed monthly, ladder prices still placeholders,

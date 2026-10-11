@@ -1,26 +1,26 @@
 ---
 title: Entitlement Reconciliation
-description: Take one Stripe Payment Link payment, confirm it is real, and grant the unit by hand through conductor's operator endpoints — verified against conductor's routes, controller and schema.
+description: Take one Stripe Payment Link payment, confirm it is real, and grant the unit by hand through box's operator endpoints — verified against box's routes, controller and schema.
 ---
 
 One buyer, one payment, one entitlement. There is no billing service, no
-Stripe integration in conductor and no payment webhook —
+Stripe integration in box and no payment webhook —
 [moon/AGENTS-FIRST.md](https://github.com/cafaye/moon/blob/master/AGENTS-FIRST.md)
-D2 decided the mechanism and `conductor/docs/BOUNDARIES.md` still holds the
+D2 decided the mechanism and `box/docs/BOUNDARIES.md` still holds the
 line that produced it:
 
 > **No billing/Stripe integration, and no payment webhooks.** We sell, but the
 > mechanism is **Stripe Payment Links plus manual reconciliation**: a human
 > confirms payment and grants the entitlement through the existing operator
-> endpoints. Conductor never talks to a payment processor.
+> endpoints. Box never talks to a payment processor.
 
 So the mechanism is a person, and this page is that person's procedure. It
 should take about ten minutes for a buyer who already has an account, and
 longer for one who does not.
 
 **Every endpoint, request body and status code below was read out of the code
-before it was written down**: `conductor/config/routes.rb`,
-`conductor/app/controllers/**` and `conductor/db/schema.rb` for the grant side,
+before it was written down**: `box/config/routes.rb`,
+`box/app/controllers/**` and `box/db/schema.rb` for the grant side,
 and `identity/openapi/v1.yaml` for the lookup side. Where a step is not backed
 by code, it says so and says what to do instead — that is the convention this
 site runs on, and the two steps that fail it are marked **[UNVERIFIED]** rather
@@ -28,7 +28,7 @@ than filled in.
 
 ## What you need
 
-- `conductor` running and reachable, and `identity` reachable from it. The
+- `box` running and reachable, and `identity` reachable from it. The
   staff gate is an HTTP call to `identity` on **every** grant and revoke, so
   identity being down is a 503 and not a permission problem.
 - A **staff** identity session. Staff is a property of the user, not of a
@@ -46,7 +46,7 @@ POST   /v1/operator/entitlements              staff grant
 POST   /v1/operator/entitlements/:id/revoke   staff revoke
 ```
 
-Read from `conductor/config/routes.rb`, `namespace :operator, path:
+Read from `box/config/routes.rb`, `namespace :operator, path:
 "/v1/operator"`. The `:id` in the revoke route is the **entitlement row's
 integer id**, not the account id — you get it from the grant response or from
 the list.
@@ -101,7 +101,7 @@ sale under D2's price list. Stop and ask.
 **The product.** Stripe's Payment Link is per product, so the link itself names
 the unit — but confirm which unit the payment is for before you choose a
 `product` for the grant, because the grant's `product` is what the entitlement
-check later reads. The four values conductor accepts are `kit`, `platform`,
+check later reads. The four values box accepts are `kit`, `platform`,
 `identity` and `courier` (`Entitlement::PRODUCTS`); a paid unit maps to
 `platform`, `identity` or `courier`, and the free `kit` entitlement is the one
 a **claim** buys, not a payment.
@@ -172,9 +172,9 @@ id has to come from somewhere else:
   including a claim-granted `kit` one — the operator list at
   `GET /v1/operator/entitlements?account_id=…` can be reached in the other
   direction once you have one account id, but you need an id to start.
-- **Look at conductor's rows.** `entitlements.account_id` is a string column
+- **Look at box's rows.** `entitlements.account_id` is a string column
   with no foreign key and no cross-service lookup, so a previous grant against
-  that account is findable from conductor's database but not from identity's
+  that account is findable from box's database but not from identity's
   API.
 
 The verification at the end of this procedure (step 9) is what turns
@@ -191,7 +191,7 @@ POST /v1/operator/entitlements
 ```
 
 Staff-checked against identity on every request. The route is registered in
-`conductor/config/routes.rb` under `namespace :operator, path: "/v1/operator"`.
+`box/config/routes.rb` under `namespace :operator, path: "/v1/operator"`.
 
 ### The exact request body
 
@@ -200,7 +200,7 @@ The controller reads `params[:account_id]`, `params[:product]`,
 flat, at the top level of the JSON body, **not** nested under a wrapper key:
 
 ```sh
-export C=http://conductor.example          # wherever conductor really is
+export C=http://box.example          # wherever box really is
 export ACC='<the account id from step 3>'
 export STAFF_TOKEN='<your staff session token>'
 
@@ -223,15 +223,15 @@ cat grant.json
 | `account_id` | yes | the identity account UUID, as a string. `Entitlement` validates it against `UUID_RE`, so a malformed one is a `422`, not a silent miss |
 | `product` | no — defaults to `kit` | `kit`, `platform`, `identity` or `courier`. **For a paid unit it is never `kit`.** The default is a trap in this procedure: omit it and you grant the free claim entitlement |
 | `version_range` | no | a cafaye semver constraint (`^X.Y.Z`, `~X.Y.Z`, `>=X.Y.Z`, or exact); `null` means every version. A paid unit bought without a negotiated version bound is `null` |
-| `source` | no | free text. Use `reconciled_payment` — it is the value conductor's own test uses, and it is what makes the row findable as a reconciled sale |
+| `source` | no | free text. Use `reconciled_payment` — it is the value box's own test uses, and it is what makes the row findable as a reconciled sale |
 | `reference` | no | free text, external reference. **Put the Stripe payment id here** — it is the only join between an entitlement row and the money that bought it |
 
-The staff token is what records the actor. Conductor resolves it by forwarding
-it to `GET {CONDUCTOR_IDENTITY_URL}/v1/operator/me` and reading
+The staff token is what records the actor. Box resolves it by forwarding
+it to `GET {BOX_IDENTITY_URL}/v1/operator/me` and reading
 `user["id"]` out of the `200`; that id is what lands in `granted_by`. It is
-**not** a token you mint on conductor — conductor verifies nothing itself and
+**not** a token you mint on box — box verifies nothing itself and
 holds no local user store. The whole of that resolution, quoted from
-`conductor/app/clients/identity_client.rb`:
+`box/app/clients/identity_client.rb`:
 
 ```ruby
 def staff_user_id!(token)
@@ -259,7 +259,7 @@ grant unattributed. If your token is not staff, the grant does not happen.
 ### What a duplicate grant returns — verified, and quoted
 
 The docs say `409` with the existing row. That is in
-`conductor/app/controllers/operator/entitlements_controller.rb`, and it is
+`box/app/controllers/operator/entitlements_controller.rb`, and it is
 worth quoting in full because there are **two** code paths that produce it, and
 the second one is the one that matters under concurrency:
 
@@ -315,7 +315,7 @@ end
 true}`. The first path is a read-then-write race; the second is
 `ActiveRecord::RecordNotUnique`, which is what you get when the read found
 nothing and the database refused anyway. The database can refuse because of the
-index, quoted from `conductor/db/schema.rb`:
+index, quoted from `box/db/schema.rb`:
 
 ```ruby
 t.index ["account_id", "product"], name: "index_entitlements_on_account_and_product_active",
@@ -333,7 +333,7 @@ the `product` if you meant a different unit, and revoke the wrong one if you
 granted the wrong one.
 
 The `201` body, from `serialize_entitlement` in
-`conductor/app/controllers/application_controller.rb`:
+`box/app/controllers/application_controller.rb`:
 
 ```json
 {"entitlement":{"id":42,"account_id":"…","product":"identity","status":"active",
@@ -353,7 +353,7 @@ Renewal is the same procedure. Second Payment Link, second payment, second
 grant — and a difference you have to know about before you run it.
 
 **The old entitlement does not expire, because nothing expires it.**
-`conductor/db/schema.rb`'s `entitlements` table has columns for `account_id`,
+`box/db/schema.rb`'s `entitlements` table has columns for `account_id`,
 `product`, `status`, `source`, `reference`, `granted_by`, `revoked_by`,
 `revoked_at`, `created_at`, `updated_at` and `version_range` — and **no
 `expires_at`**. Status is `active` or `revoked` and nothing else
@@ -381,7 +381,7 @@ second grant is implemented.** The `Kit` entitlement has the same shape. The
 reconciliation is manual, so the missing expiry does not fail loudly — it is a
 buyer who keeps access for a second year on one payment, which is a commercial
 decision somebody has to make rather than a defect an operator can fix in
-conductor.
+box.
 
 **What to do today, and it is the same shape as the revocation below:**
 
@@ -417,7 +417,7 @@ POST /v1/operator/entitlements/:id/revoke
 ```
 
 The `:id` is the entitlement row's integer id. The whole action, quoted from
-`conductor/app/controllers/operator/entitlements_controller.rb`:
+`box/app/controllers/operator/entitlements_controller.rb`:
 
 ```ruby
 def revoke
@@ -453,7 +453,7 @@ this code cannot tell it.
 
 **An unknown id is a `404`.** `render_not_found` renders
 `{"error":{"code":"not_found","message":"not found"}}` and, like every denial in
-conductor, it is generic — it does not say whether the row ever existed.
+box, it is generic — it does not say whether the row ever existed.
 
 **When you would use it:**
 
@@ -465,7 +465,7 @@ conductor, it is generic — it does not say whether the row ever existed.
   version_not_granted`** and they are entitled to a range the grant does not
   cover. Revoke, re-grant with the right `version_range`.
 - **A dispute, or a chargeback.** Revoke first, then settle the dispute. Stripe
-  and conductor do not talk to each other, so nothing on the Stripe side does
+  and box do not talk to each other, so nothing on the Stripe side does
   this for you.
 
 **What revoking does *not* do:** it does not touch a box, a capability, an
@@ -478,7 +478,7 @@ one audit event.
 
 Every grant and every revoke writes one row to `entitlement_events`, **inside
 the same transaction as the entitlement change**. `Entitlement.grant!` in
-`conductor/app/models/entitlement.rb`:
+`box/app/models/entitlement.rb`:
 
 ```ruby
 def self.grant!(account_id:, product: "kit", version_range: nil, source: nil, reference: nil, granted_by:)
@@ -498,7 +498,7 @@ entitlement row and its audit event are one fact or neither is."* So a grant
 you can see always has an event behind it, and an event can never name a grant
 that did not happen.
 
-The model, quoted from `conductor/app/models/entitlement_event.rb`, and the
+The model, quoted from `box/app/models/entitlement_event.rb`, and the
 reason it can be trusted:
 
 ```ruby
@@ -525,7 +525,7 @@ end
 nor future code can rewrite an entitlement event**. `Entitlement`'s association
 is `has_many :entitlement_events, dependent: :restrict_with_error`, so you
 cannot delete an entitlement that still has events against it either. The
-columns, from `conductor/db/schema.rb`:
+columns, from `box/db/schema.rb`:
 
 ```ruby
 create_table "entitlement_events", force: :cascade do |t|
@@ -560,9 +560,9 @@ So reading an entitlement grant back is a **database query**, not an API call.
 `entitlement_events` is append-only, so this is a read you can run freely:
 
 ```sh
-export CONDUCTOR_DB='postgres://…'      # conductor's own DATABASE_URL
+export BOX_DB='postgres://…'      # box's own DATABASE_URL
 
-psql "$CONDUCTOR_DB" -c \
+psql "$BOX_DB" -c \
   "select e.id, e.action, e.actor_user_id, e.created_at, n.product, n.status
      from entitlement_events e
      join entitlements n on n.id = e.entitlement_id
@@ -590,10 +590,10 @@ the same on all three rows** means one operator did all of them. A different
 
 ## Step 8 — the failure branches
 
-### Identity is unreachable — conductor fails closed
+### Identity is unreachable — box fails closed
 
-Every staff and customer call conductor makes begins with an identity
-round-trip, and `conductor/app/controllers/application_controller.rb` renders
+Every staff and customer call box makes begins with an identity
+round-trip, and `box/app/controllers/application_controller.rb` renders
 one body for all of it. `require_staff`, quoted:
 
 ```ruby
@@ -636,13 +636,18 @@ The three ways to get a `503`, and they need different fixes:
 | What you see | Cause | Fix |
 | --- | --- | --- |
 | `503` with `{"code":"unavailable","message":"authorization service unavailable"}` | identity is down, unreachable, or answered something unexpected | Restore identity. See [a service is down](/runbooks/service-down/) |
-| Same body, and identity is demonstrably up | `CONDUCTOR_IDENTITY_URL` is unset — `IdentityClient` raises `Misconfigured` from `raise Misconfigured, "CONDUCTOR_IDENTITY_URL is not set" if @base_url.empty?` and the controller maps it to the same 503 | Set it on conductor and roll. **It is read at construction, so a restart is required** |
+| Same body, and identity is demonstrably up | `BOX_IDENTITY_URL` is unset — `IdentityClient` raises `Misconfigured` from `raise Misconfigured, "CONDUCTOR_IDENTITY_URL is not set" if @base_url.empty?` and the controller maps it to the same 503 | Set it on box and roll. **It is read at construction, so a restart is required** |
 | `401 {"code":"unauthenticated","message":"valid bearer token required"}` | your token is missing, malformed, or expired | Get a fresh staff session |
 
+The quoted `raise` still reads `CONDUCTOR_IDENTITY_URL` because it is verbatim
+from `box/app/clients/identity_client.rb` as measured (2026-10-11): the control
+plane is named box and its environment renames with the box repo under PLAN §3
+L2, which is a code change in another repository, not a prose change here.
+
 A `503` that persists while identity answers `curl` fine is a base-URL or
-network problem on conductor, **not** a staff problem — the message is
+network problem on box, **not** a staff problem — the message is
 deliberately generic and says nothing about which. The underlying error class
-is logged and never returned, so the reason is in conductor's logs
+is logged and never returned, so the reason is in box's logs
 (`identity unavailable: #{e.class}`), not in the response.
 
 **Read the failure as "do not grant yet", not as "retry harder".** A grant that
@@ -680,7 +685,7 @@ company, and the account the buyer's team uses will not see it.
 
 ### The buyer wants a unit you do not sell
 
-The four `product` values conductor accepts are `kit`, `platform`, `identity`
+The four `product` values box accepts are `kit`, `platform`, `identity`
 and `courier`. Anything else — `billing`, `darkroom`, `gateway`, `muse`, a
 bundle that is not one of the three decided prices — is **not purchasable
 today**. `moon/AGENTS-FIRST.md` D8 decided the price list and it has three
@@ -720,7 +725,7 @@ curl -s "$C/v1/accounts/$ACC/entitlements" \
 ```
 
 `EntitlementsController#index` (the customer-facing one, in
-`conductor/app/controllers/entitlements_controller.rb`) filters to
+`box/app/controllers/entitlements_controller.rb`) filters to
 `product: "kit", status: "active"` and serialises `account_id`, `product`,
 `status`, `source`, `reference`, `granted_at` and `revoked_at` — no `id`, no
 `version_range`.
@@ -769,13 +774,13 @@ token able to fetch what they paid for.
 
 | Step | Why not | What to do |
 | --- | --- | --- |
-| The payment reaching cafaye | No billing service, no Stripe code in conductor, no webhook — D2's whole decision | Read it off Stripe yourself (step 1) |
+| The payment reaching cafaye | No billing service, no Stripe code in box, no webhook — D2's whole decision | Read it off Stripe yourself (step 1) |
 | A receipt to the buyer | `courier` can send mail and there is no template and no caller for this | Send one yourself, out of band |
 | The buyer's account being found from their email | No user→account endpoint in identity, and the directory search returns no accounts (step 3) | Ask them, or read it off a prior grant |
 | A one-year expiry | `entitlements` has no `expires_at` column and there is no sweeper | Decide commercially whether to revoke at renewal (step 5) |
 | A renewal `grant` event | The second grant is a `409` while the first row is active | Revoke and re-grant if you want the trail to show it |
 | Any event delivery on a bus | No service starts a publisher loop — `identity`'s only `Publisher` is a deliberate no-op | Read the rows, or build a consumer |
-| A `cafe` command that grants | No such subcommand exists; grant is an HTTP call on conductor's operator surface | `curl`, with your staff token |
+| A `cafe` command that grants | No such subcommand exists; grant is an HTTP call on box's operator surface | `curl`, with your staff token |
 
 ## What not to do
 
@@ -790,9 +795,9 @@ token able to fetch what they paid for.
   `identity` or `courier`.
 - **Do not retry a `409` with a different body.** It means the entitlement is
   already there. Changing the `product` mid-retry grants a second thing.
-- **Do not treat a `503` as a permission problem.** It is conductor failing
+- **Do not treat a `503` as a permission problem.** It is box failing
   closed because it could not reach identity. Fix identity, or
-  `CONDUCTOR_IDENTITY_URL`, and then grant.
+  `BOX_IDENTITY_URL`, and then grant.
 - **Do not grant with a non-staff token.** An account owner is not staff — no
   membership implies global staff authority. The grant is refused with `403
   {"code":"forbidden","message":"platform staff only"}` and, correctly,
@@ -818,6 +823,6 @@ token able to fetch what they paid for.
 - [Rotating secrets](/runbooks/secret-rotation/) — the Stripe credentials that
   do exist, and the ones that cannot be rotated.
 - [A service is down](/runbooks/service-down/) — when the `503` is identity's
-  and not conductor's.
+  and not box's.
 - [Topology](/architecture/topology/) — the ports, environment variables and
   HTTP surfaces this runbook calls.

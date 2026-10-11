@@ -1,13 +1,13 @@
 ---
 title: Licensing
-description: The licence split actually being applied — framework MIT, services under a Business Source Licence, conductor, pantry and the artifact distribution proprietary — and the measured state of the grant in every public repository, with the command that re-derives it.
+description: The licence split actually being applied — framework MIT, services under a Business Source Licence, box, pantry and the artifact distribution proprietary — and the measured state of the grant in every public repository, with the command that re-derives it.
 ---
 
 **The decision: the fleet is split three ways.** The framework — `core`, `cafe`,
 `kit` — is open under MIT: genuinely free, no strings, because its job is
 adoption. The services — `identity`, `gateway`, `courier`, `darkroom`,
 `billing`, `parlor`, `muse` — are under a Business Source Licence: free to run,
-free to self-host, never to offer a competing service. `conductor`, `pantry` and
+free to self-host, never to offer a competing service. `box`, `pantry` and
 the artifact distribution are proprietary: they are the product, not a paywall in
 front of the code.
 
@@ -15,7 +15,7 @@ front of the code.
 the reason is the catalog rather than the code.** Once the catalog is public and
 multi-tenant it is part of the operated product: the discovery surface over the
 thing OPS-D2 already closed, and a MIT catalog is a forkable cafaye SaaS. So it
-takes the conductor pattern — closed source, a public HTTPS endpoint,
+takes the box pattern — closed source, a public HTTPS endpoint,
 capability- and identity-gated writes — while the contract stays open: the
 manifest format and the catalog's own API document are still published, and the
 service answers anyone. The cost of flipping is one `LICENSE` file, one manifest
@@ -127,8 +127,8 @@ repositories are described above rather than measured here.
 | [`cafaye-py`](https://github.com/cafaye/cafaye-py) · [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) · [`cafaye-ts`](https://github.com/cafaye/cafaye-ts) · `docs` | **`LICENSE`, MIT** (`cafaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `cafaye-py`'s `pyproject.toml` points at the file, `cafaye-rb`'s gemspec names it, `cafaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
 | [`identity`](https://github.com/cafaye/identity) · [`billing`](https://github.com/cafaye/billing) · [`courier`](https://github.com/cafaye/courier) · [`darkroom`](https://github.com/cafaye/darkroom) · [`gateway`](https://github.com/cafaye/gateway) · [`muse`](https://github.com/cafaye/muse) · [`parlor`](https://github.com/cafaye/parlor) | **`LICENSE`, Business Source License 1.1** — Licensor Cafaye, Additional Use Grant None, Change Date 2030-10-10, Change License Apache-2.0. `muse`'s `pyproject.toml` points at the file, `courier`'s `mix.exs` and `parlor`'s `package.json` declare `BUSL-1.1` |
 
-`conductor` and `pantry` are the two repositories this page cannot measure,
-because the source of both is closed. `conductor` is the operated control plane
+`box` and `pantry` are the two repositories this page cannot measure,
+because the source of both is closed. `box` is the operated control plane
 rather than something you download, and the artifact distribution it serves is
 proprietary with it. `pantry` is beside it by **OPS-D10** (2026-10-10): the
 public catalog is part of the operated product, so the source is proprietary
