@@ -34,7 +34,7 @@ than filled in.
 - A **staff** identity session. Staff is a property of the user, not of a
   membership — `identity`'s own words are that *"no account role implies global
   staff authority"*. An account owner is not staff.
-- `curl`. Nothing else. There is no CLI in the loop and no `caf` subcommand
+- `curl`. Nothing else. There is no CLI in the loop and no `cafe` subcommand
   that grants anything.
 - The Stripe Payment Link the buyer used, so you can read the payment off it.
 
@@ -90,7 +90,7 @@ entitlement nobody can take back cleanly.
 
 | Unit | Price |
 | --- | --- |
-| Platform (`caf` + `kit`) | $120/yr |
+| Platform (`cafe` + `kit`) | $120/yr |
 | `identity` | $240/yr |
 | `courier` | $240/yr |
 | All three | $420/yr |
@@ -775,7 +775,7 @@ token able to fetch what they paid for.
 | A one-year expiry | `entitlements` has no `expires_at` column and there is no sweeper | Decide commercially whether to revoke at renewal (step 5) |
 | A renewal `grant` event | The second grant is a `409` while the first row is active | Revoke and re-grant if you want the trail to show it |
 | Any event delivery on a bus | No service starts a publisher loop — `identity`'s only `Publisher` is a deliberate no-op | Read the rows, or build a consumer |
-| A `caf` command that grants | No such subcommand exists; grant is an HTTP call on conductor's operator surface | `curl`, with your staff token |
+| A `cafe` command that grants | No such subcommand exists; grant is an HTTP call on conductor's operator surface | `curl`, with your staff token |
 
 ## What not to do
 

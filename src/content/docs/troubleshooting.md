@@ -520,44 +520,44 @@ fails to decrypt, the key is not the one the rows were sealed under — see
 
 ---
 
-## A `caf` command exits 2 with "usage"
+## A `cafe` command exits 2 with "usage"
 
 ### Check
 
 ```sh
-caf help <command>
+cafe help <command>
 ```
 
 ### What it usually means
 
-`caf` uses Go's standard `flag` package, so there are two rules, and both produce
+`cafe` uses Go's standard `flag` package, so there are two rules, and both produce
 exit 2:
 
 **Flags must come before positional arguments.**
 
 ```sh
-caf deploy --dry-run identity     # works
-caf deploy identity --dry-run     # usage error
+cafe deploy --dry-run identity     # works
+cafe deploy identity --dry-run     # usage error
 ```
 
-**`caf init` takes no positional argument.** It operates on a directory:
+**`cafe init` takes no positional argument.** It operates on a directory:
 
 ```
-$ caf init my-saas
-caf: usage: caf init wants 0 arguments, got 1 (usage: caf init [flags])
+$ cafe init my-saas
+cafe: usage: cafe init wants 0 arguments, got 1 (usage: cafe init [flags])
 ```
 
-The command that takes a name is `caf new my-saas`. And if the command is one of
+The command that takes a name is `cafe new my-saas`. And if the command is one of
 `init`, `new`, `deploy`, `gen`, or `mcp`, the usage error is a red
 herring — the real answer is that the command is a v0 stub:
 
 ```
-$ caf new my-saas
-caf: caf new: not implemented in v0
+$ cafe new my-saas
+cafe: cafe new: not implemented in v0
 ```
 
-Exit 1, not 2. **`dev` is not one of them** — `caf dev` works, and
-`caf doctor` and `caf dev` both take an *optional* project path. What does real
+Exit 1, not 2. **`dev` is not one of them** — `cafe dev` works, and
+`cafe doctor` and `cafe dev` both take an *optional* project path. What does real
 work is `version`, `doctor`, `dev`, `contract lint` and `contract resolve`.
 
 ### Do
@@ -567,12 +567,12 @@ verified command table, with the two that bite called out.
 
 ---
 
-## `caf contract lint` fails on a manifest I did not change
+## `cafe contract lint` fails on a manifest I did not change
 
 ### Check
 
 ```sh
-cd cafaye/caf && go run ./cmd/caf contract lint /path/to/cafaye
+cd cafaye/cafe && go run ./cmd/cafe contract lint /path/to/cafaye
 ```
 
 ### What it usually means
@@ -586,7 +586,7 @@ cd cafaye/caf && go run ./cmd/caf contract lint /path/to/cafaye
 `parlor`'s is the pre-`core` `apiVersion: cafaye/v0-draft` shape with no `name` at
 the top level. It is documentation of intent.
 
-**This entry used to list three repositories.** `caf`'s manifest gained its
+**This entry used to list three repositories.** `cafe`'s manifest gained its
 required fields, and `courier`'s was a real disagreement about spelling — two
 segments (`email.queued`) against a schema that requires three
 (`courier.email.queued`). `courier` caught it itself with this same command and
@@ -624,7 +624,7 @@ less than it appears to:
 | `identity` | the integration tests | `TEST_DATABASE_URL` **and a `goose up` first** — without it: `relation "public.oidc_clients" does not exist`. **Its CI now runs this tier and asserts a floor on it**, so this row is about a local run, not about `identity` |
 | `darkroom` | the `#[ignore]`d database tests, and the `s3` feature entirely | `TEST_DATABASE_URL`; `cargo test` alone does not even compile the feature |
 | `muse` | the two core-parity tests | `MUSE_CORE_SCHEMAS=../core/schemas` |
-| `pantry` | all eight drift tests, and the `../caf` contract lint | `PANTRY_CAFAYE_ROOT` pointing at a workspace |
+| `pantry` | all eight drift tests, and the `../cafe` contract lint | `PANTRY_CAFAYE_ROOT` pointing at a workspace |
 | `courier` | nothing, but it needs a database to run at all | a Postgres it can reach — **`bin/dev` brings up kit's stack**, whose Postgres is on `KIT_POSTGRES_PORT` (default `15500`), not 5432. `docker compose up -d db` cannot work: this repository has no `db` service, and its compose file is an override that cannot start a database alone |
 | `kit` | everything, if PyYAML is missing | a virtualenv — the gate exits 1 rather than pretending |
 

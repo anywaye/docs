@@ -227,7 +227,7 @@ scheduled job and a new thing to operate.
 database declared in `KIT_POSTGRES_DATABASES` on a fresh volume, and a database
 added afterwards is the operator's to close. That includes the scratch database
 a restore creates — on the retiring Kamal path that was the `bin/drill` scratch
-database, and on the substrate it is the scratch database `caf backup` creates
+database, and on the substrate it is the scratch database `cafe backup` creates
 to prove the restore — and any database you create while debugging.
 
 **How to check the whole shape rather than the one property**, including that
@@ -549,7 +549,7 @@ Read this section before you rely on the boundary.
   it does not.
 - **A restore creates a scratch database on the cluster** and it gets
   Postgres's default for the same reason. On the retiring Kamal path, `bin/drill`
-  dropped it, including after a failure; on the substrate, `caf backup` drops it
+  dropped it, including after a failure; on the substrate, `cafe backup` drops it
   as part of proving the restore. A scratch database interrupted hard enough to
   be left behind is a hole the sweep query will find.
 - **Isolation is by privilege, never by secret.** Every development role takes

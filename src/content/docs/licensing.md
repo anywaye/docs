@@ -3,7 +3,7 @@ title: Licensing
 description: The licence split actually being applied — framework MIT, services under a Business Source Licence, conductor, pantry and the artifact distribution proprietary — and the measured state of the grant in every public repository, with the command that re-derives it.
 ---
 
-**The decision: the fleet is split three ways.** The framework — `core`, `caf`,
+**The decision: the fleet is split three ways.** The framework — `core`, `cafe`,
 `kit` — is open under MIT: genuinely free, no strings, because its job is
 adoption. The services — `identity`, `gateway`, `courier`, `darkroom`,
 `billing`, `parlor`, `muse` — are under a Business Source Licence: free to run,
@@ -123,7 +123,7 @@ repositories are described above rather than measured here.
 
 | Repository | What it declares |
 | --- | --- |
-| [`caf`](https://github.com/cafaye/caf) · [`core`](https://github.com/cafaye/core) · [`kit`](https://github.com/cafaye/kit) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
+| [`cafe`](https://github.com/cafaye/cafe) · [`core`](https://github.com/cafaye/core) · [`kit`](https://github.com/cafaye/kit) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
 | [`cafaye-py`](https://github.com/cafaye/cafaye-py) · [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) · [`cafaye-ts`](https://github.com/cafaye/cafaye-ts) · `docs` | **`LICENSE`, MIT** (`cafaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `cafaye-py`'s `pyproject.toml` points at the file, `cafaye-rb`'s gemspec names it, `cafaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
 | [`identity`](https://github.com/cafaye/identity) · [`billing`](https://github.com/cafaye/billing) · [`courier`](https://github.com/cafaye/courier) · [`darkroom`](https://github.com/cafaye/darkroom) · [`gateway`](https://github.com/cafaye/gateway) · [`muse`](https://github.com/cafaye/muse) · [`parlor`](https://github.com/cafaye/parlor) | **`LICENSE`, Business Source License 1.1** — Licensor Cafaye, Additional Use Grant None, Change Date 2030-10-10, Change License Apache-2.0. `muse`'s `pyproject.toml` points at the file, `courier`'s `mix.exs` and `parlor`'s `package.json` declare `BUSL-1.1` |
 
@@ -168,11 +168,11 @@ specific:
 1. **A `license` field in every manifest.** Seven of the fourteen declare their
    licence in a field the tooling reads (`cafaye-py`, `cafaye-rb`, `cafaye-ts`,
    `docs`, `courier`, `parlor`, `muse`); the other seven carry it only as a
-   file. For `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity` and
+   file. For `billing`, `cafe`, `core`, `darkroom`, `gateway`, `identity` and
    `kit` there is no package manifest in their ecosystem that could carry one,
    so the file is the only declaration — which is a fact about ecosystems, not
    a gap.
-2. **`caf contract lint` checking it**, once core's manifest schema has a field
+2. **`cafe contract lint` checking it**, once core's manifest schema has a field
    for it — so a repository that drops its licence is a red build rather than a
    drift nobody notices. That is a change to `core`, and `core` is
    manager-owned.
@@ -188,7 +188,7 @@ repository rather than the files on disk, it makes no network call, and it
 covers the same fourteen public repositories the organisation publishes:
 
 ```sh
-for repo in billing caf cafaye-py cafaye-rb cafaye-ts core courier darkroom \
+for repo in billing cafe cafaye-py cafaye-rb cafaye-ts core courier darkroom \
             docs gateway identity kit muse parlor; do
   file=none
   for name in LICENSE LICENSE.txt; do

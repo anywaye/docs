@@ -74,7 +74,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 | Repo | What it does | Language |
 | --- | --- | --- |
-| [`caf`](https://github.com/cafaye/caf) | The CLI: `caf init · new · dev · deploy · gen · contract` | Go |
+| [`cafe`](https://github.com/cafaye/cafe) | The CLI: `cafe init · new · dev · deploy · gen · contract` | Go |
 | [`core`](https://github.com/cafaye/core) | The substrate: service manifests, OpenAPI & event specs, telemetry specs, generator engine | — |
 | `pantry` | The registry: what a service is and how to reach it — closed source, public endpoint | Go |
 | [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) | The shared Ruby gem: JWKS token verification, the transactional outbox, a Rails railtie | Ruby |
@@ -92,13 +92,13 @@ Polyglot by design, connected by typed contracts, never by shared code.
 
 :::caution[Early development]
 cafaye is **early**, and this site is written to say so rather than around it.
-As of **2026-10-10** no `caf` subcommand is a stub: the stub table that held
-`init`, `new` and `gen` is empty (`caf/internal/cli/stub_test.go:25`), and the
+As of **2026-10-10** no `cafe` subcommand is a stub: the stub table that held
+`init`, `new` and `gen` is empty (`cafe/internal/cli/stub_test.go:25`), and the
 command table beside it is the single source of truth for which verbs work.
 There is **no broker** — no service starts an outbox publisher loop, so an event
 is a row and nothing more.
 There is also no cafaye-operated platform to deploy *to*: Cafaye Ops is a monthly
-operated tier we run on your box, not a destination `caf deploy` can target.
+operated tier we run on your box, not a destination `cafe deploy` can target.
 Three of the seven services
 are built past their first milestone (`darkroom` ships signed uploads and
 Cloudflare R2; `courier` ships outbound webhooks over the Standard Webhooks spec;
@@ -111,7 +111,7 @@ and [Getting started](/getting-started/) runs the whole path end to end with the
 commands that actually exist today.
 
 **The licence split is decided, and the grant has landed in every repository.**
-The framework — `core`, `caf`, `kit` — is MIT.
+The framework — `core`, `cafe`, `kit` — is MIT.
 `pantry` is closed by OPS-D10 (2026-10-10): the public catalog is part of the
 operated product, so its source is proprietary while its service stays publicly
 reachable — closed code, public endpoint, contract still open.

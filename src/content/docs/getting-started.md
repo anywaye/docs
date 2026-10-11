@@ -1,31 +1,31 @@
 ---
 title: Getting Started
-description: Install the caf CLI, validate a manifest, run a service locally, and deploy it to your own infrastructure.
+description: Install the cafe CLI, validate a manifest, run a service locally, and deploy it to your own infrastructure.
 ---
 
 This page is the path a design partner walks the first week: get a toolchain,
 install the CLI, prove the contracts are sound, run a service against local
 Postgres, and put that service on your own infrastructure. Every command below
-was run against the real `caf` binary and the real service repositories, and the
+was run against the real `cafe` binary and the real service repositories, and the
 output is quoted where it matters.
 
 ## Status, first
 
-**cafaye is in early development.** Of the thirteen `caf` subcommands, **eleven** do
+**cafaye is in early development.** Of the thirteen `cafe` subcommands, **eleven** do
 real work today — `backup`, `contract lint`/`contract resolve`, `deploy`, `dev`,
 `doctor`, `env`, `gen telemetry`, `lock`, `mcp`, `reclaim`, `version`. The
 remaining two (`init`, `new`) parse their flags, check their argument count,
 and return `not implemented in v0`. That is stated on every step below rather
 than hidden, because a command that silently half-works is worse than one that
-refuses. `caf/internal/cli/stub_test.go` holds the table this sentence is
+refuses. `cafe/internal/cli/stub_test.go` holds the table this sentence is
 derived from, and it is checked rather than remembered.
 
 What *is* real: the [contracts](/contracts/) are frozen and validated, the
 services have
 HTTP surfaces you can call, container images you can build, a local stack you can
-run, `caf dev` will render and bring up a compose file from a manifest, and
-`caf deploy` will build, push and roll a service out. What
-is not real: `caf gen`, and the broker. The
+run, `cafe dev` will render and bring up a compose file from a manifest, and
+`cafe deploy` will build, push and roll a service out. What
+is not real: `cafe gen`, and the broker. The
 [runbooks](/runbooks/) assume you have already got the services running on your
 own infrastructure.
 
@@ -33,7 +33,7 @@ own infrastructure.
 deployment substrate — k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
 Redis + Alloy/Loki/Grafana + Prometheus — is decided in
 [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
-is what the launch stack ships on. `caf deploy` drives Kamal today; the k3s/Argo
+is what the launch stack ships on. `cafe deploy` drives Kamal today; the k3s/Argo
 implementation lands behind the same `deploy.Runner` interface, so the command
 does not change — the infrastructure it drives does. Kamal retires at parity,
 not before. [Deployment](/runbooks/deployment/) is the runbook for the
@@ -41,13 +41,13 @@ substrate.
 
 ## Step 1 — check the toolchain
 
-`caf doctor` is the first command to run, and it is safe anywhere. It resolves
+`cafe doctor` is the first command to run, and it is safe anywhere. It resolves
 binaries on `PATH` and never executes them: no subprocess, no container, no
 network.
 
 ```sh
-go install github.com/cafaye/caf/cmd/caf@latest
-caf doctor
+go install github.com/cafaye/cafe/cmd/cafe@latest
+cafe doctor
 ```
 
 ```
@@ -68,7 +68,7 @@ checked 10 tools, 10 ok, 0 missing
 It checks ten tools, in that order: `git`, `docker`, `docker compose`, `tilt`,
 `go`, `ruby`, `elixir`, `python` (looked up as `python3` then `python`), `bun`,
 `rust` (`rustc` then `cargo`). That list is the `tools` table in
-`caf/internal/cli/doctor.go`, one row each, in that order. `doctor` **exits 1
+`cafe/internal/cli/doctor.go`, one row each, in that order. `doctor` **exits 1
 when any row in the project or reclamation tables is `fail`** — a `warn` never
 moves it — so a red `doctor` is a real signal, not a decoration.
 
@@ -81,7 +81,7 @@ prints — with a `plan` row that fails:
 ```
 project .
 check  state  detail  fix
-plan   fail   could not be planned: no manifest: no cafaye.yml in .; a project declares its service in one (run "caf init" to create it, or pass the project directory as the argument)  caf contract lint .
+plan   fail   could not be planned: no manifest: no cafaye.yml in .; a project declares its service in one (run "cafe init" to create it, or pass the project directory as the argument)  cafe contract lint .
 ```
 
 That **is** a failure — `doctor` exits 1. Point it at a project directory to get
@@ -91,7 +91,7 @@ CPUs a stack needs, whether the ports the stack publishes are free, and whether
 the manifest is one that plans:
 
 ```sh
-caf doctor ../identity
+cafe doctor ../identity
 ```
 
 ```
@@ -107,10 +107,10 @@ plan     ok    3 services in identity-dev  -
 Four rows there are invisible from the tool table. `runtime` asks the Docker
 **server**, so an installed-but-stopped runtime reads `fail` while the table
 above says `ok`. `machine` holds a floor of 4 GiB and 4 CPUs for a database, a
-cache and a service at once. And the ports come from the same plan `caf dev`
+cache and a service at once. And the ports come from the same plan `cafe dev`
 would build, so the two cannot drift. A third table, **reclamation**, follows:
 whether the ledger holds stacks and port reservations nothing has reclaimed,
-and whether anything outside caf's ledger is holding a port in 15000-15999.
+and whether anything outside cafe's ledger is holding a port in 15000-15999.
 `-tools-only` prints the first table alone.
 
 :::caution[What the check is not]
@@ -121,58 +121,58 @@ by asking the server. Every service repository pins its own toolchain in its own
 this page does not repeat those pins.
 :::
 
-## Step 2 — install `caf`
+## Step 2 — install `cafe`
 
 There is no tagged release, so `@latest` resolves to a pseudo-version built
 from `master`. That works today:
 
 ```sh
-go install github.com/cafaye/caf/cmd/caf@latest
-caf version
+go install github.com/cafaye/cafe/cmd/cafe@latest
+cafe version
 ```
 
 ```
-caf 0.0.0-dev (commit unknown)
+cafe 0.0.0-dev (commit unknown)
 ```
 
 That version string is not a mistake. The semver and commit are injected at link
 time by the release pipeline; a `go install` from an untagged commit has
 neither, so the binary reports the development identity. When a release lands,
-`caf version` reports the release instead.
+`cafe version` reports the release instead.
 
 To build from a clone instead — which is what you want if you are going to read
 the source:
 
 ```sh
-git clone git@github.com:cafaye/caf.git
-cd caf
-go build ./cmd/caf
+git clone git@github.com:cafaye/cafe.git
+cd cafe
+go build ./cmd/cafe
 ```
 
-:::caution[`go build ./cmd/caf`, not `go build -o caf .`]
-The main package is at `cmd/caf`. The repository root holds no Go files, so
-`go build -o caf .` from the root fails with `no Go files in <path>` and exit 1.
-`go build ./cmd/caf` writes `./caf` in the current directory. `go install
-github.com/cafaye/caf/cmd/caf@latest` writes to `$GOBIN` instead.
+:::caution[`go build ./cmd/cafe`, not `go build -o cafe .`]
+The main package is at `cmd/cafe`. The repository root holds no Go files, so
+`go build -o cafe .` from the root fails with `no Go files in <path>` and exit 1.
+`go build ./cmd/cafe` writes `./cafe` in the current directory. `go install
+github.com/cafaye/cafe/cmd/cafe@latest` writes to `$GOBIN` instead.
 :::
 
-There is no Homebrew tap and no `caf install` command. `brew install
-cafaye/tap/caf` and `caf install` are both
+There is no Homebrew tap and no `cafe install` command. `brew install
+cafaye/tap/cafe` and `cafe install` are both
 <span class="badge caution">Coming soon</span>; neither exists today, and neither
 has a workaround beyond the two commands above.
 
 ## Step 3 — read what the CLI can do
 
 ```sh
-caf help
+cafe help
 ```
 
 ```
-caf - the cafaye platform CLI
+cafe - the cafaye platform CLI
 
 Usage:
-  caf <command> [flags] [arguments]
-  caf help <command>
+  cafe <command> [flags] [arguments]
+  cafe help <command>
 
 Commands:
   backup    take one real backup and prove it restores, into a scratch database it then drops
@@ -186,65 +186,65 @@ Commands:
   lock      pin this tree's specs, vendored schemas and generated clients, and check the pins
   mcp       serve the cafaye tools over the Model Context Protocol
   new       scaffold a new cafaye service or app
-  reclaim   reclaim what a caf session left behind: containers first, then volumes
-  version   print the caf version
+  reclaim   reclaim what a cafe session left behind: containers first, then volumes
+  version   print the cafe version
   help      show help for a command
 ```
 
-`caf help <command>` is the same as `<command> --help`, and it is the authority
+`cafe help <command>` is the same as `<command> --help`, and it is the authority
 on flags — this page does not restate them, because a flag list copied into
 prose is a flag list that drifts.
 
 | Command | Takes | Works today |
 | --- | --- | --- |
-| `caf version` | — | yes |
-| `caf doctor` | 0 or 1 | yes |
-| `caf contract lint <path>` | 1 argument | yes |
-| `caf contract resolve <constraint> <version>` | 2 arguments | yes |
-| `caf dev [project]` | 0 or 1 | yes |
-| `caf backup <service>` | 1 argument | yes |
-| `caf env <verb>` | 1 argument | yes |
-| `caf gen <target>` | 1 argument | yes |
-| `caf lock <path>` | 1 argument | yes |
-| `caf mcp` | 0 arguments | yes |
-| `caf reclaim` | 0 arguments | yes |
-| `caf init` | 0 arguments | flags only |
-| `caf new <name>` | 1 argument | flags only |
+| `cafe version` | — | yes |
+| `cafe doctor` | 0 or 1 | yes |
+| `cafe contract lint <path>` | 1 argument | yes |
+| `cafe contract resolve <constraint> <version>` | 2 arguments | yes |
+| `cafe dev [project]` | 0 or 1 | yes |
+| `cafe backup <service>` | 1 argument | yes |
+| `cafe env <verb>` | 1 argument | yes |
+| `cafe gen <target>` | 1 argument | yes |
+| `cafe lock <path>` | 1 argument | yes |
+| `cafe mcp` | 0 arguments | yes |
+| `cafe reclaim` | 0 arguments | yes |
+| `cafe init` | 0 arguments | flags only |
+| `cafe new <name>` | 1 argument | flags only |
 
 *Flags only* means exactly what it says: the flags parse, the argument count is
 checked, and the command returns `not implemented in v0` with exit code 1.
 
-`doctor` and `dev` both take an **optional** path — `caf doctor` alone reports
-the machine, and `caf doctor ./my-service` reports the machine *and* whether it
+`doctor` and `dev` both take an **optional** path — `cafe doctor` alone reports
+the machine, and `cafe doctor ./my-service` reports the machine *and* whether it
 can run this particular project.
 
 ### Two things that will bite you
 
-**`caf init` takes no positional argument.** It operates on a directory. This
+**`cafe init` takes no positional argument.** It operates on a directory. This
 is the argument-count check firing:
 
 ```
-$ caf init my-saas
-caf: usage: caf init wants 0 arguments, got 1 (usage: caf init [flags])
+$ cafe init my-saas
+cafe: usage: cafe init wants 0 arguments, got 1 (usage: cafe init [flags])
 $ echo $?
 2
 ```
 
-The command that takes a name is `caf new`:
+The command that takes a name is `cafe new`:
 
 ```
-$ caf new my-saas
-caf: caf new: not implemented in v0
+$ cafe new my-saas
+cafe: cafe new: not implemented in v0
 $ echo $?
 1
 ```
 
-**Flags come before positional arguments.** `caf` uses Go's standard `flag`
+**Flags come before positional arguments.** `cafe` uses Go's standard `flag`
 package, so the flags must precede them:
 
 ```sh
-caf deploy --dry-run identity     # works
-caf deploy identity --dry-run     # usage error, exit 2
+cafe deploy --dry-run identity     # works
+cafe deploy identity --dry-run     # usage error, exit 2
 ```
 
 ### Exit codes
@@ -256,32 +256,32 @@ version bump.
 | --- | --- |
 | 0 | the command succeeded, or you asked for help |
 | 1 | the command ran and failed |
-| 2 | `caf` was invoked wrongly: unknown command, unknown flag, wrong argument count |
+| 2 | `cafe` was invoked wrongly: unknown command, unknown flag, wrong argument count |
 
-## Step 4 — `caf init` a project
+## Step 4 — `cafe init` a project
 
 <span class="badge caution">Coming soon</span> — the flags parse, the command
 returns `not implemented in v0`.
 
 ```
-$ caf init
-caf: caf init: not implemented in v0
+$ cafe init
+cafe: cafe init: not implemented in v0
 $ echo $?
 1
 ```
 
-`caf init` is the command that will create a `cafaye.yml` for the current
+`cafe init` is the command that will create a `cafaye.yml` for the current
 project. It takes `-dir` (default `.`) and `-force`, and nothing else:
 
 ```sh
-caf help init
+cafe help init
 ```
 
 ```
-caf init - create a cafaye.yml manifest for the current project
+cafe init - create a cafaye.yml manifest for the current project
 
 Usage:
-  caf init [flags]
+  cafe init [flags]
 
 Flags:
   -dir string
@@ -296,7 +296,7 @@ Flags:
 repository.
 
 ```sh
-caf contract lint ./cafaye.yml
+cafe contract lint ./cafaye.yml
 ```
 
 ```
@@ -307,7 +307,7 @@ Point it at a directory and it walks the tree, checking every `cafaye.yml` it
 finds and skipping `.git`, `node_modules`, `deps`, `_build`, and `target`:
 
 ```sh
-caf contract lint /path/to/checkouts
+cafe contract lint /path/to/checkouts
 ```
 
 ```
@@ -320,12 +320,12 @@ and diffable. **It exits 1 if any manifest is invalid, and also if the path
 holds no manifest at all** — a tree that validated nothing is not a pass:
 
 ```
-$ caf contract lint /tmp/empty-dir
-caf: caf contract lint: no cafaye.yml found under /tmp/empty-dir
+$ cafe contract lint /tmp/empty-dir
+cafe: cafe contract lint: no cafaye.yml found under /tmp/empty-dir
 ```
 
-Validation is two things: the core JSON Schema, vendored into the `caf` binary
-at `internal/contract/schemas/manifest-0.2.json` and pinned by sha256 (`caf`
+Validation is two things: the core JSON Schema, vendored into the `cafe` binary
+at `internal/contract/schemas/manifest-0.2.json` and pinned by sha256 (`cafe`
 never fetches it), plus the three cross-field rules a JSON Schema cannot state —
 a published event type must start with the publisher's own name, a service never
 consumes its own events, and an `exposes` must name an OpenAPI document or an
@@ -334,11 +334,11 @@ that passed it.
 
 ### Checking a core version constraint
 
-`caf contract resolve` answers one question — does this service's `core:` range
+`cafe contract resolve` answers one question — does this service's `core:` range
 admit this `core` release — and is shaped for a CI gate.
 
 ```sh
-caf contract resolve '^0.2.0' 0.2.0
+cafe contract resolve '^0.2.0' 0.2.0
 ```
 
 ```
@@ -346,7 +346,7 @@ yes  ^0.2.0 allows 0.2.0: 0.2.0 is in [0.2.0, 0.3.0)
 ```
 
 ```sh
-caf contract resolve '^0.1.0' 0.2.0
+cafe contract resolve '^0.1.0' 0.2.0
 ```
 
 ```
@@ -354,7 +354,7 @@ no   ^0.1.0 allows 0.2.0: 0.2.0 is not in [0.1.0, 0.2.0)
 ```
 
 Exit 0 when the version is inside the constraint, 1 when it is not, 2 when
-`caf` cannot read what you typed. The constraint grammar is deliberately tiny:
+`cafe` cannot read what you typed. The constraint grammar is deliberately tiny:
 `1.2.3` exactly, `^1.2.3` caret, `~1.2.3` tilde, `>=1.2.3` at-or-above. No
 ranges, no `||`, no `x`-ranges. Note the pre-1.0 caret: on a `0.x` service
 `^0.2.0` is `>=0.2.0 <0.3.0`, so a `0.3.0` core is *not* admitted by
@@ -362,13 +362,13 @@ ranges, no `||`, no `x`-ranges. Note the pre-1.0 caret: on a `0.x` service
 
 ## Step 5 — run a service locally
 
-`caf dev` **works.** It reads a project's `cafaye.yml`, validates it against the
-same rules `caf contract lint` applies, renders a compose file from it, **writes
+`cafe dev` **works.** It reads a project's `cafaye.yml`, validates it against the
+same rules `cafe contract lint` applies, renders a compose file from it, **writes
 that file and prints it in full**, brings the stack up, waits for it, and reports
 what came up and what did not.
 
 ```sh
-caf dev --dry-run ./hello      # render and print; do not bring anything up
+cafe dev --dry-run ./hello      # render and print; do not bring anything up
 ```
 
 ```
@@ -377,7 +377,7 @@ skipped legacy: optional dependency, and the local registry does not know how to
 wrote /work/hello/hello.compose.yaml
 ```
 
-The report **is** the message: `caf dev` prints its verdict for a stack that came
+The report **is** the message: `cafe dev` prints its verdict for a stack that came
 up with something in it that did not, on stdout, once, and does not repeat it on
 stderr. A generated compose file is marked *do not edit* — every run rewrites it,
 and the manifest is the source of truth.
@@ -606,7 +606,7 @@ would race, and a half-applied migration would take the process down with it.
 **On `bin/dev` you do not run this step at all**: `bin/dev` runs the
 repository's own migration command between bringing the stack up and printing the
 URLs, and refuses to do anything else if the stack is not healthy first. The
-commands below are for `caf dev`, for a host-side loop, or for a Kamal deploy —
+commands below are for `cafe dev`, for a host-side loop, or for a Kamal deploy —
 where they are a job that runs *before* the new image rolls out.
 
 `identity` uses `goose`, which is a command-line tool rather than a module
@@ -635,7 +635,7 @@ psql muse -f migrations/00002_vault_secrets.sql
 In production, run `up-by-one` (or the equivalent) as a single ordered job
 *before* the new image rolls out, and fail the deploy on a non-zero exit.
 
-**On a `caf dev` stack, run them from inside the compose network.** The
+**On a `cafe dev` stack, run them from inside the compose network.** The
 rendered file publishes only the service's own port, so `goose` on the host has
 nothing to connect to, and the first request you make before migrating fails with
 a bare `500` whose real reason — `relation "users" does not exist` — is only in
@@ -644,7 +644,7 @@ has the loop that was run, and why it does not record a goose version.
 
 ## Step 6 — deploy to your own infrastructure
 
-`caf deploy` works. It drives Kamal: it installs Docker on the host if the host
+`cafe deploy` works. It drives Kamal: it installs Docker on the host if the host
 lacks it, boots the accessories, builds and pushes the image, and rolls the
 release out behind `kamal-proxy` only once the new container answers its
 healthcheck. What it does not have is a cafaye-operated remote, so it deploys
@@ -657,34 +657,34 @@ customer-facing substrate (k3s + ArgoCD + CloudNativePG, installed by
 `curl https://kit.cafaye.com | sh`) is decided in
 [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
 is documented in [Deployment](/runbooks/deployment/). The k3s/Argo
-implementation of `caf deploy` lands behind the same `deploy.Runner` interface
-(`caf/internal/cli/deploy.go`), so the command you type does not change — the
+implementation of `cafe deploy` lands behind the same `deploy.Runner` interface
+(`cafe/internal/cli/deploy.go`), so the command you type does not change — the
 infrastructure it drives does. Read this section to understand the shape; read
 the Deployment runbook for the path that replaces it.
 :::
 
 ```sh
-caf deploy --dry-run identity
+cafe deploy --dry-run identity
 ```
 
 Run it from the project directory — the one holding `config/deploy.yml`. In a
 directory without one, the real answer is:
 
 ```text
-caf: caf deploy: /tmp/cafdry has no config/deploy.yml, so there is nothing to deploy.
+cafe: cafe deploy: /tmp/cafdry has no config/deploy.yml, so there is nothing to deploy.
   Copy it from cafaye/kit at the ref your kit.ref names: kit/templates/kamal/deploy.yml.erb -> config/deploy.yml
 ```
 
 It takes `-env`, `-version`, `-dry-run` and `-yes`, and its usage line is
-`caf deploy [flags] <service>`. **Flags come before the service name**, so
-`caf deploy --dry-run identity` and not `caf deploy identity --dry-run`; the
+`cafe deploy [flags] <service>`. **Flags come before the service name**, so
+`cafe deploy --dry-run identity` and not `cafe deploy identity --dry-run`; the
 latter is a usage error. `-env` names an overlay merged over the base config
 (`config/deploy.<env>.yml` over `config/deploy.yml`) and defaults to empty
 rather than to a named stage. `-dry-run` prints every command it would run and
 changes nothing. Without `-yes` it asks first, and a machine with nobody to
 answer is told to pass it rather than left to guess.
 
-:::caution[`caf` does not deploy a cafaye service. `kamal` does, and `kit` ships the configuration — three files, copied per service]
+:::caution[`cafe` does not deploy a cafaye service. `kamal` does, and `kit` ships the configuration — three files, copied per service]
 
 `kit/templates/kamal/` holds the three files a Kamal deployment is made of:
 

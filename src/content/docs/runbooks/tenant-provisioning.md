@@ -14,7 +14,7 @@ output is worth checking by eye, the check is the step.
 :::caution[What this page does not pin, and why that is deliberate]
 An earlier version of this page claimed the session was run "against `identity`
 at commit `27fe8a6`". **That commit is not in `identity`'s history** — it is a
-commit in `caf`, and the sentence named the wrong repository's history, which is
+commit in `cafe`, and the sentence named the wrong repository's history, which is
 the worst kind of provenance claim because it looks checkable and is not.
 
 Naming a commit here would only be honest if somebody re-ran the whole

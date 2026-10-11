@@ -168,8 +168,8 @@ Stated plainly, because a page that only sells the design is a marketing page.
 - **More moving parts to operate.** Seven services, five databases, a gateway,
   and eventually a broker. The [runbooks](/runbooks/) exist because of this.
 - **Contract drift is a real failure mode**, which is why `core` freezes specs,
-  every service pins `core:` in its manifest, and `caf contract lint` and
-  `caf contract resolve` exist to gate it. The current drift is recorded in the
+  every service pins `core:` in its manifest, and `cafe contract lint` and
+  `cafe contract resolve` exist to gate it. The current drift is recorded in the
   [drift audit](/architecture/topology/#cross-repo-drift-audit) rather than
   smoothed over.
 - **The boundaries are younger than the design.** `gateway` routes through a

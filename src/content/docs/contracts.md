@@ -16,12 +16,12 @@ Every cafaye repository carries one file, `cafaye.yml`, validated against
 `core`'s
 [manifest schema](https://github.com/cafaye/core/blob/master/schemas/cafaye.manifest.schema.json).
 It is the one place that declares what a service is and what it speaks, so that
-`caf init`, `caf dev`, `caf gen`, `pantry`, and `gateway` all read the same six
+`cafe init`, `cafe dev`, `cafe gen`, `pantry`, and `gateway` all read the same six
 facts instead of six bespoke config files.
 
 ```yaml
 name: billing                      # the cafaye namespace name, also the event source
-description: …                     # one sentence, shown by `caf new` and pantry
+description: …                     # one sentence, shown by `cafe new` and pantry
 language: ruby                     # go|ruby|elixir|python|typescript|rust|spec
 core: ^0.2.0                       # the core spec range this service compiles against
 
@@ -86,7 +86,7 @@ has the current list.
 
 **`core` also owns seven telemetry schemas** — span naming, traces, metrics,
 logs, redaction, probes, and the `<SERVICE>_OTEL_ENDPOINT` contract — which are
-read by `caf contract lint` alongside the event schemas. See
+read by `cafe contract lint` alongside the event schemas. See
 [Observability](/observability/), and note that the contract is shipped while the
 stack that would receive it is not.
 
@@ -100,7 +100,7 @@ idempotency keys, `traceparent` propagation — are written down in
 
 ## What this means for you
 
-- **You do not write the contracts.** `core` owns them, `caf gen` generates your
+- **You do not write the contracts.** `core` owns them, `cafe gen` generates your
   SDK from them, and drift is caught by a test rather than by a bug report.
 - **You can take only what you need.** A project depends on `identity` and
   nothing else if that is all it needs. The platform is a set of independent

@@ -34,6 +34,25 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Changed
 
+- **The CLI is `cafe` everywhere, not `caf`.** PLAN §3 L1 renames the framework
+  CLI `caf` → `cafe` ("all `caf …` verbs become `cafe …` in docs"), and this
+  site is the biggest living-docs surface. Every living page and `README.md`
+  printed the old name: 297 standalone `caf` occurrences across 25 content
+  files and `README.md`, covering CLI invocations, the quoted `caf help` output,
+  shell transcripts and their prompt output, the install/clone/build path
+  (`github.com/cafaye/cafe/cmd/cafe@latest`, `cafaye/cafe.git`, `./cmd/cafe`,
+  `cafaye/tap/cafe`), the `cafe/internal/cli/*.go` source paths, and the
+  `<repo>@cafaye.com` contact pattern. All now print the post-rename shape; the
+  physical repository rename lands at integration, so `../caf` sibling-path
+  mentions travel with it. `cafaye` is untouched — 397 occurrences before and
+  after, because the sweep matched word boundaries only — and `conductor` naming
+  belongs to a later packet. `tests/examples.mjs` follows the rename rather than
+  losing the check: its subcommand vocabulary is still read out of the help
+  output this repository quotes in `getting-started.md`, now the `cafe help`
+  quote (6 subcommands referenced against a 16-command vocabulary), and an
+  example that invents a command still fails against it. Gate: `bin/prime`, 22
+  tests, 22 pass, 0 fail.
+
 - **`pantry` is described as closed, not MIT, on every page that named it.**
   OPS-D10 (`CAFAYE-OPS.md`, 2026-10-10, user) moves pantry's licence from MIT
   to proprietary while the service stays publicly reachable, amending the
