@@ -448,7 +448,7 @@ empty. The first request fails like this:
 
 ```
 HTTP 500
-{"type":"https://errors.cafaye.com/internal","title":"Internal server error",
+{"type":"https://docs.cafaye.com/errors/internal","title":"Internal server error",
  "status":500,"detail":"the request could not be completed. Quote the trace id
  when reporting this.","instance":"/v1/users","code":"internal",
  "trace_id":"7d45460a-1d11-4628-a658-7da100eee6f3"}

@@ -636,13 +636,8 @@ The three ways to get a `503`, and they need different fixes:
 | What you see | Cause | Fix |
 | --- | --- | --- |
 | `503` with `{"code":"unavailable","message":"authorization service unavailable"}` | identity is down, unreachable, or answered something unexpected | Restore identity. See [a service is down](/runbooks/service-down/) |
-| Same body, and identity is demonstrably up | `BOX_IDENTITY_URL` is unset — `IdentityClient` raises `Misconfigured` from `raise Misconfigured, "CONDUCTOR_IDENTITY_URL is not set" if @base_url.empty?` and the controller maps it to the same 503 | Set it on box and roll. **It is read at construction, so a restart is required** |
+| Same body, and identity is demonstrably up | `BOX_IDENTITY_URL` is unset — `IdentityClient` raises `Misconfigured` from `raise Misconfigured, "BOX_IDENTITY_URL is not set" if @base_url.empty?` and the controller maps it to the same 503 | Set it on box and roll. **It is read at construction, so a restart is required** |
 | `401 {"code":"unauthenticated","message":"valid bearer token required"}` | your token is missing, malformed, or expired | Get a fresh staff session |
-
-The quoted `raise` still reads `CONDUCTOR_IDENTITY_URL` because it is verbatim
-from `box/app/clients/identity_client.rb` as measured (2026-10-11): the control
-plane is named box and its environment renames with the box repo under PLAN §3
-L2, which is a code change in another repository, not a prose change here.
 
 A `503` that persists while identity answers `curl` fine is a base-URL or
 network problem on box, **not** a staff problem — the message is
