@@ -352,7 +352,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git clone --depth 1 https://github.com/cafaye/caf.git "$RUNNER_TEMP/caf"
+          git clone --depth 1 https://github.com/cafaye/cafe.git "$RUNNER_TEMP/caf"
           (cd "$RUNNER_TEMP/caf" && go build -o "$RUNNER_TEMP/caf-bin" ./cmd/caf)
           "$RUNNER_TEMP/caf-bin" version
 
@@ -585,7 +585,7 @@ jobs:
         #   * **A credential is never in CI configuration.** A reference to a
         #     repository or organisation secret is a value in version control
         #     wearing a prefix. Nothing in this repository needs one: the gate is
-        #     hermetic, `cafaye/core` and `cafaye/caf` are public, and the
+        #     hermetic, `cafaye/core` and `cafaye/cafe` are public, and the
         #     default `GITHUB_TOKEN` reads both.
         #   * **A CI log is a worse place to leak a credential than a terminal**,
         #     because it is retained, searchable and often public. Nothing in
