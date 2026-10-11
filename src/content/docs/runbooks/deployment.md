@@ -42,7 +42,7 @@ migration (DEPLOYMENT.md:27).
 (DEPLOYMENT.md:97).
 
 **The operator's machine needs `kubectl`, `git` and `curl`.** The install is
-`curl https://kit.cafaye.com | sh` (DEPLOYMENT.md:98); everything after it is
+`curl https://cafaye.com/box/install | sh` (DEPLOYMENT.md:98); everything after it is
 `kubectl` to inspect and `git` to change. `helm` is named here as the chart tool
 a stack of this shape is built from — unverified against an install script that
 does not exist yet.
@@ -52,11 +52,11 @@ does not exist yet.
 **One command:**
 
 ```sh
-curl https://kit.cafaye.com | sh
+curl https://cafaye.com/box/install | sh
 ```
 
-`kit.cafaye.com` is the product's domain, and it serves the install script at its
-root, statically, the way `get.once.com` does (DEPLOYMENT.md:102-104).
+`cafaye.com` is the product's domain, and it serves the install script at
+`/box/install`, statically, the way `get.once.com` does (DEPLOYMENT.md:102-104).
 
 **What it does, step by step** (DEPLOYMENT.md:98-99):
 
@@ -99,7 +99,7 @@ not a code change.
 | Domain | What it is |
 | --- | --- |
 | `cafaye.com` | the platform |
-| `kit.cafaye.com` | the product; serves the install script at its root, statically (DEPLOYMENT.md:102-104) |
+| `cafaye.com/box/install` | the product's install endpoint; serves the install script statically (DEPLOYMENT.md:102-104) |
 
 **Cloudflare in front is a DNS change, never infrastructure**
 (DEPLOYMENT.md:28). Putting Cloudflare in front means changing nameservers, not
