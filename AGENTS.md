@@ -56,19 +56,9 @@ bin/prime             # or: mise run prime
   expected metadata from the pages rather than restating it, so an advisory the
   index forgot is a failure and not a page nobody finds.
 - The counts are printed, because a check that reports nothing looks like a
-<<<<<<< HEAD
-  check that found nothing: 130 shell fences, 10 JSON fences, 2 manifests, 6
-  `caf` subcommands, 79 external links, 0 redirects. Measured on this branch by
-  running the suite; this sentence said 103 and 50, which is the failure it
-||||||| fa52e4f
-  check that found nothing: 136 shell fences, 12 JSON fences, 2 manifests, 6
-  `caf` subcommands, 69 external links, 0 redirects. Measured on this branch by
-  running the suite; this sentence said 103 and 50, which is the failure it
-=======
   check that found nothing: 125 shell fences, 10 JSON fences, 2 manifests, 6
   `caf` subcommands, 78 external links, 0 redirects. Measured on this branch by
   running the suite; this sentence said 136, 12 and 69, which is the failure it
->>>>>>> ops/w0-docs-sweep
   exists to prevent, in the file that states it.
 
 ### The contract tier
