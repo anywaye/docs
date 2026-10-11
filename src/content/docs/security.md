@@ -29,7 +29,7 @@ digest, and is single-use, minutes-lived and box-bound; a provider credential
 it carries is sealed to your box's public key and only your box can open it;
 it holds no SSH key, no box credential and no root, and it never dials your
 box back. The boundary is stated in `conductor`'s own `docs/BOUNDARIES.md`, and
-`caf`'s boxd tests hold it — every route the daemon can answer is walked for
+`cafe`'s boxd tests hold it — every route the daemon can answer is walked for
 Secret-shaped answers and refused.
 
 **By default, nothing leaves your infrastructure.** No service exports telemetry
@@ -205,7 +205,7 @@ Files: `kit/.github/workflows/ci.reusable.yml`, `kit/tests/gitleaks_gate.sh`, an
 is no inline allowlist.
 
 **Ten of the fifteen repositories run it**, being every repository that calls
-`cafaye/kit/.github/workflows/ci.reusable.yml@master`: `billing`, `caf`, `core`,
+`cafaye/kit/.github/workflows/ci.reusable.yml@master`: `billing`, `cafe`, `core`,
 `courier`, `darkroom`, `gateway`, `identity`, `kit`, `muse`, `parlor`.
 
 **Five do not**, and saying so is the point of this section: `cafaye-py`,
@@ -267,7 +267,7 @@ secrets](/runbooks/secret-rotation/).
   `OIDC_ISSUER`, `OIDC_SIGNING_KEY` and `OIDC_SIGNING_KEY_ID` to publish its
   discovery document, and `MFA_ENCRYPTION_KEY` to mount the MFA routes. Unset,
   the routes are **absent** rather than present-and-broken, and the process says
-  so twice at startup. `caf dev` sets none of them.
+  so twice at startup. `cafe dev` sets none of them.
 - **`gateway` relays what `ROUTE_TABLE` names, and keeps sessions in Redis.** It
   serves `/v1/me` and `/auth/*` always and forwards a configured prefix to the
   service that owns it. The routing table is static — no discovery, no health
@@ -345,7 +345,7 @@ What exists now:
   history. A vulnerability in `identity` is a bug in `identity`, and the fastest
   honest route today is its issue tracker, where the maintainers actually watch.
 - **A per-repository contact address**, declared in each `cafaye.yml` under
-  `owner.contact`: `identity@cafaye.com`, `courier@cafaye.com`, `caf@cafaye.com`,
+  `owner.contact`: `identity@cafaye.com`, `courier@cafaye.com`, `cafe@cafaye.com`,
   `docs@cafaye.com`, and nine more. **Thirteen of the fifteen repositories
   declare one**; the two that do not are `kit` and `cafaye-py`, because they have
   no `cafaye.yml` at all.

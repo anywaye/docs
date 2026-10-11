@@ -8,7 +8,7 @@ front of a laptop with a credit card. This page is the whole path from nothing
 to something running that you can show your team, in order, with the failure
 branch beside every step. It is not a tour of the features.
 
-**Every command on this page was run against `caf` at commit `460acf3` and
+**Every command on this page was run against `cafe` at commit `460acf3` and
 `identity` at `master`, `35c2576`, on macOS with Docker 29.4.0.** Output is
 quoted where it matters. Where a step could not be run here, the page says so on
 the step rather than implying it was verified. The last section lists those.
@@ -35,7 +35,7 @@ Grafana and the git repository, so it is your box with our attention on it rathe
 than ours with your data in it. We do not page anybody yet: response is on a
 stated schedule during business hours, and the tier we sell says so.
 
-Two things that have *not* changed. `caf deploy` itself is implemented — it
+Two things that have *not* changed. `cafe deploy` itself is implemented — it
 builds the image, pushes it and rolls it out — but it still has no
 cafaye-operated remote to target automatically, so it deploys to infrastructure
 you already pay for. And Cafaye Ops is a service rather than a remote: the box
@@ -81,7 +81,7 @@ these rows are a summary, the service pages are the claim.
 
 **The split has landed, and a grant is written down in every repository.**
 Measured **2026-10-10** from committed `master`, the fourteen public
-repositories carry a `LICENSE`. The framework — `core`, `caf`, `kit`
+repositories carry a `LICENSE`. The framework — `core`, `cafe`, `kit`
 — is MIT, because its job is adoption and it should carry no strings. The seven
 services — `identity`, `gateway`, `courier`, `darkroom`, `billing`, `parlor`,
 `muse` — are under a Business Source Licence: free to run, free to self-host,
@@ -124,7 +124,7 @@ rights reserved" — not MIT, and not what we are offering.
 | `darkroom`, `pantry` | `license = "MIT"` in `Cargo.toml`. No licence file. |
 | `gateway`, `docs` | `"license": "MIT"` in `package.json`. No licence file. |
 | **`muse`** | **`license = { text = "AGPL-3.0-only" }` in `pyproject.toml`, and a README that says the same** |
-| `identity`, `billing`, `courier`, `parlor`, `core`, `caf`, `kit` | **nothing.** No licence file, no field in any manifest. |
+| `identity`, `billing`, `courier`, `parlor`, `core`, `cafe`, `kit` | **nothing.** No licence file, no field in any manifest. |
 
 :::caution[What "open source" means on the org page]
 [github.com/cafaye](https://github.com/cafaye) is a public organization and the
@@ -139,9 +139,9 @@ measures the current one is [Licensing](/licensing/).
 **We have not published a sizing guide, and this page is not going to invent
 one.** Here is what the code actually asserts, and it is all of it:
 
-- **`caf doctor` holds a floor of 4 GiB of memory and 4 CPUs** for a local stack
+- **`cafe doctor` holds a floor of 4 GiB of memory and 4 CPUs** for a local stack
   — a database, a cache and a service at once. That is a floor in
-  `caf/internal/cli/doctor_env.go`, not a recommendation, and it is the only
+  `cafe/internal/cli/doctor_env.go`, not a recommendation, and it is the only
   number in the fleet about how much machine you need.
 - **Every service is one stateless container.** Multi-stage, non-root, no volume
   mounted. Replacing or restarting one loses nothing.
@@ -153,7 +153,7 @@ one.** Here is what the code actually asserts, and it is all of it:
 - **One object-storage bucket you choose**, for `darkroom` — S3 or Cloudflare
   R2, one implementation, two configurations. It is not covered by `pg_dump`.
 - **One `identity` container brought up this way is three containers.** Verified:
-  `caf dev` on `identity` renders `identity` plus `postgres:16-alpine` plus
+  `cafe dev` on `identity` renders `identity` plus `postgres:16-alpine` plus
   `redis:7-alpine`.
 
 There is a managed option — **Cafaye Ops** — priced as a flat monthly band on
@@ -186,15 +186,15 @@ Four things will leave, and only if you turn them on:
 This is a check you can run, not a sentence to interpret.
 
 ```sh
-go install github.com/cafaye/caf/cmd/caf@latest
-caf doctor
+go install github.com/cafaye/cafe/cmd/cafe@latest
+cafe doctor
 ```
 
 There is no tagged release, so `@latest` resolves to a pseudo-version built from
 `master`. That works today, and it is the only install path: there is no
-Homebrew tap and no `caf install`.
+Homebrew tap and no `cafe install`.
 
-`caf doctor` prints **two tables and always exits 0** — it is a report about a
+`cafe doctor` prints **two tables and always exits 0** — it is a report about a
 machine, not a gate, so a `missing` row is something you read rather than a CI
 failure.
 
@@ -217,7 +217,7 @@ checked 10 tools, 10 ok, 0 missing
 ```
 
 **That list is not an opinion on this page.** It is the `tools` table in
-`caf/internal/cli/doctor.go`, one entry per row, and the order above is the
+`cafe/internal/cli/doctor.go`, one entry per row, and the order above is the
 table's order. `python` resolves `python3` then `python`; `rust` resolves
 `rustc` then `cargo`. If a service you want adds a language, that table is where
 the requirement comes from.
@@ -249,20 +249,20 @@ table:
   can start. A failure here reads `unreachable` and says to start the runtime.
 - **`memory` and `cpu` are the 4 GiB / 4 floor.** A machine reports every
   toolchain it needs and still cannot run a stack.
-- **`port 8080 free`.** If something else holds it, `caf dev -port` publishes
+- **`port 8080 free`.** If something else holds it, `cafe dev -port` publishes
   the project service somewhere else — but the databases and caches do not move,
-  so a collision on a **database** port is a different problem. On a `caf dev`
+  so a collision on a **database** port is a different problem. On a `cafe dev`
   stack the database is not published on a host port at all (see
   [step 5](#step-5--apply-the-migrations)), which is why the collision you hit
   here is a *service* port.
 
 :::caution[Running it with no project at all]
-`caf doctor` in a directory with no `cafaye.yml` prints the tool table and then
+`cafe doctor` in a directory with no `cafaye.yml` prints the tool table and then
 one line:
 
 ```
 project .: no manifest: no cafaye.yml in .; a project declares its service in one
-(run "caf init" to create it, or pass the project directory as the argument)
+(run "cafe init" to create it, or pass the project directory as the argument)
 ```
 
 That is not a failure. It is the second table saying it has nothing to plan. Run
@@ -274,12 +274,12 @@ it again from step 2 and it will answer the real question.
 ### Step 1 — install the CLI
 
 ```sh
-go install github.com/cafaye/caf/cmd/caf@latest
-caf version
+go install github.com/cafaye/cafe/cmd/cafe@latest
+cafe version
 ```
 
 ```
-caf 0.0.0-dev (commit unknown)
+cafe 0.0.0-dev (commit unknown)
 ```
 
 That version string is not a mistake. The semver and commit are injected at link
@@ -288,7 +288,7 @@ time by the release pipeline; a `go install` from an untagged commit has neither
 **If that version line says anything else**, you have a tagged release, which is
 better — carry on.
 
-**If it says `caf: command not found`**, the install worked and your `PATH` does
+**If it says `cafe: command not found`**, the install worked and your `PATH` does
 not. `go install` writes to `$(go env GOBIN)`, which is `$GOPATH/bin` for a
 system Go and **somewhere else entirely under a version manager** — on the
 machine this page was written on, `GOBIN` is a mise directory and `$GOPATH/bin`
@@ -320,8 +320,8 @@ HTTPS for a read-only clone if you have to — `git clone
 https://github.com/cafaye/identity.git` — but keep SSH for anything you push.
 PLAN.md §1 makes SSH the rule for repositories cafaye owns.
 
-If you are adding **your own** service rather than running ours, `caf new` and
-`caf init` are stubs — they parse their flags and return `not implemented in
+If you are adding **your own** service rather than running ours, `cafe new` and
+`cafe init` are stubs — they parse their flags and return `not implemented in
 v0` — so write the manifest by hand. The minimum that validates is this, and it
 was linted:
 
@@ -354,7 +354,7 @@ placeholders.
 ### Step 3 — prove the manifest
 
 ```sh
-caf contract lint ./cafaye.yml
+cafe contract lint ./cafaye.yml
 ```
 
 ```
@@ -381,21 +381,21 @@ table — and re-run it, because that number moves with every packet and the
 answer underneath it does not:
 
 ```sh
-caf contract lint /path/to/cafaye
+cafe contract lint /path/to/cafaye
 ```
 
 ### Step 4 — bring the stack up
 
 ```sh
-caf dev --dry-run .     # render and print; start nothing
-caf dev .
+cafe dev --dry-run .     # render and print; start nothing
+cafe dev .
 ```
 
 `--dry-run` first is not optional politeness: it prints the rendered compose file
-in full, so you can see what `caf dev` decided before it decides it for you. On
+in full, so you can see what `cafe dev` decided before it decides it for you. On
 `identity` it renders three services — `identity` built from the repository's
 own `Dockerfile`, plus `postgres:16-alpine` and `redis:7-alpine` — and writes
-`caf.dev.compose.yaml` into the project.
+`cafe.dev.compose.yaml` into the project.
 
 Then bring it up. This builds the image, so the first run takes minutes:
 
@@ -410,7 +410,7 @@ identity  running  project         Up Less than a second
 identity is up on http://localhost:8080
 ```
 
-`caf dev` leaves the stack running when it exits. To stop it:
+`cafe dev` leaves the stack running when it exits. To stop it:
 
 ```sh
 docker compose -p identity-dev down
@@ -422,23 +422,23 @@ your data survives. Add `-v` when you want the database gone as well.
 **Four ways this step fails, and what each one means:**
 
 - **`nothing to run: … has no docker/Dockerfile and the local registry names no
-  image for it`.** You are in a directory without a `Dockerfile`. `caf dev`
+  image for it`.** You are in a directory without a `Dockerfile`. `cafe dev`
   builds your service from the project directory; there is no registry entry for
   a repository it has never seen.
 - **`skipped legacy: optional dependency, and the local registry does not know
   how to run it`.** Your manifest declares a dependency on another cafaye
-  service. `caf dev` resolves dependencies through a catalog and the default
-  catalog is empty — `pantry` serves the official one over HTTP, but `caf dev
+  service. `cafe dev` resolves dependencies through a catalog and the default
+  catalog is empty — `pantry` serves the official one over HTTP, but `cafe dev
   -registry` reads a **local JSON file**, and no catalog file is published yet.
   Run each service in its own directory until one is.
 - **A container never reaches `healthy`.** Read `docker compose -p identity-dev
-  logs`. `caf dev` waits three minutes by default (`-wait`) before it reports
+  logs`. `cafe dev` waits three minutes by default (`-wait`) before it reports
   what did not come up, which is generous because a first run is mostly a build.
-- **`port 8080 in use`.** `caf doctor` predicts this one. `caf dev -port 8081`.
+- **`port 8080 in use`.** `cafe doctor` predicts this one. `cafe dev -port 8081`.
 
 ### Step 5 — apply the migrations
 
-**`caf dev` does not run migrations, and it does not publish the database on a
+**`cafe dev` does not run migrations, and it does not publish the database on a
 host port.** Both of those matter, and together they make this the step a stuck
 reader stops at.
 
@@ -468,7 +468,7 @@ deploy with two versions live would race, and a half-applied migration would
 take the process down with it. It is a deploy job, which locally means you run
 it.
 
-Because `caf dev` keeps Postgres on the compose network, run the migrations from
+Because `cafe dev` keeps Postgres on the compose network, run the migrations from
 inside it:
 
 ```sh
@@ -589,7 +589,7 @@ than a defect to file.
 `404` on this stack, and so does `/.well-known/openid-configuration`. Not
 because OIDC is broken — it is built and tested — but because `Config.OIDCEnabled()`
 requires all three of `OIDC_ISSUER`, `OIDC_SIGNING_KEY` and `OIDC_SIGNING_KEY_ID`
-to be set, and `caf dev` sets none of them. A process with no signing key serves
+to be set, and `cafe dev` sets none of them. A process with no signing key serves
 its `/v1` surface and its probes and nothing else, deliberately, because there is
 no key to sign with and no document to publish.
 
@@ -615,8 +615,8 @@ whole surface, with its own OpenAPI document. `MFA_ENCRYPTION_KEY` is base64url,
 boot. Unset means the management routes are absent; a value of the wrong length
 is a startup failure.
 
-**To turn it on locally, use the repository's own stack rather than `caf dev`**,
-because `caf dev` has no flag to add environment variables and rewrites its
+**To turn it on locally, use the repository's own stack rather than `cafe dev`**,
+because `cafe dev` has no flag to add environment variables and rewrites its
 rendered file on every run:
 
 ```sh
@@ -729,14 +729,14 @@ because it will get shorter and this page will be updated when it does.
 | **`gateway` has no API keys and no mounted scope check.** | The TypeScript implementation that had both was deleted at the Go cutover (`f87c891`, 2026-10-05), so a bearer JWT is the only script credential and no route refuses a token for lacking a scope. What it *does* do: verify RS256 bearers against identity's JWKS, serve a browser login on a Redis session store, and relay the prefixes `ROUTE_TABLE` names — statically, with no discovery. Set `ROUTE_TABLE` or nothing is forwarded. | `openapi/v1.yaml` (zero `api-keys` operations); `internal/auth/middleware.go`, where `RequireScope` is implemented and unmounted; `internal/httpapi/table.go` |
 | **`gateway` needs `REDIS_URL` for the browser surface.** | The session store is Redis and the four `/auth` routes are built only when `IDENTITY_URL` **and** `REDIS_URL` are both set, so a gateway without it serves no browser surface at all rather than a degraded one. | `browserSurfaceFromEnv` in `gateway`'s `internal/httpapi/runtime.go` |
 | **`muse`'s auth was a stub until 2026-10-01, and is not one now.** | This row said *do not put `muse` behind anything you care about*. `muse` `e3f53b0` verifies the bearer against `identity`'s JWKS with RS256 pinned at the decoder, requires `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and `account_id`, checks the operation's capability separately from the signature, and refuses unauthenticated traffic when `identity` is down. What is still true: `muse` accepts either of two authorisation claim names and refuses a token where they disagree, and that ruling is core's to make. | [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over); `src/muse/auth.py`; `tests/test_auth.py` |
-| **`caf` has no stub commands as of 2026-10-10.** | The three that used to parse their flags and return `not implemented in v0` — `gen`, `init`, `new` — are in the working table now, and the stub table is empty. `caf deploy` works (Kamal) and `caf mcp` serves the tools, so you can scaffold a manifest rather than writing one by hand. | `caf/internal/cli/stub_test.go`, whose `stubCommands` table is the single source of truth |
+| **`cafe` has no stub commands as of 2026-10-10.** | The three that used to parse their flags and return `not implemented in v0` — `gen`, `init`, `new` — are in the working table now, and the stub table is empty. `cafe deploy` works (Kamal) and `cafe mcp` serves the tools, so you can scaffold a manifest rather than writing one by hand. | `cafe/internal/cli/stub_test.go`, whose `stubCommands` table is the single source of truth |
 | **Telemetry is instrumented; no collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing in a cafaye environment receives them. `kit` ships the stack and `bin/dev` runs it, so a pilot gets traces rather than a promise. | You will not have a fleet-wide trace view until you run the stack, and you should budget for wiring `<SERVICE>_OTEL_ENDPOINT` at whatever backend you already pay for. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. | [Observability](/observability/) |
 | **Password reset is built but unconfigured by default.** | `POST /v1/password-resets` and `/confirm` are served and published, and `site` ships the flow — but the recovery surface is mounted only with a mailer behind it, so without `COURIER_BASE_URL`, `COURIER_TOKEN` and `PASSWORD_RESET_LINK_TEMPLATE` it answers **503**, not 404. Set those, and **still plan a support channel.** | `cmd/identity/main.go`, `buildRecovery`; `identity/openapi/v1.yaml` |
 | **`identity` OIDC has no refresh tokens.** | Access tokens live fifteen minutes and cannot be renewed. | the discovery document, where the absent features are absent rather than stubbed |
 | **No vault key rotation.** | `MUSE_VAULT_KEY` cannot be rotated in place. | `key_version` is always 1 |
 | **`parlor` is not a finished template,** and its manifest does not validate. | Do not clone it expecting a product shell. | the [drift audit](/architecture/topology/#cross-repo-drift-audit) |
 | **A green badge may have skipped its hard half.** `kit`'s reusable workflow is callable and eight repositories now call it, but in most of the fleet the interesting tests are a second tier that does not run by default — so "the gate is green" often means somebody ran the suite by hand, that day. The exception is `identity`, whose CI refuses to skip its own database tier. | Check what ran before you check the colour. | [Running the gates](/running-the-gates/) |
-| **The licence is a file in seven of the fourteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those seven, so the `LICENSE` file is the only declaration — and for `billing`, `caf`, `core`, `darkroom`, `gateway`, `identity` and `kit` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `caf contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/licensing/#what-each-repository-declares-today) and its `re-derive it yourself` command |
+| **The licence is a file in seven of the fourteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those seven, so the `LICENSE` file is the only declaration — and for `billing`, `cafe`, `core`, `darkroom`, `gateway`, `identity` and `kit` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `cafe contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/licensing/#what-each-repository-declares-today) and its `re-derive it yourself` command |
 
 One more that decides whether you can put anything in front of a customer:
 **`docs` is the only cafaye repository with no CI workflow at all.** The other
@@ -800,7 +800,7 @@ What exists today, honestly:
 - **A per-service contact address**, declared in each repository's `cafaye.yml`
   under `owner.contact`: `identity@cafaye.com`, `billing@cafaye.com`,
   `courier@cafaye.com`, `darkroom@cafaye.com`, `gateway@cafaye.com`,
-  `muse@cafaye.com`, `pantry@cafaye.com`, `caf@cafaye.com`, `core@cafaye.com`,
+  `muse@cafaye.com`, `pantry@cafaye.com`, `cafe@cafaye.com`, `core@cafaye.com`,
   `cafaye@cafaye.com`, `docs@cafaye.com`, `parlor@cafaye.com`,
   `site@cafaye.com`. One repository declares none: **`kit`, which has no
   `cafaye.yml` at all**, so there is no address to write to for it.
@@ -818,7 +818,7 @@ Stated here rather than left for you to guess:
 - **Nothing on macOS with Docker Desktop was run on Linux.** No step was run on
   a Kubernetes cluster, on ARM outside this machine, or against a managed
   Postgres. Steps 1–6 are one machine, one platform, one day.
-- **`caf dev` bringing up a project that depends on another cafaye service was
+- **`cafe dev` bringing up a project that depends on another cafaye service was
   not run**, because no published catalog file exists for `-registry` to read.
   Step 4 states the error message the code produces for it; the message was read
   from `internal/dev/registry.go`, not captured from a run.
@@ -829,9 +829,9 @@ Stated here rather than left for you to guess:
 - **A production deployment was not performed.** No `docker build` for each of
   the seven services, no rollout, no restore from a real backup.
 - **Only `identity` was actually run.** The other six services' rows are read out
-  of their repositories, not exercised. `caf dev --dry-run` was run against
+  of their repositories, not exercised. `cafe dev --dry-run` was run against
   `darkroom` as a second data point and rendered three services correctly — its
-  Dockerfile path comes from its manifest, not from the project root, so `caf dev`
+  Dockerfile path comes from its manifest, not from the project root, so `cafe dev`
   finds it — but nothing was brought up.
 - **Sizing was not measured.** Nothing on this page says how much memory or CPU a
   production install wants, because nobody in the fleet has published that and

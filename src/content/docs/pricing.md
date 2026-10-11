@@ -35,7 +35,7 @@ Three units, four prices, all of them annual and one-time:
 
 | Unit | Price |
 | --- | --- |
-| **Platform** (`caf` + `kit`) | **$120/yr** |
+| **Platform** (`cafe` + `kit`) | **$120/yr** |
 | **identity** | **$240/yr** |
 | **courier** | **$240/yr** |
 | All three | **$420/yr** |
@@ -123,7 +123,7 @@ on buying anything from us. Four specific consequences, all checkable:
 
 | Consequence | Where to check |
 | --- | --- |
-| `go install github.com/cafaye/caf/cmd/caf@latest` — no account, no key, no telemetry handshake | [Getting started](/getting-started/#step-2--install-caf) |
+| `go install github.com/cafaye/cafe/cmd/cafe@latest` — no account, no key, no telemetry handshake | [Getting started](/getting-started/#step-2--install-cafe) |
 | `git clone` of any service, then `docker build` — no licence key, no activation, no build-time callback | [Getting started](/getting-started/#step-6--deploy-to-your-own-infrastructure) |
 | No licence check, no update check, no analytics, and no request to a cafaye-operated endpoint in any service | [Hosted pilot](/pilot/#what-leaves-your-infrastructure) |
 | No service stores or expects anything about who is running it | same as above |
@@ -140,7 +140,7 @@ plus the paid work around them.
 
 | Unit | Repositories | What it is | What you would run |
 | --- | --- | --- | --- |
-| **Platform** | [`caf`](https://github.com/cafaye/caf), [`kit`](https://github.com/cafaye/kit) | the CLI and the shared CI: one binary that renders and runs your local stack, one workflow every service's gate runs in | `caf` on your machine; your own CI |
+| **Platform** | [`cafe`](https://github.com/cafaye/cafe), [`kit`](https://github.com/cafaye/kit) | the CLI and the shared CI: one binary that renders and runs your local stack, one workflow every service's gate runs in | `cafe` on your machine; your own CI |
 | **identity** | [`identity`](https://github.com/cafaye/identity) | users, sessions, accounts and tenancy, roles, invitations, the OIDC provider, TOTP MFA | one Go container, one Postgres, optionally Redis |
 | **courier** | [`courier`](https://github.com/cafaye/courier) | transactional email, notification preferences, and **every outbound webhook**, signed and retried | one Elixir container, one Postgres, one database-backed outbox worker |
 
@@ -150,7 +150,7 @@ before you rely on either — the tables here are a summary and the service page
 are the claim.
 
 `core` is not a unit and is not separately sold. It publishes the schemas that
-`caf` and `kit` read — the manifest format, the event catalog, the telemetry
+`cafe` and `kit` read — the manifest format, the event catalog, the telemetry
 contract — and it is public like the rest of the framework. The reasoning is
 worth stating plainly: a contract that is not open cannot be read by the person
 deciding whether to depend on it.
@@ -165,7 +165,7 @@ estimate.
 
 | Unit | What it would be | Today |
 | --- | --- | --- |
-| Platform | a cafaye-operated control plane, and `caf deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `caf deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a cafaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md); Kamal is the current implementation and retires at parity. |
+| Platform | a cafaye-operated control plane, and `cafe deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `cafe deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a cafaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md); Kamal is the current implementation and retires at parity. |
 | identity | your deployment, our pager | **Does not exist.** Today "hosted" means you run it in your own account and we help you get it running — which is consulting, not a product. |
 | courier | your deployment, our pager, and a configured email provider | **Does not exist.** Separately, no email provider adapter is configured in any cafaye checkout, so nothing is delivered until you set one. |
 
@@ -183,7 +183,7 @@ from the code.
 
 | Unit | What it would be | Today |
 | --- | --- | --- |
-| Platform | moving you onto a new `caf` and a new kit contract set, and telling you what broke | **Undecidable today, and the reason is worth knowing:** `caf` has **no tagged release** — `go install @latest` resolves to a pseudo-version built from `master`. There is no version to upgrade *to*. |
+| Platform | moving you onto a new `cafe` and a new kit contract set, and telling you what broke | **Undecidable today, and the reason is worth knowing:** `cafe` has **no tagged release** — `go install @latest` resolves to a pseudo-version built from `master`. There is no version to upgrade *to*. |
 | identity | applying new migrations, rolling the image, verifying | The migrations are written and the deploy order is documented ([runbook](/runbooks/backup-and-restore/) and [getting started](/getting-started/#migrations-are-a-step-you-run-not-something-that-runs-itself)), but no service in the fleet has a release tag to upgrade between. |
 | courier | as above | same |
 
@@ -196,7 +196,7 @@ release tags first, and those are our work, not yours.
 
 | Unit | What it would be | Today |
 | --- | --- | --- |
-| Platform | a named human and a response window for `caf`, kit, and the contract set | Available as a design-partner arrangement with the terms agreed **in writing** before the work starts. There is no published support address, no status page, no uptime record, and no SLA anywhere on the org. |
+| Platform | a named human and a response window for `cafe`, kit, and the contract set | Available as a design-partner arrangement with the terms agreed **in writing** before the work starts. There is no published support address, no status page, no uptime record, and no SLA anywhere on the org. |
 | identity | the same, for a service holding your users' credentials | as above |
 | courier | the same, for the service that talks to your customers | as above |
 
@@ -267,7 +267,7 @@ operated tier's ladder prices are placeholders, as the section above states.
 **To get an answer, ask.** The channels that exist today are the
 [repositories](https://github.com/cafaye) — every service's issues and history
 — and the per-repository `owner.contact` address in its `cafaye.yml`:
-`caf@cafaye.com` for the CLI, `identity@cafaye.com`, `courier@cafaye.com`,
+`cafe@cafaye.com` for the CLI, `identity@cafaye.com`, `courier@cafaye.com`,
 `docs@cafaye.com`. A number you get by email is a number you can hold us to;
 one invented for a landing page is not.
 
@@ -279,10 +279,10 @@ Stated here rather than left for you to infer from the tables:
   point at.
 - **No release tags on any service.** `go install @latest` gives you `master`,
   and `core` is the only repository with a version tag.
-- **No `caf` command is a stub as of 2026-10-10.** The stub table that held
-  `caf gen`, `caf init` and `caf new` is empty (`caf/internal/cli/stub_test.go:25`),
+- **No `cafe` command is a stub as of 2026-10-10.** The stub table that held
+  `cafe gen`, `cafe init` and `cafe new` is empty (`cafe/internal/cli/stub_test.go:25`),
   and the command table beside it is the single source of truth for what works.
-  **`caf deploy`** builds, pushes and rolls out. It deploys to infrastructure you
+  **`cafe deploy`** builds, pushes and rolls out. It deploys to infrastructure you
   already pay for; what it does not have is a cafaye-operated remote. The launch
   path is the substrate (k3s + ArgoCD + CloudNativePG); Kamal is the current
   implementation and retires at parity.

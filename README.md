@@ -19,7 +19,7 @@ is not an API reference.
 ```sh
 mise install          # node 22.19.0, pinned in mise.toml
 bin/prime             # npm ci && npm run build && npm test
-bin/prime --contracts # the above, plus the tier that reads core and caf
+bin/prime --contracts # the above, plus the tier that reads core and cafe
 ```
 
 `bin/prime` is the offline suite; there is no separate lint or typecheck step.
@@ -32,13 +32,13 @@ so a page with a missing `title` or a sidebar entry pointing at nothing fails
 | --- | --- |
 | `tests/smoke.mjs` | the build produced `dist/index.html` and every page the sidebar promises, every page is reachable **from** the sidebar, and no built page contains an empty `<svg>` |
 | `tests/links.mjs` | every internal link's **`#fragment` names a heading that exists**, every internal link names a page that was built, every redirect resolves and shadows nothing, and every external href is a well-formed `https:` URL |
-| `tests/examples.mjs` | every ` ```sh ` fence parses under `bash -n`, every ` ```json ` fence is valid JSON, every ` ```yaml ` fence is a manifest, and every `caf` invocation in a fence names a subcommand `caf` actually has |
+| `tests/examples.mjs` | every ` ```sh ` fence parses under `bash -n`, every ` ```json ` fence is valid JSON, every ` ```yaml ` fence is a manifest, and every `cafe` invocation in a fence names a subcommand `cafe` actually has |
 | `tests/advisories.mjs` | every advisory page carries its whole `advisory` block, ids are unique and well-formed, and the index lists every advisory exactly once, newest first |
-| `tests/contracts.mjs` | **the contract tier**, run by `--contracts`: every documented `cafaye.yml` through the real `caf contract lint`, this repository's own manifest too, every event type a page says a service declares against core's catalog, and every span name against core's span-naming schema |
+| `tests/contracts.mjs` | **the contract tier**, run by `--contracts`: every documented `cafaye.yml` through the real `cafe contract lint`, this repository's own manifest too, every event type a page says a service declares against core's catalog, and every span name against core's span-naming schema |
 
 The offline tier needs no network, no sibling checkout and nothing but node and
 bash, on purpose: a gate a contributor cannot run is a gate they stop running.
-The contract tier needs a readable `core` and a `caf` binary, and it **fails
+The contract tier needs a readable `core` and a `cafe` binary, and it **fails
 with a message rather than skipping** when either is missing — a contract check
 that cannot find the contract is worse than no contract check, because it turns
 an unknown into a green badge.
@@ -66,7 +66,7 @@ npm run dev      # http://localhost:4321
 | `npm run build` | Build the static site into `dist/` |
 | `npm run preview` | Serve `dist/` locally, as the host will |
 | `npm test` | The offline suite — **run a build first**, it reads `dist/` |
-| `npm run test:contracts` | The contract tier; needs `CORE_PATH` and a `caf` binary |
+| `npm run test:contracts` | The contract tier; needs `CORE_PATH` and a `cafe` binary |
 | `bin/check-external-links` | The network tier: do the external links answer |
 
 ## Deploy
@@ -106,7 +106,7 @@ it.
 The gate command is `bin/prime`, and that is what CI runs: no secrets, nothing
 published. `.github/workflows/ci.yml` has three jobs — `gate` (the gate on the
 pinned interpreter, plus a suite-size guard and a tree-clean guard), `contracts`
-(a checkout of `core` and a `caf` built from source, then `bin/prime
+(a checkout of `core` and a `cafe` built from source, then `bin/prime
 --contracts`), and `pins` (the configuration claims, no toolchain, so it fails in
 seconds). `.github/workflows/external-links.yml` is the network tier and is a
 **separate file on purpose**: it never runs on a pull request, because a third
@@ -204,8 +204,8 @@ page, because the reader finds out at 2am.
 So every command, flag, endpoint, and environment variable on this site is
 written from one of these, never from a plausible guess:
 
-1. **A source file.** The `caf` subcommands come from
-   `moon/cafaye/caf/internal/cli/*.go`; a flag is documented because the flag
+1. **A source file.** The `cafe` subcommands come from
+   `moon/cafaye/cafe/internal/cli/*.go`; a flag is documented because the flag
    set declares it.
 2. **A machine-readable file.** `cafaye.yml`, `Dockerfile`,
    `docker-compose.yml`, `db/schema.rb`, `openapi/v1.yaml`, `mise.toml`.
@@ -224,7 +224,7 @@ Where a page describes a broken or missing thing in a cafaye repository, it says
 so on the page an operator will hit, with the error they will see. The single
 audit is [Topology](/architecture/topology/#cross-repo-drift-audit), and it is
 **re-run, not recalled** — the lint table comes from executing
-`caf contract lint` over the workspace. Its second half, *the drift the linter
+`cafe contract lint` over the workspace. Its second half, *the drift the linter
 cannot see*, is the part that matters most:
 
 - `core/fleet.yml` is transcribed at commits that have since moved:
@@ -245,14 +245,14 @@ cannot see*, is the part that matters most:
   failure names a relation (`public.oidc_clients`) rather than the missing step.
 - `GET /v1/accounts/{id}/members` returns only each member's `role`; the ids come
   back empty.
-- **`caf` has moved on and this site's `getting-started.md` has not caught up.**
+- **`cafe` has moved on and this site's `getting-started.md` has not caught up.**
   `master` has **twelve** subcommands, not ten: `env` and `reclaim` are new and
   `mcp` is no longer a stub, so **eight** work and **four** are stubs
   (`init`, `new`, `deploy`, `gen` — `internal/cli/stub_test.go` is the table of
-  record). `caf doctor` now prints **three** sections in a
+  record). `cafe doctor` now prints **three** sections in a
   `check / state / detail / fix` shape where the page quotes two tables with
   `ok / missing` rows, and it has gained a reclamation section. Both were measured
-  from a binary built at `caf` `f5d3020`, not inferred. **Left in place
+  from a binary built at `cafe` `f5d3020`, not inferred. **Left in place
   deliberately:** fixing the count while leaving three stale `doctor` outputs would
   make the page internally inconsistent and would claim an audit that did not
   happen. It needs its own packet.
@@ -299,9 +299,9 @@ src/content/docs/         every page
 src/pages/404.astro       /404
 tests/smoke.mjs           the build-output half: pages, sidebar coverage both ways, icons
 tests/links.mjs           the link half, offline: fragments, pages, redirects, external shape
-tests/examples.mjs        the examples: sh parses, json is json, caf invocations are real
+tests/examples.mjs        the examples: sh parses, json is json, cafe invocations are real
 tests/advisories.mjs      the advisory feed: complete metadata, and an index that lists all of it
-tests/contracts.mjs       the contract tier: core's schemas, and the real caf validator
+tests/contracts.mjs       the contract tier: core's schemas, and the real cafe validator
 bin/prime                 the gate (--contracts adds the contract tier)
 bin/check-external-links  the network tier: do the external links answer
 .github/workflows/        ci.yml (gate, contracts, pins) + external-links.yml (network)

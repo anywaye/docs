@@ -19,14 +19,14 @@ page disagree, the repository is right.
 for several packets that the reusable CI path did not exist. It has moved to
 **`.github/workflows/ci.reusable.yml`**, which is the path GitHub requires, and
 eight repositories now call it as
-`uses: cafaye/kit/.github/workflows/ci.reusable.yml@master`: `caf`, `core`,
+`uses: cafaye/kit/.github/workflows/ci.reusable.yml@master`: `cafe`, `core`,
 `courier`, `darkroom`, `gateway`, `identity`, `muse` and `parlor`.
 
 What exists on `master` today, counted with `git ls-files .github/workflows`:
 
 | Has a CI workflow | Does not |
 | --- | --- |
-| `billing`, `caf`, `cafaye-rb`, `core`, `courier`, `darkroom`, `docs`, `gateway`, `identity`, `kit`, `muse`, `pantry`, `parlor` | — |
+| `billing`, `cafe`, `cafaye-rb`, `core`, `courier`, `darkroom`, `docs`, `gateway`, `identity`, `kit`, `muse`, `pantry`, `parlor` | — |
 
 `docs` was on the right until **docs-05**, which added
 `.github/workflows/ci.yml` (`gate`, `contracts`, `pins`) and
@@ -60,7 +60,7 @@ workflow file existing does not make the rest of the fleet honest.
 | Repository | Command | Toolchain |
 | --- | --- | --- |
 | `core` | `bin/prime` | `mise install` — builds `tests/.venv` on first run |
-| `caf` | `bin/prime` && `go vet ./...` && `gofmt -l .` | `gofmt -l .` **must print nothing** |
+| `cafe` | `bin/prime` && `go vet ./...` && `gofmt -l .` | `gofmt -l .` **must print nothing** |
 | `identity` | `bin/prime` && `go vet ./...` && `gofmt -l .` && `go test -race ./...` | `mise install` — **needs Postgres; `bin/dev` brings it up on 15500** |
 | `billing` | `bin/prime` | `mise install` — `bundle install`, `db:prepare`, rubocop, `rails test` |
 | `courier` | `bin/prime` && `mix precommit` | `mise install` — **needs Postgres; `bin/dev` brings it up on 15500** |
@@ -71,7 +71,7 @@ workflow file existing does not make the rest of the fleet honest.
 | `pantry` | `./bin/prime` | `cargo` — **the drift tests skip without a workspace** |
 | `cafaye-rb` | `bin/prime` | `mise install` — `rake db:prepare`, rubocop, bundler-audit, `rake test` |
 | `kit` | `bash tests/validate.sh` | **needs a virtualenv** — see below |
-| `docs` | `./bin/prime` and `./bin/prime --contracts` | `mise install` — the second needs a readable `core` and a `caf` binary, and **fails** rather than skipping without them |
+| `docs` | `./bin/prime` and `./bin/prime --contracts` | `mise install` — the second needs a readable `core` and a `cafe` binary, and **fails** rather than skipping without them |
 
 ---
 
@@ -191,8 +191,8 @@ returns. A skip is reported, never hidden, and it is still a skip.
 > and that every entry satisfies core's vendored schema. It proves **nothing**
 > about whether any entry still says what its service says.
 
-The gate additionally shells out to `../caf` to lint the registry entries. With
-`../caf` present it runs; without it, it prints the two commands to run by hand
+The gate additionally shells out to `../cafe` to lint the registry entries. With
+`../cafe` present it runs; without it, it prints the two commands to run by hand
 and continues. Two thirds of that gate are "against the fleet" and neither runs
 on a clone.
 

@@ -113,7 +113,7 @@ has the full note.
 `billing` subscribes to **no** events yet and declares no service dependencies.
 The customers it creates reference `identity`'s users and accounts by uuid, which
 is a **data dependency, not a call** — declaring a `dependencies` entry for a
-service you never call would tell `caf` to start it for nothing.
+service you never call would tell `cafe` to start it for nothing.
 
 `billing.payment.refunded`, `billing.invoice.created`, `billing.usage.recorded`
 and `billing.subscription.past_due` are in core's catalog and are **not**

@@ -32,7 +32,7 @@ badge anywhere in the fleet:- **[Running the gates](/running-the-gates/)** — t
 ## What every one of these assumes
 
 **You are running the services yourself.** There is no hosted cafaye platform
-today — no `caf deploy` remote and no substrate we run for you — so "the
+today — no `cafe deploy` remote and no substrate we run for you — so "the
 environment" means containers you built from each repository's Dockerfile on
 infrastructure you control. What does exist is [Cafaye Ops](/pricing/#cafaye-ops-on-top-the-monthly-operated-tier),
 a monthly operated tier we run *on your box* rather than a hosted one, and it

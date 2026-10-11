@@ -3,7 +3,7 @@
 // THE ARGUMENT FOR THIS FILE, in one paragraph
 //   Every other repository's tests assert that *code* behaves. This one's only
 //   product is prose and the code examples inside it, and prose fails in ways
-//   code does not: a `caf` subcommand gets renamed, a manifest key moves, a
+//   code does not: a `cafe` subcommand gets renamed, a manifest key moves, a
 //   response field is dropped — and the example keeps rendering perfectly,
 //   because nothing compiles a Markdown fence. Those examples were correct when
 //   written and they rot silently, because a fence is not a test. This file is
@@ -16,7 +16,7 @@
 //     - every ```sh fence parses as shell (`bash -n`)
 //     - every ```json fence parses as JSON
 //     - every ```yaml fence parses as YAML
-//     - every `caf` invocation in a fence names a subcommand `caf help` lists,
+//     - every `cafe` invocation in a fence names a subcommand `cafe help` lists,
 //       read from the **vendored help text in this repository's own docs**
 //
 //   MECHANICAL, needs a sibling checkout (tests/contracts.mjs, not this file):
@@ -102,7 +102,7 @@ function fences() {
 const PLACEHOLDERS = [
   // service name, as the runbooks write it
   [/<name>/g, 'SERVICE'],
-  // a `caf` subcommand, in the "a caf command exits 2" entry
+  // a `cafe` subcommand, in the "a cafe command exits 2" entry
   [/<command>/g, 'deploy'],
   // a docker container name and a postgres superuser, in the version-skew trap
   [/<pg-container>/g, 'postgres'],
@@ -215,52 +215,52 @@ test('every yaml fence is a manifest this repository can actually validate', () 
   console.log(`    # yaml fences (all validated by tests/contracts.mjs): ${yaml.length}`);
 });
 
-test('every caf invocation in a fence names a subcommand caf help lists', () => {
+test('every cafe invocation in a fence names a subcommand cafe help lists', () => {
   // The specific rot the packet describes: a subcommand is renamed or a
   // command is added, and the example keeps working in the reader's head and
   // failing in their terminal.
   //
   // The vocabulary is **not** a list written out here. It is read out of the
-  // `caf help` output this repository already quotes in
+  // `cafe help` output this repository already quotes in
   // `getting-started.md`, so there is exactly one place in this repository that
-  // says what `caf` can do, and an example that invents a command fails
+  // says what `cafe` can do, and an example that invents a command fails
   // against it. A hardcoded list would be a second source of truth that drifts
   // silently — the exact defect tests/smoke.mjs's header refuses to accept for
   // the sidebar.
   const helpFence = all.find(
-    (f) => f.lang === '' && f.body.includes('caf - the cafaye platform CLI'),
+    (f) => f.lang === '' && f.body.includes('cafe - the cafaye platform CLI'),
   );
   assert.ok(
     helpFence,
-    'could not find the quoted `caf help` output in the docs. This test reads the ' +
+    'could not find the quoted `cafe help` output in the docs. This test reads the ' +
       'command vocabulary from it rather than from a list of its own; if the quote ' +
       'moved, fix this test to point at the new location rather than pasting the ' +
       'list in here.',
   );
 
-  // The `Commands:` block of `caf help`, indented two spaces, name then spaces.
+  // The `Commands:` block of `cafe help`, indented two spaces, name then spaces.
   const block = helpFence.body.slice(helpFence.body.indexOf('Commands:'));
   const commands = new Set(
     [...block.matchAll(/^ {2}(\w+)\s{2,}\S/gm)].map((m) => m[1]),
   );
   // `contract` has subcommands of its own, so both it and they are legal.
   for (const sub of ['lint', 'resolve']) commands.add(`contract ${sub}`);
-  assert.ok(commands.size >= 9, `parsed only ${commands.size} commands out of caf help`);
+  assert.ok(commands.size >= 9, `parsed only ${commands.size} commands out of cafe help`);
 
-  // Every `caf <word>` that starts a command inside a shell fence.
+  // Every `cafe <word>` that starts a command inside a shell fence.
   //
-  // **Only the first word after `caf` is the subcommand**, and that is the
-  // detail this got wrong first. `caf deploy identity` is `deploy` with a
-  // positional argument, and `caf help init` is `help` with a positional
+  // **Only the first word after `cafe` is the subcommand**, and that is the
+  // detail this got wrong first. `cafe deploy identity` is `deploy` with a
+  // positional argument, and `cafe help init` is `help` with a positional
   // argument; reading the second word as part of the name produced two
   // failures against correct examples, which is how a check of this shape
-  // gets deleted. `contract` is the one command in `caf` that owns
+  // gets deleted. `contract` is the one command in `cafe` that owns
   // subcommands, so it is the only one where a second word is part of the
   // name — and it is taken from the help text's own list rather than assumed.
   const used = new Map();
   for (const fence of all) {
     if (fence.lang !== 'sh') continue;
-    for (const m of fence.body.matchAll(/(?:^|[;&|]\s*|\$\s)caf\s+([a-z]+)(?:\s+([a-z]+))?/gm)) {
+    for (const m of fence.body.matchAll(/(?:^|[;&|]\s*|\$\s)cafe\s+([a-z]+)(?:\s+([a-z]+))?/gm)) {
       const [, first, second] = m;
       // A second word is a subcommand only under `contract`; anywhere else it
       // is the command's positional argument and not part of its name.
@@ -269,7 +269,7 @@ test('every caf invocation in a fence names a subcommand caf help lists', () => 
       if (!used.has(name)) used.set(name, fence.where);
     }
   }
-  assert.ok(used.size > 0, 'no `caf` invocations found in any sh fence');
+  assert.ok(used.size > 0, 'no `cafe` invocations found in any sh fence');
 
   const invented = [...used]
     .filter(([name]) => !commands.has(name))
@@ -278,11 +278,11 @@ test('every caf invocation in a fence names a subcommand caf help lists', () => 
   assert.deepEqual(
     invented,
     [],
-    `caf invocations naming a subcommand caf help does not list: ${invented.join('; ')}. ` +
+    `cafe invocations naming a subcommand cafe help does not list: ${invented.join('; ')}. ` +
       'If the command is real, the quoted help output in getting-started.md is stale.',
   );
   console.log(
-    `    # caf subcommands referenced: ${used.size}, vocabulary from the quoted help: ${commands.size}`,
+    `    # cafe subcommands referenced: ${used.size}, vocabulary from the quoted help: ${commands.size}`,
   );
 });
 

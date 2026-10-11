@@ -354,7 +354,7 @@ you nothing.
 | `darkroom`'s own stack | `postgres:17-alpine` | its compose file |
 | `muse`'s own stack | `postgres:17-alpine` | its compose file — it moved off 18 onto the fleet standard |
 | **`kit`'s stack, as `bin/dev up` actually starts it** | **`postgres:16.6-alpine`** | ran it; the container reports `16.6-alpine` |
-| what `caf dev` renders | `postgres:16-alpine` | `caf dev --dry-run` on `identity` |
+| what `cafe dev` renders | `postgres:16-alpine` | `cafe dev --dry-run` on `identity` |
 
 That third row is the one that bites. `kit`'s compose file writes
 `image: postgres:${KIT_POSTGRES_TAG:-17-alpine}` — so 17 is the *default* — but

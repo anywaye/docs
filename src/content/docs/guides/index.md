@@ -22,9 +22,9 @@ documentation this site is trying to avoid.
 Those pages have not been written as guides because they are procedures rather
 than walkthroughs, and a procedure with a wrong step in it is worse than no
 guide at all. They are here instead, and every command in them was run against
-the real `caf` binary and the real service repositories:
+the real `cafe` binary and the real service repositories:
 
-- [Getting started](/getting-started/) — install `caf`, validate a manifest,
+- [Getting started](/getting-started/) — install `cafe`, validate a manifest,
   render and run a local stack, build its image. The whole path, with the five
   unbuilt commands marked.
 - [Upgrading](/upgrading/) — if you already run a deployment. What breaks in the

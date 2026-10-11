@@ -48,7 +48,7 @@ because they reach their database through `kit`'s container, and that leaves
 **three** values in play rather than one: kit's compose file writes
 `image: postgres:${KIT_POSTGRES_TAG:-17-alpine}`, the `.env` `bin/dev` creates on
 a first run comes from `kit`'s `.env.example` and sets
-`KIT_POSTGRES_TAG=16.6-alpine`, and `caf dev` renders `postgres:16-alpine`. All
+`KIT_POSTGRES_TAG=16.6-alpine`, and `cafe dev` renders `postgres:16-alpine`. All
 three are tabulated in [the version skew
 trap](/runbooks/service-down/#step-5--the-postgres-version-skew-trap) and
 explained in [getting started](/getting-started/) — change it in your `.env` if
@@ -90,8 +90,8 @@ repositories still pin `^0.1.0`, which resolves to a `core` below the `0.2`
 spec several of them compile against. The pin is the manager's to cut, and every
 service has to move at the same time — `^0.2.0` means `>=0.2.0 <0.3.0`, so a
 service that moved and one that did not would be compiling against two different
-specs. `caf contract resolve` answers the question per manifest:
-`caf contract resolve '^0.1.0' 0.2.0` → `no`.
+specs. `cafe contract resolve` answers the question per manifest:
+`cafe contract resolve '^0.1.0' 0.2.0` → `no`.
 
 `darkroom`'s image is built from **`docker/Dockerfile`**, not `./Dockerfile`, and
 needs no build flags — that file already runs `--features s3`, so the default
@@ -433,7 +433,7 @@ Drawn from the `dependencies` and `consumes` blocks of each `cafaye.yml`.
 ```
 
 `muse` declares `identity` and `gateway` as dependencies, which is what tells
-`caf dev` and `pantry` to start them. `courier` and `billing` declare no
+`cafe dev` and `pantry` to start them. `courier` and `billing` declare no
 dependencies — they depend on Postgres, not on a sibling service.
 
 **`gateway` proxies what `ROUTE_TABLE` names.** Its dependency on `identity` is
@@ -464,17 +464,17 @@ the reason one of the [runbooks](/runbooks/) reads the way it does.
 | **`muse` auth is verified, and was a stub until 2026-10-01.** | The bearer is verified against `identity`'s JWKS with RS256 pinned at the decoder; `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and `account_id` are all required, the operation's capability is checked separately from the signature, and an unreachable key set is a `503` rather than a `401`. What is still open: two claim names for one scope, with a token carrying both disagreeing refused rather than merged. See [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over). |
 | **No vault key rotation.** `key_version` exists in the table and is always 1. | `MUSE_VAULT_KEY` cannot be rotated in place. See [rotating secrets](/runbooks/secret-rotation/) for what that means today. |
 | **`courier` publishes one event.** Only `courier.email.delivered`. The other four declared types need a provider webhook that is a later packet. | A bounced or complained address is not yet visible anywhere, and suppression is not yet automatic. |
-| **`parlor`'s manifest does not validate,** and there is no admin surface and no Playwright suite. | `caf contract lint` is red on it, and the shell is not a finished template to clone. |
+| **`parlor`'s manifest does not validate,** and there is no admin surface and no Playwright suite. | `cafe contract lint` is red on it, and the shell is not a finished template to clone. |
 | **No collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing is running to receive them. The stack is shipped by `kit` and `bin/dev` runs it, so the gap is a deployment step rather than a missing component. | You have no fleet-wide trace or error view until you run it. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. See [Observability](/observability/). |
 | **No TLS termination in the services.** | `identity` binds plain HTTP. Terminate TLS at the edge, and note that `gateway`'s default issuer is already an `https://` origin. |
 
 ## Cross-repo drift audit
 
-`caf contract lint` finds the mechanical part of this, and it was **run against
+`cafe contract lint` finds the mechanical part of this, and it was **run against
 the workspace**, not recalled:
 
 ```sh
-cd cafaye/caf && go run ./cmd/caf contract lint /path/to/cafaye
+cd cafaye/cafe && go run ./cmd/cafe contract lint /path/to/cafaye
 ```
 
 On the current tree, run on 2026-09-30: **every repository valid except one.**
@@ -505,14 +505,14 @@ they are. That is why the raw count is worthless as a health signal: three of
 the five permanent failures are files whose entire purpose is to be rejected,
 and the fifth disappears when a worker worktree closes. Quote *which
 repositories* fail, never *how many manifests*. Across the twelve primary
-checkouts that have a manifest — `kit` has none, and `caf contract lint kit`
+checkouts that have a manifest — `kit` has none, and `cafe contract lint kit`
 exits 1 saying `no cafaye.yml found` — the answer is one: `parlor`.
 
 **Two repositories that used to fail here no longer do, and this page said
-otherwise until now.** `caf`'s manifest gained its required fields, and
+otherwise until now.** `cafe`'s manifest gained its required fields, and
 `courier`'s five event types were corrected from the two-segment form
 (`email.queued`) to the three-segment one (`courier.email.queued`) — `courier`
-caught this itself with `caf contract lint` and renamed them. That rename changes
+caught this itself with `cafe contract lint` and renamed them. That rename changes
 the `type` on events already on the bus; [Upgrading](/upgrading/) has the order to
 move your consumers in.
 
@@ -521,7 +521,7 @@ nobody re-runs is a changelog with a table in it.
 
 ### The drift a *different* linter can see
 
-`caf contract lint` reads manifests, so it says nothing about which container a
+`cafe contract lint` reads manifests, so it says nothing about which container a
 service runs its database in. `kit`'s fleet gate does, and it was **run against
 the workspace** rather than recalled:
 
@@ -558,7 +558,7 @@ because a reader will hit one.
 
 | Where | What |
 | --- | --- |
-| `core/fleet.yml` | Transcribed at the commits named on each row, and **three of those have moved since**. `identity`'s manifest now declares `identity.oidc_client.created` and `.revoked`; `courier`'s `manifestViolations` list still records the two-segment spellings `courier` has since fixed. `fleet.yml` is the file `caf contract lint` reads for the catalog, so a stale copy is a stale catalog answer. |
+| `core/fleet.yml` | Transcribed at the commits named on each row, and **three of those have moved since**. `identity`'s manifest now declares `identity.oidc_client.created` and `.revoked`; `courier`'s `manifestViolations` list still records the two-segment spellings `courier` has since fixed. `fleet.yml` is the file `cafe contract lint` reads for the catalog, so a stale copy is a stale catalog answer. |
 | `identity`'s emitted events | It declares **five** types — `identity.user.created`, `identity.oidc_client.created`, `identity.oidc_client.revoked`, `identity.mfa.enabled`, `identity.mfa.disabled` — and writes **ten**. `identity.account.created`, `identity.member.invited`, `identity.member.accepted`, `identity.member.role_changed` and `identity.member.removed` are written and **declared in none of them**. Of the ten, only `identity.user.created` has a payload schema in core; six more have a catalog row and no schema. |
 | `identity.member.accepted`, `identity.oidc_client.created` / `.revoked` | **No catalog row and no payload schema in core at all.** `accepted` is also not core's spelling — core's catalog row says `identity.member.joined`, and `accepted` is not in core's action vocabulary. The two OIDC types are advertised in the manifest with no published contract behind them, which is the exact gap core's catalog assertions exist to close. |
 | `billing`'s subscription and plan payloads | `billing` emits its own ids; core's schemas describe the processor's. `billing`'s own contract test lists the four missing and four unexpected fields rather than absorbing them. See [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-cafaye-prefixed-ids). |
