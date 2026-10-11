@@ -549,7 +549,7 @@ Do not describe it as bringing up the launch tier: it runs `pantry` and
 `oauth-stub`, which the launch stack does not contain, and it does not run
 `courier`, `parlor`, NATS, Redis, or mailpit in the launch shape.
 
-**`curl https://kit.cafaye.com | sh` (kit) is the production path.**
+**`curl https://cafaye.com/box/install | sh` (kit) is the production path.**
 It installs the substrate — k3s + Traefik + cert-manager + ArgoCD +
 CloudNativePG + Redis + Alloy/Loki/Grafana + Prometheus — on one box.
 [Deployment](/runbooks/deployment/) is the runbook for it.
@@ -654,7 +654,7 @@ to infrastructure you already pay for.
 The Kamal mechanics below are real and they are what runs today — but Kamal
 retires at parity, not before, and the launch stack does not ship on it. The
 customer-facing substrate (k3s + ArgoCD + CloudNativePG, installed by
-`curl https://kit.cafaye.com | sh`) is decided in
+`curl https://cafaye.com/box/install | sh`) is decided in
 [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
 is documented in [Deployment](/runbooks/deployment/). The k3s/Argo
 implementation of `cafe deploy` lands behind the same `deploy.Runner` interface

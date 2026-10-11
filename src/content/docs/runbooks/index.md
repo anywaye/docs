@@ -45,7 +45,7 @@ and environment variable in one table.
 cert-manager + ArgoCD + CloudNativePG — decided in
 [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
 not yet built.** [Deployment](/runbooks/deployment/) is the runbook for it: one
-box, `curl https://kit.cafaye.com | sh`, and a deploy path that is a values
+box, `curl https://cafaye.com/box/install | sh`, and a deploy path that is a values
 commit and nothing else. The install script (`kit/templates/substrate/`) does not
 exist yet, so that page marks its install steps unverified rather than inventing
 flags.
