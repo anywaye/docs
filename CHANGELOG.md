@@ -96,6 +96,12 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **There is still no `SECURITY.md`, no `security@` address and no
   `security.txt`.** Unchanged, and left unchanged on purpose — the security page
   calls it a gap rather than a route, and this packet did not invent one.
+- **`pantry` is Go, not Rust — the tooling table on the splash page kept the
+  pre-rewrite word.** pantry has been Go since the Rust service was deleted
+  (`REPORT-registry-norust-03.md` in the pantry repository); its own `AGENTS.md`
+  says `Language: Go` and `DECISIONS.md` D33 records the choice. One row, one
+  word, per seam-audit F7: the page every reader lands on first contradicted the
+  service's own house rules.
 
 ### Added
 
