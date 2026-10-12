@@ -33,7 +33,7 @@
 //     perfectly good heading is a review finding, not a mechanical one.
 //   - It does not compare the documented HTTP surface against any service's
 //     OpenAPI document. That is a genuine check and it lives in
-//     tests/contracts.mjs, which needs a checkout of `core` and a built `caf`
+//     tests/contracts.mjs, which needs a checkout of `core` and a built `cafe`
 //     binary — see that file for what it found.
 import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';

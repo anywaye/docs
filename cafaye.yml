@@ -18,7 +18,7 @@
 # > `core` — a manager decision, not this repository's to make. Nothing reads
 # > this value today, so it is safe either way until a tool does.
 #
-# This manifest exists so `caf dev`, `pantry`, and the org tooling can find this
+# This manifest exists so `cafe dev`, `pantry`, and the org tooling can find this
 # repository the way they find any other. It is not read by the build: nothing
 # in npm run build reads cafaye.yml, so a mistake here cannot reach a page.
 name: docs

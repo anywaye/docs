@@ -15,7 +15,7 @@
 #              installs, the site builds, and every page, link and code example
 #              is checked. Plus the suite-size guard and the tree-clean guard.
 #   contracts  The tier the gate cannot run alone: the `cafaye.yml` examples
-#              through the real `caf contract lint` against core's real schema,
+#              through the real `cafe contract lint` against core's real schema,
 #              and the event types and span names the prose asserts against
 #              core's catalog and core's span-naming schema.
 #   pins       The configuration claims. No toolchain, so it fails in seconds.
@@ -292,7 +292,7 @@ jobs:
 
   # ------------------------------------------------------- the contract tier
   contracts:
-    name: contracts (core's schemas, real caf)
+    name: contracts (core's schemas, real cafe)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # No database, no service container, and deliberately so: this job reads two
@@ -343,7 +343,7 @@ jobs:
         with:
           go-version: 'stable'
 
-      - name: caf, built from source
+      - name: cafe, built from source
         # Built, not downloaded, so this step cannot break because a release
         # disappeared from a registry or because a published binary is stale.
         # It is the same reason every cafaye repository is public: this job
@@ -352,9 +352,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git clone --depth 1 https://github.com/cafaye/cafe.git "$RUNNER_TEMP/caf"
-          (cd "$RUNNER_TEMP/caf" && go build -o "$RUNNER_TEMP/caf-bin" ./cmd/caf)
-          "$RUNNER_TEMP/caf-bin" version
+          git clone --depth 1 https://github.com/cafaye/cafe.git "$RUNNER_TEMP/cafe"
+          (cd "$RUNNER_TEMP/cafe" && go build -o "$RUNNER_TEMP/cafe-bin" ./cmd/cafe)
+          "$RUNNER_TEMP/cafe-bin" version
 
       - name: the prerequisites the contract tier needs are actually here
         # This job's whole reason is that a check which cannot find its contract
@@ -385,7 +385,7 @@ jobs:
         shell: bash
         env:
           CORE_PATH: ${{ runner.temp }}/core
-          CAF: ${{ runner.temp }}/caf-bin
+          CAF: ${{ runner.temp }}/cafe-bin
         run: |
           set -euo pipefail
           log="$RUNNER_TEMP/contracts.log"
@@ -405,7 +405,7 @@ jobs:
           LOG: ${{ runner.temp }}/contracts.log
         run: |
           set -euo pipefail
-          for expected in 'core is on disk' 'caf is on PATH' 'manifests validated by caf contract lint'; do
+          for expected in 'core is on disk' 'cafe is on PATH' 'manifests validated by cafe contract lint'; do
             if ! grep -Fq "$expected" "$LOG"; then
               echo "::error::the contract tier did not report '$expected' — it did not run." >&2
               echo "  A contract check that cannot find the contract converts an" >&2

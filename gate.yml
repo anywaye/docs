@@ -15,7 +15,7 @@
 # resolves to that same file, the CI workflow really invokes the declared argv,
 # and — the part that matters — that running the declared command makes each of
 # the eight lines below appear, the five countable ones at or above their floors.
-# It does NOT prove the tests touched `core` or the `caf` binary it names. That
+# It does NOT prove the tests touched `core` or the `cafe` binary it names. That
 # is `tests/contracts.mjs` asserting both prerequisites in its own first two
 # tests, and this file's `contract-tier-ran` proof is what makes the tier
 # optional to nobody.
@@ -32,7 +32,7 @@
 # `bin/prime` says out loud that the contract tier did not run, and it is right
 # to: those six tests are the only ones that can catch a documented example
 # contradicting something that has actually shipped, and they need a `core`
-# checkout and a `caf` binary that a contributor with one clone does not have.
+# checkout and a `cafe` binary that a contributor with one clone does not have.
 # So the flag is not a gate that is hidden behind a flag — it is a second tier
 # with two real prerequisites, and CI runs it as its own job and fails the build
 # if it did not run.
@@ -85,16 +85,16 @@
 #      unconditionally exits 0 would leave this repository green."
 #      It nearly did. All 22 tests passed — 16 offline, 6 contract, 0 failed, 0
 #      skipped, exit 0 — including `ok 3 - every cafaye.yml example in the docs
-#      passes the real caf validator`, and the tier went on printing
-#      `manifests validated by caf contract lint: 2`. The count-based proof was
+#      passes the real cafe validator`, and the tier went on printing
+#      `manifests validated by cafe contract lint: 2`. The count-based proof was
 #      satisfied by the stub, because that `console.log` lives in the test and
-#      not in `caf`. The one thing that changed in the whole log is that
-#      `caf contract lint`'s own stdout line, `# OK …/cafaye.yml`, stopped being
+#      not in `cafe`. The one thing that changed in the whole log is that
+#      `cafe contract lint`'s own stdout line, `# OK …/cafaye.yml`, stopped being
 #      printed — so the declaration reported exactly one failure,
-#      `gate.proof-missing: proof 'caf-lint-output' never appeared`, and named
+#      `gate.proof-missing: proof 'cafe-lint-output' never appeared`, and named
 #      the proof that had been defeated.
 #
-# That third one is why `caf-lint-output` exists with no floor and no count in
+# That third one is why `cafe-lint-output` exists with no floor and no count in
 # it. A proof that only counted things would have been green.
 version: 1
 name: docs
@@ -113,7 +113,7 @@ gate:
   command: [bin/prime, --contracts]
   # The fleet's spelling. **`mise run prime` runs `bin/prime` WITHOUT
   # `--contracts`, and that difference is real and is not fixed by this file.**
-  # `mise run prime` is the fast local loop — no `core`, no `caf` — and the
+  # `mise run prime` is the fast local loop — no `core`, no `cafe` — and the
   # declared gate is the fast loop plus the contract tier. It is recorded here
   # rather than reconciled because reconciling it means either renaming the
   # task, which would add a third spelling of "run the gate" in the very
@@ -136,7 +136,7 @@ gate:
   # `timeout-minutes: 20`. Measured here on a warm npm cache, one full
   # two-tier run is about 75 seconds (npm ci 25s, the Astro build 21s, the
   # offline suite 5s, the contract tier 0.4s — re-measured as
-  # `CORE_PATH=../core CAF=<caf> npm run test:contracts`, three runs at
+  # `CORE_PATH=../core CAF=<cafe> npm run test:contracts`, three runs at
   # 0.31/0.37/0.38s, of which node reports 0.13s of actual test time; the
   # 0.6s this line used to claim was the pre-change figure), so a floor tight
   # enough to be a bug detector would be tight enough to be a flake generator
@@ -238,31 +238,31 @@ gate:
     #    extractor that stopped matching would silently take to zero, and
     #    `tests/contracts.mjs` asserts it is non-zero for the same reason — this
     #    proof is the independent reading of the same number.
-    - id: manifests-validated-by-caf
-      match: '^#.*\\# manifests validated by caf contract lint: ([0-9]+)$'
+    - id: manifests-validated-by-cafe
+      match: '^#.*\\# manifests validated by cafe contract lint: ([0-9]+)$'
       minimum: 2
     #
-    # 6. **The real `caf` binary produced real output, and nothing else can
+    # 6. **The real `cafe` binary produced real output, and nothing else can
     #    produce this line.** No floor, because the line reports nothing
-    #    countable — it is `caf contract lint`'s own stdout, printed by the test.
+    #    countable — it is `cafe contract lint`'s own stdout, printed by the test.
     #
     #    This is the proof for the failure the packet's preamble names by hand:
     #    "a checker replaced by a function that unconditionally exits 0 would
     #    leave this repository green". Point `CAF` at `/usr/bin/true` and the
     #    validator accepts every manifest, the test passes, and the count line
     #    above still prints `2` — because that `console.log` is in the test, not
-    #    in `caf`. This line is different: it is `caf`'s own stdout, naming this
+    #    in `cafe`. This line is different: it is `cafe`'s own stdout, naming this
     #    repository's own manifest. `/bin/true` emits nothing, so the log line
     #    is `#` and this proof is `gate.proof-missing`.
     #
     #    **What it is coupled to, stated rather than left for the next reader to
-    #    discover:** the phrase `OK <path>` is `caf`'s, not this repository's.
-    #    If `caf` rewords it, this proof goes red and says so, and the fix is to
+    #    discover:** the phrase `OK <path>` is `cafe`'s, not this repository's.
+    #    If `cafe` rewords it, this proof goes red and says so, and the fix is to
     #    update it here in the same commit. That coupling is the intended
     #    direction of travel — a proof that can only be satisfied by the real
     #    tool is worth more than one that would survive the real tool being
     #    replaced.
-    - id: caf-lint-output
+    - id: cafe-lint-output
       match: '^#.*\\# OK \S+/cafaye\.yml$'
     #
     # 7. The prose's event-type claims were checked against **core's real
@@ -360,26 +360,26 @@ external:
           https://registry.npmjs.org/zwitch/-/zwitch-2.0.4.tgz failed: cache
           mode is 'only-if-cached' but no cached response is available, and no
           node_modules/ is left behind (exit 1)
-    # Demonstrated: `CAF=/nonexistent/caf npm run test:contracts` fails at the
+    # Demonstrated: `CAF=/nonexistent/cafe npm run test:contracts` fails at the
     # tier's second test and exits 1. **This is a failure and never a skip**,
     # which is the property worth declaring: a contract check that cannot find
     # the contract converts an unknown into a green badge.
     #
     # It is a `toolchain` rather than a `filesystem` requirement because it is a
     # built binary from another repository, not a checkout; CI builds it from
-    # source (`git clone cafaye/caf && go build ./cmd/caf`) rather than
+    # source (`git clone cafaye/cafe && go build ./cmd/cafe`) rather than
     # downloading a release, so it cannot break because a published artifact
     # disappeared.
     - kind: toolchain
-      name: the caf binary, built from a checkout of cafaye/caf — `go build ./cmd/caf` — on PATH or at $CAF
+      name: the cafe binary, built from a checkout of cafaye/cafe — `go build ./cmd/cafe` — on PATH or at $CAF
       satisfy:
         # A bare name, and therefore a claim about this machine that the checker
-        # reports as unproven rather than settling. `caf version` is the command
+        # reports as unproven rather than settling. `cafe version` is the command
         # that proves it runs without doing any work.
-        command: [caf, version]
+        command: [cafe, version]
         unmet: >-
-          the caf binary (/nonexistent/caf) could not be run: spawnSync
-          /nonexistent/caf ENOENT, and the tier exits 1 at its second test
+          the cafe binary (/nonexistent/cafe) could not be run: spawnSync
+          /nonexistent/cafe ENOENT, and the tier exits 1 at its second test
     # Demonstrated: `CORE_PATH=/tmp/no-such-core npm run test:contracts` fails at
     # the tier's **first** test, exits 1, and says so in the assertion message.
     # Two of the three environment variables this gate honours are named here —
@@ -407,7 +407,7 @@ external:
   # reads an environment variable whose name looks like a secret; the only two
   # it reads are `CORE_PATH` and `CAF`, and both are paths. `.github/workflows/ci.yml`
   # takes `permissions: contents: read` and no `secrets:` at all, because
-  # `cafaye/core` and `cafaye/caf` are public and the default `GITHUB_TOKEN`
+  # `cafaye/core` and `cafaye/cafe` are public and the default `GITHUB_TOKEN`
   # reads both — a gate that needed a credential would be the only thing in this
   # repository that did, and its own `pins` job fails the build if one appears.
   #

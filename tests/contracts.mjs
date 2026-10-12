@@ -4,7 +4,7 @@
 //   Everything in examples.mjs is a property of the text: does this parse, does
 //   this name a command. This file checks the text against **something outside
 //   this repository** — the `cafaye.yml` examples against core's real manifest
-//   schema, through the real `caf` binary. That is the check the packet calls
+//   schema, through the real `cafe` binary. That is the check the packet calls
 //   the strongest argument for the packet, because it is the only one that
 //   catches the failure a self-hoster actually hits: an example that is
 //   perfectly valid YAML and perfectly wrong, because the platform moved.
@@ -15,14 +15,14 @@
 //     1. **A checkout of `cafaye/core`.** The schema is core's; this repository
 //        does not vendor it and must not — a vendored copy is a fourth
 //        description of the manifest format that nobody updates.
-//     2. **A built `caf` binary.** `caf contract lint` is the house validator.
+//     2. **A built `cafe` binary.** `cafe contract lint` is the house validator.
 //        Re-implementing manifest validation here would be a second, weaker
 //        answer to a question core already answers, and a weaker one that
 //        reports "no problem" for a document it misread.
 //
 //   So this is a **tier**, not a test that quietly skips. `bin/prime` runs the
 //   unit tier; `bin/prime --contracts` adds this one, and the CI `contracts`
-//   job checks out core, builds `caf`, and runs it. When core is not on disk
+//   job checks out core, builds `cafe`, and runs it. When core is not on disk
 //   this file **fails**, it does not skip — the rule every repository in this
 //   fleet writes down and billing's AGENTS.md explains at length: a skipped
 //   contract test proves nothing, and a green badge over a tier that ran
@@ -32,24 +32,24 @@
 //   rather than a mystery, so `skip`-shaped behaviour is not possible here by
 //   construction: the file exits nonzero and says what to do.
 //
-//   Run it with:  bin/prime --contracts        (needs ../core and a `caf` binary)
+//   Run it with:  bin/prime --contracts        (needs ../core and a `cafe` binary)
 //
 // ONE PROCESS, ONE PARSE
-//   This file used to run `caf contract lint <file>` once per manifest, which
+//   This file used to run `cafe contract lint <file>` once per manifest, which
 //   means the cost of this tier was the cost of starting a process per fence.
 //   Measured on this branch: ~12.9 ms per spawn against ~1 ms of linting, so
 //   the startup was most of what the tier did (MEASUREMENTS-contracts-tier.md,
 //   with the before and after and the exact commands).
 //
-//   `caf contract lint <path>` already takes a **directory** and walks it in one
-//   process — `contract.Lint` in caf's `internal/contract/lint.go` is one
+//   `cafe contract lint <path>` already takes a **directory** and walks it in one
+//   process — `contract.Lint` in cafe's `internal/contract/lint.go` is one
 //   function over a whole tree, the same "one parse, every rule" shape buf's
-//   lint is built on. So the fix was caller-side and needed no change to caf:
+//   lint is built on. So the fix was caller-side and needed no change to cafe:
 //   every manifest this tier validates is written into one scratch tree and the
 //   whole tree is validated by **one** invocation.
 //
-//   **The verdicts are per-manifest and are read out of caf's own output**, so
-//   nothing about the assertions was given up. caf prints one line per document
+//   **The verdicts are per-manifest and are read out of cafe's own output**, so
+//   nothing about the assertions was given up. cafe prints one line per document
 //   it checked, which is why it can answer for a tree without going quiet about
 //   any one file:
 //
@@ -60,20 +60,20 @@
 //
 //     1. **A reported-verdict count is asserted against the manifests written.**
 //        Parsing output is how a check goes green over nothing, so the parse is
-//        held to "one verdict per manifest, no more and no fewer" — a `caf` that
+//        held to "one verdict per manifest, no more and no fewer" — a `cafe` that
 //        rewords its lines fails here with the raw output in the message rather
 //        than passing a tier that checked nothing.
 //
 //     2. **A fence is linted as a manifest inside a tree, not as a repository
-//        root.** caf's walk treats the manifest at the tree's root as "this
+//        root.** cafe's walk treats the manifest at the tree's root as "this
 //        repository's own" and applies one extra rule to it: a manifest that
 //        names `exposes/api` must have that OpenAPI document beside it. That
 //        rule exists for real repositories — see the pantry registry note in
 //        `lint.go` — and a ```yaml fence is not a repository, it is a copy of a
 //        manifest printed in a page. `contracts.md`'s example legitimately names
 //        `exposes.api` and ships no document, because it is showing the format
-//        rather than being one. Under the old shape (each fence handed to `caf`
-//        as if it were a repository) that example was reported INVALID by `caf`
+//        rather than being one. Under the old shape (each fence handed to `cafe`
+//        as if it were a repository) that example was reported INVALID by `cafe`
 //        master, and this tier was **red on master in CI**. It is red, not
 //        flaky: `contracts.md:22`, `exposes/api: openapi/openapi.yaml is not a
 //        readable OpenAPI document`. The manifest itself is valid; what it does
@@ -96,7 +96,7 @@ const root = resolve(import.meta.dirname, '..');
 const docs = join(root, 'src', 'content', 'docs');
 
 /**
- * The one `caf` invocation's report, kept so the two tests that need verdicts
+ * The one `cafe` invocation's report, kept so the two tests that need verdicts
  * share a single process. See `lintEveryManifest`.
  */
 let cachedReport = null;
@@ -104,8 +104,8 @@ let cachedReport = null;
 /** Where to find core. An env seam, and the only one. */
 const CORE_PATH = process.env.CORE_PATH ?? resolve(root, '..', 'core');
 
-/** The `caf` binary. An env seam, and the only one. */
-const CAF = process.env.CAF ?? 'caf';
+/** The `cafe` binary. An env seam, and the only one. */
+const CAF = process.env.CAF ?? 'cafe';
 
 /** Every content file, in a stable order so a failure names one file at a time. */
 function contentFiles(dir = docs, out = []) {
@@ -137,14 +137,14 @@ function manifestFences() {
 
 /**
  * Write every manifest this tier validates into ONE scratch tree, and lint the
- * tree with ONE `caf contract lint`.
+ * tree with ONE `cafe contract lint`.
  *
- * `caf` is invoked, never reimplemented. It exits 0 when every manifest in the
+ * `cafe` is invoked, never reimplemented. It exits 0 when every manifest in the
  * tree is valid and nonzero with a reason for the first invalid one, which is
  * the whole contract this file depends on — and it prints **one line per
  * document**, which is what lets a single invocation still answer per manifest.
  *
- * The layout is not decoration. caf's walk (`internal/contract/lint.go`) only
+ * The layout is not decoration. cafe's walk (`internal/contract/lint.go`) only
  * picks up files named exactly `cafaye.yml`, so each documented example gets
  * its own directory; and it treats the manifest at the root of the tree as that
  * repository's own, so this repository's own `cafaye.yml` goes at the root and
@@ -168,7 +168,7 @@ function lintEveryManifest() {
     // strongest check in this repository into a pass over nothing.
     assert.ok(manifests.length > 0, 'no ```yaml manifest fences found — the extractor changed shape');
 
-    // One directory per example, each holding the one filename caf's walk
+    // One directory per example, each holding the one filename cafe's walk
     // recognises. `where` is the doc position the fence came from, and it is
     // what a failure message leads with: a reader needs `contracts.md:22`, not
     // a temporary directory name.
@@ -182,7 +182,7 @@ function lintEveryManifest() {
     }
 
     // This repository's own manifest, byte for byte, at the root of the tree so
-    // caf lints it as a repository's own — the way it was linted when it was a
+    // cafe lints it as a repository's own — the way it was linted when it was a
     // separately named file. The copy is compared rather than assumed: a
     // drifted copy would mean this tier validates something other than the file
     // in the repository, which is the one thing it exists not to do.
@@ -204,12 +204,12 @@ function lintEveryManifest() {
 }
 
 /**
- * Run `caf contract lint` once, and read its report back as one verdict per
+ * Run `cafe contract lint` once, and read its report back as one verdict per
  * manifest.
  *
  * Keyed by **directory**, which is unique per manifest by the layout above and
  * needs no guesswork about colons in paths or messages. A line that is not a
- * verdict is kept rather than dropped: caf's own error text (`no cafaye.yml
+ * verdict is kept rather than dropped: cafe's own error text (`no cafaye.yml
  * found under …`) is how a broken invocation explains itself, and the tests
  * below put it in the failure message.
  */
@@ -220,7 +220,7 @@ function runCafLint(cafBinary, dir) {
   try {
     stdout = execFileSync(cafBinary, ['contract', 'lint', dir], { encoding: 'utf8', stdio: 'pipe' });
   } catch (err) {
-    // Nonzero exit is a normal outcome here — it is how caf reports an invalid
+    // Nonzero exit is a normal outcome here — it is how cafe reports an invalid
     // manifest — so the report is still parsed out of stdout and the exit code
     // is not itself the verdict.
     stdout = err.stdout ?? '';
@@ -250,14 +250,14 @@ function runCafLint(cafBinary, dir) {
 }
 
 /**
- * Assert caf reported one verdict for every manifest written, and say what it
+ * Assert cafe reported one verdict for every manifest written, and say what it
  * printed when it did not.
  *
  * This is the assertion that keeps the parse honest. One invocation over a tree
- * means the tier's coverage is now a property of caf's *output format* rather
+ * means the tier's coverage is now a property of cafe's *output format* rather
  * than of its exit code per file, and a format that stops matching would
  * otherwise leave this tier green over zero checked manifests — the failure the
- * header calls the false green. A `caf` that rewords a line fails here, with
+ * header calls the false green. A `cafe` that rewords a line fails here, with
  * its own output quoted, which is what the next reader needs.
  */
 function assertOneVerdictPerManifest(report) {
@@ -267,12 +267,12 @@ function assertOneVerdictPerManifest(report) {
   assert.deepEqual(
     said.sort(),
     wrote.sort(),
-    `caf contract lint reported ${verdicts.size} verdicts for the ${expected.size} manifests it was ` +
-      `given, so this tier cannot say which of them passed. caf exited ${report.status}.\n` +
+    `cafe contract lint reported ${verdicts.size} verdicts for the ${expected.size} manifests it was ` +
+      `given, so this tier cannot say which of them passed. cafe exited ${report.status}.\n` +
       `  reported: ${said.join(', ') || '(none)'}\n` +
       `  written:  ${wrote.join(', ')}\n` +
-      `  caf said: ${[...unparsed, stderr].join(' | ').trim() || '(nothing)'}\n` +
-      '  If caf changed the shape of its report, fix the parser here — do not lower this assertion.',
+      `  cafe said: ${[...unparsed, stderr].join(' | ').trim() || '(nothing)'}\n` +
+      '  If cafe changed the shape of its report, fix the parser here — do not lower this assertion.',
   );
   return verdicts;
 }
@@ -293,7 +293,7 @@ test('core is on disk, so this tier can actually run', () => {
   );
 });
 
-test('caf is on PATH, so the manifest examples can be validated for real', () => {
+test('cafe is on PATH, so the manifest examples can be validated for real', () => {
   // Same reasoning as the check above, for the other prerequisite. Reported
   // separately so a missing toolchain is named as a missing toolchain rather
   // than as a manifest that failed to validate.
@@ -307,14 +307,14 @@ test('caf is on PATH, so the manifest examples can be validated for real', () =>
   }
   assert.ok(
     ok,
-    `the caf binary (${CAF}) could not be run: ${message}\n` +
-      'This tier validates manifest examples with the real `caf contract lint` rather ' +
-      'than a second implementation of it. Build it from a checkout of cafaye/caf ' +
-      '(`go build ./cmd/caf`) and put it on PATH, or set CAF to its path.',
+    `the cafe binary (${CAF}) could not be run: ${message}\n` +
+      'This tier validates manifest examples with the real `cafe contract lint` rather ' +
+      'than a second implementation of it. Build it from a checkout of cafaye/cafe ' +
+      '(`go build ./cmd/cafe`) and put it on PATH, or set CAF to its path.',
   );
 });
 
-test('every cafaye.yml example in the docs passes the real caf validator', () => {
+test('every cafaye.yml example in the docs passes the real cafe validator', () => {
   const report = lintEveryManifest();
   try {
     const verdicts = assertOneVerdictPerManifest(report);
@@ -334,15 +334,15 @@ test('every cafaye.yml example in the docs passes the real caf validator', () =>
         'An example that contradicts a shipped contract is a bug in the documentation, ' +
         'and it is the bug a self-hoster hits first.',
     );
-    console.log(`    # manifests validated by caf contract lint: ${report.expected.size - 1}`);
+    console.log(`    # manifests validated by cafe contract lint: ${report.expected.size - 1}`);
   } finally {
     rmSync(report.dir, { recursive: true, force: true });
   }
 });
 
-test("this repository's own cafaye.yml passes the real caf validator", () => {
+test("this repository's own cafaye.yml passes the real cafe validator", () => {
   // The manifest in this repository, held to the same validator as the ones in
-  // the prose. `getting-started.md` tells a reader to run `caf contract lint`
+  // the prose. `getting-started.md` tells a reader to run `cafe contract lint`
   // against a manifest and quotes the output; if this repository's own manifest
   // did not lint clean, the page would be telling a reader to trust a tool on a
   // file that fails it.
@@ -351,16 +351,16 @@ test("this repository's own cafaye.yml passes the real caf validator", () => {
   const report = lintEveryManifest();
   try {
     assertOneVerdictPerManifest(report);
-    // caf's own line, verbatim — `gate.yml`'s `caf-lint-output` proof is
+    // cafe's own line, verbatim — `gate.yml`'s `cafe-lint-output` proof is
     // anchored on it and exists precisely because nothing else but the real
     // binary can print `OK <path>/cafaye.yml`.
     const verdict = report.verdicts.get(report.dir);
     assert.ok(
       verdict.ok,
-      `this repository's own cafaye.yml does not validate: ${verdict.message || `caf exited ${report.status}`}`,
+      `this repository's own cafaye.yml does not validate: ${verdict.message || `cafe exited ${report.status}`}`,
     );
     console.log(`    # ${verdict.raw}`);
-    // caf printed a path under a temporary directory, which is a name no reader
+    // cafe printed a path under a temporary directory, which is a name no reader
     // can act on. Restated as the file in the repository it was copied from.
     console.log(`    #   ^ cafaye.yml in this repository, linted as the tree's own manifest`);
   } finally {

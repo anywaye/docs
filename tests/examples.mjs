@@ -21,7 +21,7 @@
 //
 //   MECHANICAL, needs a sibling checkout (tests/contracts.mjs, not this file):
 //     - the two `cafaye.yml` examples validate against core's real schema,
-//       through the real `caf contract lint`
+//       through the real `cafe contract lint`
 //
 //   **NOT CHECKED, and deliberately so — do not add a test that "asserts these
 //   examples are correct".** A hand-maintained list of known-good examples is
@@ -189,7 +189,7 @@ test('every yaml fence is a manifest this repository can actually validate', () 
   // the wrong question. Both ```yaml fences in this site are `cafaye.yml`
   // manifests, so the question worth asking is not *is this well-formed YAML*
   // but *does the real validator accept it* — and that check exists, in
-  // tests/contracts.mjs, running the real `caf contract lint` against core's
+  // tests/contracts.mjs, running the real `cafe contract lint` against core's
   // real schema. A syntax check here would be a second, weaker answer to a
   // question that already has the right answer one file over.
   //

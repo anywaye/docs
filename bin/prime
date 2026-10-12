@@ -2,7 +2,7 @@
 # bin/prime — the one command that proves the docs site still builds.
 #
 #   bin/prime             # npm ci, the build, the offline suite
-#   bin/prime --contracts # the above, plus the tier that reads core and caf
+#   bin/prime --contracts # the above, plus the tier that reads core and cafe
 #   bin/prime --fast      # npm ci only
 #
 # WHAT IT PROMISES
@@ -30,10 +30,10 @@
 #
 #   `--contracts` adds the **contract tier** (tests/contracts.mjs), which is
 #   the only tier that can catch an example contradicting a *shipped* contract:
-#   the `cafaye.yml` examples run through the real `caf contract lint` against
+#   the `cafaye.yml` examples run through the real `cafe contract lint` against
 #   core's real schema, and the event types and span names the prose asserts
 #   are checked against core's catalog and core's span-naming schema. It needs a
-#   readable `core` (CORE_PATH, or a sibling checkout) and a `caf` binary.
+#   readable `core` (CORE_PATH, or a sibling checkout) and a `cafe` binary.
 #
 #   It is a flag and not the default because those two prerequisites are real,
 #   and it is a *separate file* rather than a skip because the alternative is
@@ -93,7 +93,7 @@ step "npm test"
 npm test
 
 if [ "$CONTRACTS" -eq 1 ]; then
-  step "npm run test:contracts (needs CORE_PATH and a caf binary)"
+  step "npm run test:contracts (needs CORE_PATH and a cafe binary)"
   npm run test:contracts
 else
   step "skipping the contract tier (--contracts); it did NOT run"

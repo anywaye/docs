@@ -44,10 +44,10 @@ bin/prime             # or: mise run prime
   defects — see the history below.
 - `tests/examples.mjs` asserts the code examples: every ` ```sh ` fence parses
   under `bash -n`, every ` ```json ` fence is valid JSON, every ` ```yaml `
-  fence is a manifest, and every `caf` invocation in a fence names a subcommand
-  the `caf help` output **quoted in `getting-started.md`** lists. That last one
+  fence is a manifest, and every `cafe` invocation in a fence names a subcommand
+  the `cafe help` output **quoted in `getting-started.md`** lists. That last one
   reads its vocabulary out of the repository's own prose rather than from a list
-  written beside it, so there is one place that says what `caf` can do.
+  written beside it, so there is one place that says what `cafe` can do.
 - `tests/advisories.mjs` asserts the advisory feed: every page under
   `advisories/` carries its whole `advisory` block and no page anywhere else
   carries one at all, ids are unique and well-formed, the hand-written index
@@ -57,7 +57,7 @@ bin/prime             # or: mise run prime
   index forgot is a failure and not a page nobody finds.
 - The counts are printed, because a check that reports nothing looks like a
   check that found nothing: 125 shell fences, 10 JSON fences, 2 manifests, 6
-  `caf` subcommands, 78 external links, 0 redirects. Measured on this branch by
+  `cafe` subcommands, 78 external links, 0 redirects. Measured on this branch by
   running the suite; this sentence said 136, 12 and 69, which is the failure it
   exists to prevent, in the file that states it.
 
@@ -68,7 +68,7 @@ bin/prime             # or: mise run prime
 contradicting something that has actually shipped:
 
 - every `cafaye.yml` example in the docs goes through the **real
-  `caf contract lint`**, against core's real manifest schema — and so does this
+  `cafe contract lint`**, against core's real manifest schema — and so does this
   repository's own `cafaye.yml`, because `getting-started.md` tells a reader to
   trust that tool;
 - every event type a page says a service **declares or emits** has a catalog row
@@ -83,7 +83,7 @@ contradicting something that has actually shipped:
   field; both were true once and neither had anything to stop it going stale
   again.
 
-It needs a readable `core` (`CORE_PATH`, or a sibling checkout) and a `caf`
+It needs a readable `core` (`CORE_PATH`, or a sibling checkout) and a `cafe`
 binary (`CAF`, or on `PATH`). It is a flag and a separate file rather than a
 skip, because **a contract check that cannot find the contract is worse than no
 contract check**: it converts an unknown into a green badge. Both prerequisites
@@ -125,7 +125,7 @@ a green tick over unnamed steps is a green tick over an unknown amount of work.
 | job | what it is |
 |-----|------------|
 | `gate` | THE gate. `bin/prime` on the pinned interpreter, plus the suite-size guard and the tree-clean guard. |
-| `contracts` | The tier the gate cannot run alone: a checkout of `core`, a `caf` built from source, and `bin/prime --contracts`. |
+| `contracts` | The tier the gate cannot run alone: a checkout of `core`, a `cafe` built from source, and `bin/prime --contracts`. |
 | `pins` | The configuration claims. No toolchain, no build, no network, so it fails in seconds. |
 
 `.github/workflows/external-links.yml` is the network tier and is **deliberately
@@ -175,7 +175,7 @@ by the next packet, and this repository's drift was entirely that kind. Two
 rules that follow:
 
 - **Run the command.** The drift audit is produced by executing
-  `caf contract lint` over the workspace, not by remembering what it said last
+  `cafe contract lint` over the workspace, not by remembering what it said last
   time. A table that was copied rather than re-run is a changelog with a table
   in it.
 - **A service repository is read-only here.** When its README contradicts its
@@ -230,12 +230,12 @@ tests/links.mjs           the link half, offline: every #fragment resolves, ever
                           link resolves, redirects resolve and shadow nothing, every
                           external href is a well-formed https URL
 tests/examples.mjs        the examples: every sh fence parses, every json fence is JSON,
-                          every yaml fence is a manifest, every caf invocation is a
-                          subcommand caf lists
+                          every yaml fence is a manifest, every cafe invocation is a
+                          subcommand cafe lists
 tests/advisories.mjs      the advisory feed: complete advisory metadata on every
                           advisory and nowhere else, and an index that lists all of it
 tests/contracts.mjs       the contract tier, run by `bin/prime --contracts`: manifests
-                          through the real `caf contract lint`, event types against
+                          through the real `cafe contract lint`, event types against
                           core's catalog, span names against core's span-naming schema,
                           and observability.md's per-service telemetry table against
                           core's fleet.yml
