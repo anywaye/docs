@@ -171,6 +171,16 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   word, per seam-audit F7: the page every reader lands on first contradicted the
   service's own house rules.
 
+- **The `contracts` job's `core` checkout no longer trips actions/checkout's own
+  path guard.** The step checked `cafaye/core` out to `${{ runner.temp }}/core`,
+  and `actions/checkout` throws `Repository path
+  '/home/runner/work/_temp/core' is not under '/home/runner/work/docs/docs'`
+  before any step of the job runs — run `38399580509`, job `contracts`, step
+  *core, because the contract tier reads it*. It now checks out to `path: core`,
+  and both consumers of it (`CORE_PATH` in the prerequisite step and in
+  `bin/prime --contracts`) read `${{ github.workspace }}/core`. The comment
+  beside the step records why a sibling `../core` cannot be used instead.
+
 ### Added
 
 - **The public advisory feed — `advisories/` (OPS-P14).** Fleet-wide,

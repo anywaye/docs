@@ -303,13 +303,25 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: core, because the contract tier reads it
-        # Cross-repository, into the workspace at `core`: actions/checkout
-        # refuses a `path:` outside the workspace (its `is-under` guard throws
-        # `Repository path '...' is not under '...'`), so `$RUNNER_TEMP/core`
-        # is a red build before any step runs. `core` keeps the workspace
-        # layout `<workspace>/core`, beside this repository rather than inside
-        # it, so the gate job's tree-clean guard (a `git diff` on this
-        # repository) never sees a foreign tree.
+        # Cross-repository, and the path is the whole of this step's story.
+        #
+        # actions/checkout refuses a `path:` outside the workspace: its
+        # `is-under` guard throws `Repository path '...' is not under '...'`
+        # and the job is red before any step of it runs. That is why
+        # `$RUNNER_TEMP/core` — this step's shape until this fix — cannot work,
+        # and it is also why a genuinely sibling `path: ../core` cannot: a path
+        # outside the workspace is exactly what the guard rejects. `path: core`
+        # resolves to `<workspace>/core`, which is inside, so it passes.
+        #
+        # Said plainly, because the tempting reading is wrong and was written
+        # down here first: on a hosted runner `github.workspace` **is** this
+        # repository's root, so `<workspace>/core` is `<repo>/core` — inside
+        # this repository's directory tree, not beside it. That is harmless,
+        # because the tree-clean guard is a step in the **`gate` job**, and jobs
+        # get their own runner and their own workspace: `gate` never checks core
+        # out, and this `contracts` job runs no tree-clean assertion. If one is
+        # ever added here it must exclude `core/`; moving the checkout back
+        # outside the workspace is not an option, because the guard forbids it.
         #
         # `schemas` and `docs`, sparse, because those are the only two trees this
         # tier reads: `schemas/cafaye.manifest.schema.json` and the seven
