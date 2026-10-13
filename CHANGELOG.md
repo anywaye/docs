@@ -62,11 +62,12 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   `typescript`. **`services/darkroom.md` still describes the Rust tree** and is
   recorded on the index as a known gap rather than left to look current; its
   rewrite is a separate page, not this packet. The same list is repeated on
-  `index.mdx`, `architecture/index.md`, `architecture/topology.md` and
-  `pilot.md` with the same Rust row — left for a follow-up packet and named in
-  this packet's report, because each page adds page-specific claims (ports,
-  probes, a service count) a one-page pass cannot correct without becoming a
-  redesign.
+  `architecture/index.md`, `index.mdx`, `architecture/topology.md` and
+  `pilot.md`. `architecture/index.md` now carries the three missing rows and the
+  corrected `darkroom`/`parlor` languages; the other three are left whole and
+  named in this packet's report, because each adds page-specific claims (ports,
+  probes, a "services vs tooling" split) a one-page pass cannot correct without
+  becoming a redesign.
 
 - **The control plane is `box`, not `conductor`.** PLAN §3 L2 renames the
   control plane service, and this site is the living-docs surface that named

@@ -145,18 +145,20 @@ CAF="$(cd /Users/kaka/Code/any/moon/cafaye/cafe && go build -o /tmp/cafe ./cmd/c
 - **Did not rewrite `services/darkroom.md`.** It describes the pre-rewrite Rust
   service end to end (build command, gate, `tracing`). That is a whole-page
   rewrite owned by a `darkroom`-shaped packet, not a services-list truth pass.
-- **Did not expand the four neighbour pages that repeat the same seven-service
-  list**: `index.mdx` ("The services"), `architecture/index.md` ("The services,
-  and what each one owns"), `architecture/topology.md` (the operator table), and
-  `pilot.md` ("The services"). Each carries the same omission **and** the same
-  stale `darkroom | Rust` row, but each also carries page-specific claims a
-  one-page pass cannot correct without becoming the redesign the packet forbids:
-  a service count ("Seven services…"), a database count ("five databases"),
-  container/local ports and probes for `topology.md`, and a stale
-  "`parlor`'s manifest is still the pre-`core` draft shape" claim on
-  `architecture/index.md`. Adding the three rows and correcting only the language
-  on those pages would leave each page internally inconsistent, so they are left
-  whole and named here. **This is the honest partial.**
+- **Did not expand the three remaining neighbour pages that repeat the same
+  seven-service list**: `index.mdx` ("The services"), `architecture/topology.md`
+  (the operator table), and `pilot.md` ("The services").
+  **`architecture/index.md` *was* updated** (three rows added, `darkroom`/`parlor`
+  languages corrected, the "seven services / five databases" counts and the
+  stale "`parlor`'s manifest is still the pre-`core` draft shape" claim
+  re-derived). The remaining three each carry page-specific claims a one-page
+  pass cannot correct without becoming the redesign the packet forbids:
+  `topology.md` needs container port, local port, database and `core:` read out
+  of each repository; `index.mdx` splits its front page into "services" (public
+  repos) and "tooling" (where `pantry` already sits), so adding closed-source
+  rows there is a taxonomy decision rather than a truth pass; `pilot.md`'s table
+  is "the gap you will hit", which does not fit services nobody self-hosts.
+  **This is the honest partial.**
 - **Did not add analytics, search, dependencies, or any test skip.**
 
 ## Successor's first move
@@ -165,10 +167,11 @@ CAF="$(cd /Users/kaka/Code/any/moon/cafaye/cafe && go build -o /tmp/cafe ./cmd/c
    `master`: `go.mod` + `cmd/` + `internal/`, the `bin/prime` and `bin/prime --db`
    tiers, `docker/Dockerfile`, the R2 rules (`internal/objectstore/s3config.go`).
    The index already points at it and calls the gap out.
-2. **The four neighbour lists** (above) — add `pantry`, `box`, `keyholder` and
-   fix the `darkroom`/`parlor` Language cells, adjusting each page's count
-   sentences and (for `topology.md`) reading container port, local port, database
-   and `core:` out of each repository.
+2. **The three remaining neighbour lists** — `index.mdx`, `architecture/topology.md`
+   and `pilot.md`: add `pantry`, `box`, `keyholder` and fix the
+   `darkroom`/`parlor` Language cells, adjusting each page's count sentences and
+   (for `topology.md`) reading container port, local port, database and `core:`
+   out of each repository. `architecture/index.md` is already done.
 3. **The org README** (`cafaye/.github/README.md`) is the same list from the
    other side; it is a different repository and needs its own packet.
 
@@ -176,6 +179,9 @@ CAF="$(cd /Users/kaka/Code/any/moon/cafaye/cafe && go build -o /tmp/cafe ./cmd/c
 
 - `src/content/docs/services/index.md` — three rows added; every row verified;
   two Language cells fixed.
+- `src/content/docs/architecture/index.md` — the same three rows added to the
+  neighbour list; `darkroom`/`parlor` languages, the service/database counts and
+  the stale `parlor`-manifest claim re-derived.
 - `src/content/docs/services/box.md` — new.
 - `src/content/docs/services/pantry.md` — new.
 - `src/content/docs/services/keyholder.md` — new.

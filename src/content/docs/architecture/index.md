@@ -3,10 +3,10 @@ title: Architecture
 description: What each cafaye service owns, how they talk, and why the boundaries are where they are.
 ---
 
-cafaye is an **organization, not a repository**. Seven services, each in its own
-repo, each in the language its job fits, each owning its own database. They are
-connected by typed contracts — a versioned `cafaye.yml` manifest, OpenAPI
-documents, and an event envelope — and never by shared code.
+cafaye is an **organization, not a repository**. Ten services, each in its own
+repo, each in the language its job fits. They are connected by typed contracts —
+a versioned `cafaye.yml` manifest, OpenAPI documents, and an event envelope —
+and never by shared code.
 
 This page is the map. [Topology](/architecture/topology/) is the same thing as an
 operator's table: ports, probes, environment variables, the HTTP surface of each
@@ -25,10 +25,18 @@ database.
 | [`identity`](https://github.com/cafaye/identity) | Users, sessions, accounts and tenancy, roles, invitations, OIDC, MFA | Go | HTTP `/v1/*`; verified by `gateway` |
 | [`billing`](https://github.com/cafaye/billing) | Plans, customers, money, usage metering, payment-processor webhooks in | Ruby | HTTP `/v1/*`; a Stripe-signed webhook endpoint |
 | [`courier`](https://github.com/cafaye/courier) | Transactional email, push, notification preferences, **every outbound webhook** | Elixir | HTTP; plus events every other service publishes to it |
-| [`darkroom`](https://github.com/cafaye/darkroom) | Media: uploads, variants, object storage | Rust | HTTP + presigned object-storage URLs |
+| [`darkroom`](https://github.com/cafaye/darkroom) | Media: uploads, variants, object storage | Go | HTTP + presigned object-storage URLs |
 | [`muse`](https://github.com/cafaye/muse) | LLM routing, the provider-credentials vault, token metering | Python | HTTP `POST /v1/route` |
 | [`gateway`](https://github.com/cafaye/gateway) | The public edge: token verification, the browser session, rate limits, static routing | Go | HTTP — **it is the door; nothing else is public** |
-| [`parlor`](https://github.com/cafaye/parlor) | The app shell you clone, plus the admin surface | Next.js | A browser |
+| [`parlor`](https://github.com/cafaye/parlor) | The app shell you clone, plus the admin surface | TypeScript | A browser |
+| `pantry` | The project registry — what every official project is, what it exposes, and where to reach it | Go | Public HTTP reads at the one door; writes need an identity account |
+| `box` | The operated control plane — entitlements, installations, releases and approvals | Ruby | The `website` frontend and a box, over HTTP |
+| `keyholder` | The registry-credential exchange — a `registry.pull` capability in, a pull-only `dockerconfigjson` out | Go | `box`, over HTTP |
+
+The last three are **platform services**: `pantry` is closed source with a
+public endpoint, and `box` and `keyholder` are Cafaye-operated and never part of
+a customer install, which is why they have no public repository to link to. See
+[Services](/services/) for the row that dates each one.
 
 Two boundaries do most of the work.
 
@@ -144,8 +152,9 @@ compromise on all of them.
 `identity` holds the keys to everything. It wants a static binary and a
 compiler's worth of discipline around them — Go, `CGO_ENABLED=0`, distroless.
 `courier` fans out to thousands of providers concurrently and holds none of them
-up; that is the BEAM's whole reason for existing. `darkroom` pushes pixels and
-does not want GC pauses in the middle of an encode — Rust. `billing` is pure
+up; that is the BEAM's whole reason for existing. `darkroom` serves media over
+HTTP and object storage and wants a small static binary — Go, since the Rust
+tree was rewritten (`64f39a0`, 2026-10-04). `billing` is pure
 domain modelling with a state machine and integers in minor units — Ruby.
 `muse` talks to models, and Python's ecosystem is unmatched there; it embeds
 LiteLLM as a library rather than porting it. `gateway` and `parlor` are both the
@@ -165,7 +174,7 @@ Stated plainly, because a page that only sells the design is a marketing page.
   are two transactions. The platform's answer is the outbox plus
   at-least-once, which means eventual consistency and consumer-side idempotency
   rather than atomicity.
-- **More moving parts to operate.** Seven services, five databases, a gateway,
+- **More moving parts to operate.** Ten services, seven databases, a gateway,
   and eventually a broker. The [runbooks](/runbooks/) exist because of this.
 - **Contract drift is a real failure mode**, which is why `core` freezes specs,
   every service pins `core:` in its manifest, and `cafe contract lint` and
@@ -175,7 +184,8 @@ Stated plainly, because a page that only sells the design is a marketing page.
 - **The boundaries are younger than the design.** `gateway` routes through a
   static configured table and nothing else — no registry, no discovery, and since
   the Go cutover no API keys and no mounted scope check.
-  `parlor`'s manifest is still the pre-`core` draft shape.
+  `parlor`'s manifest validates now; its role has narrowed, with `website` as
+  the customer-facing frontend since D1 (2026-10-09).
   `identity` cannot reset a password or renew an OIDC access token.
   `muse` verifies the token it is handed, since `e3f53b0` on 2026-10-01.
   Read the status line on every service page before relying on it.
