@@ -10,6 +10,14 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Added
 
+- **`services/box.md`, `services/pantry.md`, `services/keyholder.md` — the
+  three services the index omitted.** The [services page](/services/) listed
+  seven services and named neither `box` (the operated control plane),
+  `keyholder` (the registry-credential exchange) nor `pantry` (the project
+  registry). Each new page is grounded in that repository's `cafaye.yml`,
+  README and boundaries rather than invented; each new index row's Owns
+  sentence is the service's own manifest `description`.
+
 - **`/errors/<code>` — the error-contract page tree, generated from the
   contracts.** PLAN §3 L3 makes `docs.cafaye.com/errors/<code>` the RFC 9457
   `type` base, and this site now serves it: one page per envelope code (22 at
@@ -45,6 +53,20 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     of `identity` or `platform` is active, real and invisible there.
 
 ### Changed
+
+- **The services page was verified row by row against each service's own
+  manifest.** Every Owns sentence on `services/index.md` now tracks the
+  `description:` in that service's `cafaye.yml`, and two Language cells were
+  read against the manifest rather than remembered: `darkroom` is
+  `language: go` (the Go rewrite, `64f39a0`, 2026-10-04) and `parlor` is
+  `typescript`. **`services/darkroom.md` still describes the Rust tree** and is
+  recorded on the index as a known gap rather than left to look current; its
+  rewrite is a separate page, not this packet. The same list is repeated on
+  `index.mdx`, `architecture/index.md`, `architecture/topology.md` and
+  `pilot.md` with the same Rust row — left for a follow-up packet and named in
+  this packet's report, because each page adds page-specific claims (ports,
+  probes, a service count) a one-page pass cannot correct without becoming a
+  redesign.
 
 - **The control plane is `box`, not `conductor`.** PLAN §3 L2 renames the
   control plane service, and this site is the living-docs surface that named
