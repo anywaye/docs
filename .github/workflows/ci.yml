@@ -303,10 +303,13 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: core, because the contract tier reads it
-        # Cross-repository, and therefore deliberately outside the worktree: the
-        # tree-clean guard above is a `git diff`, and a second checkout inside
-        # the repository would put a foreign tree in the way of that assertion.
-        # `$RUNNER_TEMP/core` keeps this repository exactly as it was shipped.
+        # Cross-repository, into the workspace at `core`: actions/checkout
+        # refuses a `path:` outside the workspace (its `is-under` guard throws
+        # `Repository path '...' is not under '...'`), so `$RUNNER_TEMP/core`
+        # is a red build before any step runs. `core` keeps the workspace
+        # layout `<workspace>/core`, beside this repository rather than inside
+        # it, so the gate job's tree-clean guard (a `git diff` on this
+        # repository) never sees a foreign tree.
         #
         # `schemas` and `docs`, sparse, because those are the only two trees this
         # tier reads: `schemas/cafaye.manifest.schema.json` and the seven
@@ -327,7 +330,7 @@ jobs:
         with:
           repository: cafaye/core
           ref: ${{ env.CORE_REF }}
-          path: ${{ runner.temp }}/core
+          path: core
           sparse-checkout: |
             schemas
             docs
@@ -362,7 +365,7 @@ jobs:
         # a tier that could not run must be a red build, never a green one.
         shell: bash
         env:
-          CORE_PATH: ${{ runner.temp }}/core
+          CORE_PATH: ${{ github.workspace }}/core
         run: |
           set -euo pipefail
           if [ ! -r "$CORE_PATH/schemas/cafaye.manifest.schema.json" ]; then
@@ -384,7 +387,7 @@ jobs:
         # the same gate, with one more flag.
         shell: bash
         env:
-          CORE_PATH: ${{ runner.temp }}/core
+          CORE_PATH: ${{ github.workspace }}/core
           CAF: ${{ runner.temp }}/cafe-bin
         run: |
           set -euo pipefail
