@@ -32,7 +32,8 @@ own infrastructure.
 **The launch deploy path is the substrate, not Kamal.** The customer-facing
 deployment substrate — k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
 Redis + Alloy/Loki/Grafana + Prometheus — is decided in
-[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
+`DEPLOYMENT.md` in the moon repository (recorded publicly in
+[Deployment](/runbooks/deployment/)) and
 is what the launch stack ships on. `cafe deploy` drives Kamal today; the k3s/Argo
 implementation lands behind the same `deploy.Runner` interface, so the command
 does not change — the infrastructure it drives does. Kamal retires at parity,
@@ -655,7 +656,7 @@ The Kamal mechanics below are real and they are what runs today — but Kamal
 retires at parity, not before, and the launch stack does not ship on it. The
 customer-facing substrate (k3s + ArgoCD + CloudNativePG, installed by
 `curl https://cafaye.com/box/install | sh`) is decided in
-[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
+`DEPLOYMENT.md` in the moon repository and
 is documented in [Deployment](/runbooks/deployment/). The k3s/Argo
 implementation of `cafe deploy` lands behind the same `deploy.Runner` interface
 (`cafe/internal/cli/deploy.go`), so the command you type does not change — the

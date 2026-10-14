@@ -58,5 +58,5 @@ Every advisory follows the same four parts, in the same order:
 
 If an advisory is wrong, or you have a condition that belongs here, it is a
 finding against this repository like any other. The source is
-[cafaye/docs](https://github.com/cafaye/docs), and the offending sentence is
+`cafaye/docs`, and the offending sentence is
 easier to fix than to argue with.

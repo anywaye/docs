@@ -124,7 +124,7 @@ repositories are described above rather than measured here.
 | Repository | What it declares |
 | --- | --- |
 | [`cafe`](https://github.com/cafaye/cafe) · [`core`](https://github.com/cafaye/core) · [`kit`](https://github.com/cafaye/kit) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
-| [`cafaye-py`](https://github.com/cafaye/cafaye-py) · [`cafaye-rb`](https://github.com/cafaye/cafaye-rb) · [`cafaye-ts`](https://github.com/cafaye/cafaye-ts) · `docs` | **`LICENSE`, MIT** (`cafaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `cafaye-py`'s `pyproject.toml` points at the file, `cafaye-rb`'s gemspec names it, `cafaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
+| `cafaye-py` · `cafaye-rb` · `cafaye-ts` · `docs` | **`LICENSE`, MIT** (`cafaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `cafaye-py`'s `pyproject.toml` points at the file, `cafaye-rb`'s gemspec names it, `cafaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
 | [`identity`](https://github.com/cafaye/identity) · [`billing`](https://github.com/cafaye/billing) · [`courier`](https://github.com/cafaye/courier) · [`darkroom`](https://github.com/cafaye/darkroom) · [`gateway`](https://github.com/cafaye/gateway) · [`muse`](https://github.com/cafaye/muse) · [`parlor`](https://github.com/cafaye/parlor) | **`LICENSE`, Business Source License 1.1** — Licensor Cafaye, Additional Use Grant None, Change Date 2030-10-10, Change License Apache-2.0. `muse`'s `pyproject.toml` points at the file, `courier`'s `mix.exs` and `parlor`'s `package.json` declare `BUSL-1.1` |
 
 `box` and `pantry` are the two repositories this page cannot measure,

@@ -43,7 +43,7 @@ and environment variable in one table.
 
 **The launch deployment mechanism is the substrate — k3s + Traefik +
 cert-manager + ArgoCD + CloudNativePG — decided in
-[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md) and
+`DEPLOYMENT.md` in the moon repository and
 not yet built.** [Deployment](/runbooks/deployment/) is the runbook for it: one
 box, `curl https://cafaye.com/box/install | sh`, and a deploy path that is a values
 commit and nothing else. The install script (`kit/templates/substrate/`) does not
