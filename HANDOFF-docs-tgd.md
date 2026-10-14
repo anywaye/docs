@@ -55,7 +55,7 @@ record it.
 ## What remains, in priority order
 
 1. **The rest of `pilot.md`.** This packet corrected its gateway and muse rows
-   only. The page is a dated snapshot measured at `caf` `460acf3` and `identity`
+   only. The page is a dated snapshot measured at `cafe` `460acf3` and `identity`
    `35c2576`, and other rows in its "what is not production-ready yet" table have
    not been re-measured against the current trees. A successor should sweep them
    the same way rather than assume the two rows were the only stale ones.
@@ -74,4 +74,4 @@ record it.
   `CORE_PATH=/Users/kaka/Code/any/moon/cafaye/core mise exec -- ./bin/prime --contracts`.
   Without it the tier **fails loudly** (7 tests, 4 fail) rather than skipping,
   which is by design and is not a regression.
-- The `caf` binary is on PATH at `/Users/kaka/.local/share/mise/shims/caf`.
+- The `cafe` binary is on PATH at `/Users/kaka/.local/share/mise/shims/cafe`.

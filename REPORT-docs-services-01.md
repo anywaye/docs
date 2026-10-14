@@ -75,7 +75,7 @@ packet (see "What I deliberately did NOT do").
 
 - **Hostnames.** The services page carries no hostnames; every link on it is
   an internal `/services/...` or `/architecture/...` link. No `cafaye.com`
-  host, no `*.svc.cafaye.com`, no retired name (`conductor`, `caf`, `gateway.cafaye.com`,
+  host, no `*.svc.cafaye.com`, no retired name (`conductor`, `cafe`, `gateway.cafaye.com`,
   `keys.cafaye.com`, `console.cafaye.com`) appears on the page or on the three
   new pages. The internal URL map in PLAN §1 thus has nothing to correct here.
 - **`box` vs `conductor`.** The new `box` page uses `box` and cites
@@ -84,7 +84,7 @@ packet (see "What I deliberately did NOT do").
   the sentence that needs it, and keeps `registry` for the registry the
   credential is *for* (`ghcr.io`, `registry.pull`) — the distinction the
   repository's own manifest and README argue at length.
-- **`cafe` vs `caf`.** No `caf` invocation appears in new prose.
+- **`cafe` vs `cafe`.** No `cafe` invocation appears in new prose.
 
 ## The gate
 

@@ -32,10 +32,10 @@ tiers print is byte-identical between the two runs — diffed, not eyeballed:
 | sh fences parsed | 136 | 136 |
 | json fences parsed | 12 | 12 |
 | yaml fences | 2 | 2 |
-| caf subcommands referenced | 6 (vocabulary 12) | 6 (vocabulary 12) |
+| cafe subcommands referenced | 6 (vocabulary 12) | 6 (vocabulary 12) |
 | external links checked (shape only) | 69 | 69 |
 | redirects configured | 0 | 0 |
-| manifests validated by `caf contract lint` | 2 | 2 |
+| manifests validated by `cafe contract lint` | 2 | 2 |
 | event-type claims vs core's catalog | 9 (core publishes 32) | 9 (core publishes 32) |
 | span names vs core's pattern | 6 good, 4 rejected | 6 good, 4 rejected |
 | per-service telemetry rows vs core's `fleet.yml` | 7 rows, 4 exporters, 0 exclusivity claims | 7 rows, 4 exporters, 0 exclusivity claims |
@@ -45,7 +45,7 @@ scratch tree prints, which changes per run by construction.
 
 **Nothing was skipped.** `0 skipped` in both tiers on both runs, and the contract
 tier's two prerequisites were present rather than absent: `core` is on disk
-(`../core`) and `caf` is on `PATH`.
+(`../core`) and `cafe` is on `PATH`.
 
 ### The gate got stronger, and here is the proof
 
@@ -199,7 +199,7 @@ name is not `gateway`, so a reader does not read the substitution as an error.
 ## What I found that the packet did not anticipate
 
 **1. `muse` still declares a dependency named `guard`.** `muse/cafaye.yml`
-carries `dependencies[].name: guard`, so `caf dev` and `pantry` read a service
+carries `dependencies[].name: guard`, so `cafe dev` and `pantry` read a service
 name the rename removed — they will look for a service that does not exist.
 `muse` was **not** in the packet's already-swept list, and its `master` is
 `d4d5128`, which predates the rename.
@@ -236,7 +236,7 @@ against it. **It is named here so the next worker does not re-derive it.**
   Pre-existing; renaming the variable did not create it.
 - `pilot.md` lists contact addresses for repositories that have them and says
   *"One repository declares none: **`kit`**"*. Measured: `pantry`, `parlor`,
-  `site`, `caf`, `core`, `docs` and `gateway` all declare one, so the list is
+  `site`, `cafe`, `core`, `docs` and `gateway` all declare one, so the list is
   right and `kit` is the only gap — but the claim was not re-verified for all
   fifteen here, only for the eight the sentence names.
 

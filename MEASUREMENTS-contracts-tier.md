@@ -4,14 +4,14 @@ Every number here was **run on this branch**, with the command printed above it.
 Nothing is quoted from `moon/RESEARCH-fleet-velocity.md`; where that document's
 figure is mentioned below, it is to say it did **not** reproduce here.
 
-Machine: darwin, node 22.19.0 (the `mise.toml` pin), caf built from
-`cafaye/caf` `master` with `go build -o caf ./cmd/caf` — the same binary CI's
+Machine: darwin, node 22.19.0 (the `mise.toml` pin), cafe built from
+`cafaye/cafe` `master` with `go build -o cafe ./cmd/cafe` — the same binary CI's
 `contracts` job builds, which is the only binary this measurement is honest
 about. See "The binary is part of the measurement" for why.
 
-## BEFORE — one `caf` process per manifest
+## BEFORE — one `cafe` process per manifest
 
-    cd docs && CAF=/tmp/caf node --test tests/contracts.mjs
+    cd docs && CAF=/tmp/cafe node --test tests/contracts.mjs
 
 Five consecutive runs, wall clock:
 
@@ -19,17 +19,17 @@ Five consecutive runs, wall clock:
 | --- | --- | --- | --- | --- | --- |
 | seconds | 0.18 | 0.19 | 0.18 | 0.18 | 0.18 |
 
-**3 `caf` invocations** (`tests/contracts.mjs:89`, once per manifest: two
+**3 `cafe` invocations** (`tests/contracts.mjs:89`, once per manifest: two
 ````yaml` fences plus this repository's own `cafaye.yml`).
 
 The cost is the spawn, and the spawn is nearly all of it. Measured directly:
 
     # 100 invocations, one manifest each — the shape the tier uses today
-    for i in $(seq 100); do /tmp/caf contract lint <one file> >/dev/null; done
+    for i in $(seq 100); do /tmp/cafe contract lint <one file> >/dev/null; done
     #   → 1.29 s, i.e. ~12.9 ms per spawn
 
     # one invocation over a tree holding those same three manifests
-    /tmp/caf contract lint <tree>
+    /tmp/cafe contract lint <tree>
     #   → 0.01 s
 
 So the tier paid roughly **39 ms of process startup** to validate three
@@ -46,9 +46,9 @@ magnitude smaller than that. The finding is right about the *cause* — spawn, n
 linting — and the number belongs to a larger tier. It is recorded here so the
 next reader does not go looking for 133 s on this repository.
 
-## AFTER — one `caf` invocation for the whole tree
+## AFTER — one `cafe` invocation for the whole tree
 
-    cd docs && CORE_PATH=../core CAF=/tmp/caf node --test tests/contracts.mjs
+    cd docs && CORE_PATH=../core CAF=/tmp/cafe node --test tests/contracts.mjs
 
 Seven consecutive runs, wall clock:
 
@@ -56,12 +56,12 @@ Seven consecutive runs, wall clock:
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | seconds | 0.15 | 0.14 | 0.18 | 0.14 | 0.15 | 0.15 | 0.15 |
 
-**1 `caf` invocation** (`tests/contracts.mjs:217`, `execFileSync(caf, ['contract',
+**1 `cafe` invocation** (`tests/contracts.mjs:217`, `execFileSync(cafe, ['contract',
 'lint', dir])`) for all three manifests.
 
 | | BEFORE | AFTER |
 | --- | --- | --- |
-| `caf` processes | 3 | 1 |
+| `cafe` processes | 3 | 1 |
 | tier wall clock (median of 5 / 7 runs) | 0.18 s | 0.15 s |
 | `bin/prime --contracts` | green | green |
 | offline tier | 16 tests, 0 skipped | 16 tests, 0 skipped |
@@ -78,11 +78,11 @@ Forty copies of a documented example, plus this repository's own manifest —
 41 files, the shape a site with forty manifests would produce:
 
     # OLD shape: one process per manifest
-    for f in <tree>/*/cafaye.yml; do /tmp/caf contract lint "$f"; done
+    for f in <tree>/*/cafaye.yml; do /tmp/cafe contract lint "$f"; done
     #   → 0.41 s
 
     # NEW shape: one process for the whole tree
-    /tmp/caf contract lint <tree>
+    /tmp/cafe contract lint <tree>
     #   → 0.01 s
 
 **41×, at 41 files.** The old shape's cost is linear in the number of manifests
@@ -94,16 +94,16 @@ from this site, which has two.
 
 ## The binary is part of the measurement
 
-The first BEFORE run on this branch used whatever `caf` was on `PATH`, which is
+The first BEFORE run on this branch used whatever `cafe` was on `PATH`, which is
 a **stale mise install from 2025-09-30**. It reported
 
     OK …/example-0.yml
 
-for a manifest that the `caf` built from `master` today rejects. The tier is
+for a manifest that the `cafe` built from `master` today rejects. The tier is
 therefore **green against the stale binary and red against the one CI builds**,
 and the difference is not a flake: it is the whole reason the numbers above are
-taken against a freshly built `caf`. `CAF` is the seam, `bin/prime --contracts`
-and CI both set it, and a measurement taken against an arbitrary `caf` on
+taken against a freshly built `cafe`. `CAF` is the seam, `bin/prime --contracts`
+and CI both set it, and a measurement taken against an arbitrary `cafe` on
 `PATH` measures the wrong tool.
 
 This mattered to the packet, not just to the measurement: that staleness is why

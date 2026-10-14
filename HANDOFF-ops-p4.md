@@ -16,7 +16,7 @@ were all in place. What that commit left wrong is what this pass fixed.
 | 1 | `e687574` | index.mdx claimed "the decision names `kit` as framework-MIT, and `kit`'s own `LICENSE` says proprietary". Measured from committed `master`: kit's `LICENSE` is MIT. The sentence is gone and the framework row names all four repositories. |
 | 2 | `3cc2a57` | licensing.md's caution still said "`kit`'s MIT grant landed on 2026-10-10" and invited a reader who saw a `LICENSE` this page called missing. kit's grant moved three times — MIT `04645fc` (10-01), proprietary `4fd4b69` (10-08), MIT `ffe8b8f` (10-10) — which is the actual lesson, so the caution names the commits. pricing.md and security.md both still linked to licensing with "the one row where the record and the tree disagree"; that row does not exist. |
 | 3 | `82fff61` | pilot.md's licence section opened with "We have not finished licensing the platform, and the state is not uniform" and walked it back two paragraphs later — two truths side by side. It now leads with the measured state and keeps the 2026-09-30 table as the superseded snapshot it is. The "licensing is unfinished" row moved to the gap that is real (eight repos carry the grant only as a file). licensing.md's two `billing/LICENSE` line citations were off; they are `13-16` and `25-28`. |
-| 4 | `a309a29` | Three pages carried three different `caf` subcommand counts against one table in caf's tree: index.mdx said four stubs of twelve, pricing.md and pilot.md said three of twelve, and `caf/internal/cli/stub_test.go`'s `stubCommands` table is **empty** — nothing returns `not implemented in v0` any more. Also: "there is no hosted platform" was doing double duty, denying both a cafaye-operated deploy remote (true) and the operated tier we sell (not true). |
+| 4 | `a309a29` | Three pages carried three different `cafe` subcommand counts against one table in cafe's tree: index.mdx said four stubs of twelve, pricing.md and pilot.md said three of twelve, and `cafe/internal/cli/stub_test.go`'s `stubCommands` table is **empty** — nothing returns `not implemented in v0` any more. Also: "there is no hosted platform" was doing double duty, denying both a cafaye-operated deploy remote (true) and the operated tier we sell (not true). |
 | 5 | `262b3b6` | AGENTS.md's own suite counts had drifted (136/12/69 against the 125/10/78 this branch produces) — the failure the sentence says it exists to prevent, in the file that states the rule. |
 
 ## Honest-gap sections that survive, deliberately
@@ -69,13 +69,13 @@ is a real finding — see below.
    a file — and this one points at nothing. **Not fixed here:** correcting it
    means re-measuring what the fleet's secret-scan story actually is now, which
    is a different packet from a licence-and-sales sweep.
-2. **`getting-started.md` still counts `caf` subcommands against the old
-   vocabulary.** Line 14 says "Of the thirteen `caf` subcommands, **eleven** do
+2. **`getting-started.md` still counts `cafe` subcommands against the old
+   vocabulary.** Line 14 says "Of the thirteen `cafe` subcommands, **eleven** do
    real work", and the block quoted at lines 167-192 is the test's vocabulary
-   source (`tests/examples.mjs` reads it). caf's registry is nineteen commands
-   (`caf/internal/cli/command_test.go:11-35`) and the stub table is empty. The
-   three pages in *this* packet now agree with caf's tree; this page is the one
-   still carrying the old count, and it needs a real `caf help` run to rewrite
+   source (`tests/examples.mjs` reads it). cafe's registry is nineteen commands
+   (`cafe/internal/cli/command_test.go:11-35`) and the stub table is empty. The
+   three pages in *this* packet now agree with cafe's tree; this page is the one
+   still carrying the old count, and it needs a real `cafe help` run to rewrite
    its quoted block rather than an edit to the prose alone.
 3. **"fifteen public repositories" is unverified offline.** licensing.md measures
    fifteen and names `conductor` as "the sixteenth repository". `moon/cafaye`

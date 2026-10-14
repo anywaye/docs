@@ -90,11 +90,11 @@ Run before and after the edit; clean both times. No diagnostics from either
 ## Local run — and what only CI can prove
 
 Environment: `CORE_PATH=/Users/kaka/Code/any/moon/cafaye/core`,
-`CAF=/Users/kaka/.local/share/mise/shims/caf` (`caf 0.0.0-dev`, the pre-rename
+`CAF=/Users/kaka/.local/share/mise/shims/cafe` (`cafe 0.0.0-dev`, the pre-rename
 binary of the same tool).
 
 ```
-$ CORE_PATH=…/cafaye/core CAF=…/caf ./bin/prime --contracts
+$ CORE_PATH=…/cafaye/core CAF=…/cafe ./bin/prime --contracts
 …
 # tests 22 / # pass 22 / # fail 0 / # skipped 0        (offline tier == BASELINE_TESTS)
 # tests  8 / # pass  8 / # fail 0 / # skipped 0        (contract tier)

@@ -49,9 +49,9 @@ Three runs, all bounded and backgrounded, each keyed to this worktree's log:
 
 `npm test` on its own, after a build: **exit 0**, 22/22, 0 skipped. Every
 counter the tiers print is measured, not copied: **130 shell fences, 10 JSON
-fences, 2 manifests, 6 `caf` subcommands (vocabulary of 16), 79 external
-links**. The contract tier ran for real: core on disk, `caf` on PATH, 2
-manifests through the real `caf contract lint`, 9 event-type claims against
+fences, 2 manifests, 6 `cafe` subcommands (vocabulary of 16), 79 external
+links**. The contract tier ran for real: core on disk, `cafe` on PATH, 2
+manifests through the real `cafe contract lint`, 9 event-type claims against
 core's catalog, 6 span names against core's pattern, 7 telemetry rows against
 core's `fleet.yml`.
 
