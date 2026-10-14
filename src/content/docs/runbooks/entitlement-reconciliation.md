@@ -5,7 +5,7 @@ description: Take one Stripe Payment Link payment, confirm it is real, and grant
 
 One buyer, one payment, one entitlement. There is no billing service, no
 Stripe integration in box and no payment webhook —
-[moon/AGENTS-FIRST.md](https://github.com/cafaye/moon/blob/master/AGENTS-FIRST.md)
+`moon/AGENTS-FIRST.md`
 D2 decided the mechanism and `box/docs/BOUNDARIES.md` still holds the
 line that produced it:
 

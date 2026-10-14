@@ -42,7 +42,7 @@ you already pay for. And Cafaye Ops is a service rather than a remote: the box
 lives on your cloud account, and what you buy is the operation of it, not a
 destination for the command. The launch deploy path is the substrate (k3s +
 ArgoCD + CloudNativePG), decided in
-[DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md);
+`DEPLOYMENT.md` in the moon repository;
 Kamal is the current implementation and retires at parity, not before.
 [Deployment](/runbooks/deployment/) is its runbook.
 
@@ -845,7 +845,7 @@ Stated here rather than left for you to guess:
   re-running it was out of scope here, and it is linked rather than repeated.
 
 If a step here is wrong, that is a bug in this page and it is worth an issue on
-[the docs repository](https://github.com/cafaye/docs). If a step is missing,
+the docs repository. If a step is missing,
 that is worse, and the same applies.
 
 ## See also

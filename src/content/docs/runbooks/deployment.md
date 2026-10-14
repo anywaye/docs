@@ -4,7 +4,7 @@ description: The operator runbook for the cafaye substrate — one box, one inst
 ---
 
 **Status: decided, not built.** The substrate this page documents is fixed by a
-decision record — [DEPLOYMENT.md](https://github.com/cafaye/moon/blob/master/DEPLOYMENT.md)
+decision record — `DEPLOYMENT.md`
 in the moon repository — and the install script that builds it does not exist on
 the branch this page was written against. Every install step below is therefore
 marked **unverified**: it records what the decision says will happen, not what a
