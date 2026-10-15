@@ -20,6 +20,12 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
   site: 'https://docs.cafaye.com',
+  // Two builds, two trees: this site emits dist/docs, the private site emits
+  // dist/notes (notes-site/astro.config.mjs). They are kept apart on disk on
+  // purpose — one `cp -r dist` mistake must not be able to publish private
+  // pages. nginx serves / from dist/docs and /notes/ from dist/notes, the
+  // second behind the identity gate.
+  outDir: 'dist/docs',
   trailingSlash: 'ignore',
   integrations: [
     starlight({
@@ -103,6 +109,24 @@ export default defineConfig({
         {
           label: 'Services',
           items: [{ autogenerate: { directory: 'services' } }],
+        },
+
+        // `Projects` is synced, not authored here: bin/sync-content copies
+        // each fleet repository's docs/ into src/content/docs/projects/<name>
+        // before the build. A repository that documents its own API therefore
+        // has no authoring surface in this repository at all — its pages
+        // arrive from the repository that owns the code. A `notes/`
+        // directory inside a public repository fails the sync (see
+        // bin/sync-content), so private per-project pages never exist in this
+        // tree by construction.
+        //
+        // The group sits directly under `Services` because the two answer
+        // adjacent questions — what the service owns, and what its own manual
+        // says — and nothing in the sidebar tells a reader which of the two
+        // sites a page came from once it is mounted side by side.
+        {
+          label: 'Projects',
+          items: [{ autogenerate: { directory: 'projects' } }],
         },
         // The error-contract tree: one generated page per envelope `code`
         // behind the frozen `docs.cafaye.com/errors/<code>` base (PLAN §1

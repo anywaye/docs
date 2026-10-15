@@ -29,3 +29,14 @@ dist/
 .idea/
 .vscode/
 *.swp
+# materialized by bin/sync-content — never authored here. The public site's
+# projects/ subtree is copied from each fleet repository's docs/, and the
+# notes site's content tree is copied from cafaye/notes and each private
+# repository's notes/. Committing build output shaped like source would freeze
+# the site at one sync and make the next merge conflict unreadable.
+/src/content/docs/projects/
+/notes-site/src/content/docs/
+
+# the record of the last sync — what each tree holds and what was derived.
+# Derived by the build, so gitignore says nothing about it; tests read it.
+/.sync/

@@ -101,7 +101,7 @@ env:
   # Raising this number is the intended direction. Lowering it is not a way to
   # make a build green — it is the deletion of a check, and the change that
   # lowers it should have to argue for the deletion in the diff.
-  BASELINE_TESTS: '22'
+  BASELINE_TESTS: '44'
   # core, unpinned, on purpose. This tier exists to catch a change in core, and
   # a pinned ref would blind it to the one thing it exists to detect. A red run
   # caused by a core change is the guard working, not a flake. The revision read
@@ -116,6 +116,60 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+
+      - name: the fleet sources bin/sync-content reads
+        # The gate is no longer hermetic about its checkout set, and the
+        # reason is the two-build pipeline: `npm run build` runs
+        # bin/sync-content, which materializes the public site's projects/
+        # subtree from each fleet repository's docs/ and the notes site's
+        # whole tree from cafaye/notes. A missing source fails the sync — a
+        # skip would be a green build over an unpublishable site — so CI
+        # checks out the registry in content-sources.json beside the tree,
+        # at `cafaye/<name>`, where the sync's fleet-root search finds it.
+        #
+        # Sparse, three paths per repo: `docs` (the public pages), `notes`
+        # (so the anti-leak guard can still see a notes/ directory that
+        # should not be there), and `cafaye.yml` (the visibility the guard
+        # reads). A full clone of the fleet for this would be an order of
+        # magnitude more bytes for files nothing here opens.
+        #
+        # Public repos clone with the default token; private ones with
+        # FLEET_TOKEN, tried second. If both fail the job is red — the same
+        # "fail loudly, never silently skip" rule the sync itself follows.
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FLEET_TOKEN: ${{ secrets.FLEET_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p cafaye
+          node -e 'const r=require("./content-sources.json"); console.log(r.projects.join("\n"))' > repos.txt
+          while read -r repo; do
+            [ -n "$repo" ] || continue
+            target="cafaye/$repo"
+            token="$GH_TOKEN"
+            if ! git clone --depth 1 --filter=blob:none --sparse \
+                 "https://x-access-token:${GH_TOKEN}@github.com/cafaye/${repo}.git" "$target" 2>/dev/null; then
+              if [ -z "${FLEET_TOKEN:-}" ]; then
+                echo "::error::cafaye/${repo} is private and FLEET_TOKEN is unset — the sync needs it." >&2
+                exit 1
+              fi
+              token="$FLEET_TOKEN"
+              git clone --depth 1 --filter=blob:none --sparse \
+                   "https://x-access-token:${FLEET_TOKEN}@github.com/cafaye/${repo}.git" "$target"
+            fi
+            git -C "$target" sparse-checkout set --no-cone \
+                 '/cafaye.yml' '/docs/' '/notes/'
+            echo "checked out $target"
+          done < repos.txt
+          # cafaye/notes itself — the central private source. Always the token.
+          if [ -z "${FLEET_TOKEN:-}" ]; then
+            echo "::error::cafaye/notes is private and FLEET_TOKEN is unset — the notes tree cannot sync without it." >&2
+            exit 1
+          fi
+          git clone --depth 1 --filter=blob:none \
+               "https://x-access-token:${FLEET_TOKEN}@github.com/cafaye/notes.git" cafaye/notes
+          echo "the fleet sources are beside the tree; the sync will find them"
 
       - name: the pinned interpreter, and the one that arrived
         # The pin is read from `mise.toml` rather than written here, and the next

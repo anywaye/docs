@@ -1,0 +1,358 @@
+#!/usr/bin/env node
+// bin/sync-content — materialize the content sources into the two build trees.
+//
+// WHY THIS EXISTS AT ALL
+//   The fleet's documentation lives in three places, by design: the public site
+//   (this repository's src/content/docs/), the private notes repository
+//   (cafaye/notes), and each service repository's own docs/ and notes/ trees.
+//   Two Starlight builds consume them: the public site becomes dist/docs and
+//   the private site becomes dist/notes. This script is the join — it reads
+//   the sources and writes what each build is allowed to contain.
+//
+// WHY IT FAILS LOUDLY RATHER THAN DEGRADING
+//   A missing source cannot mean "no content": the central notes repository
+//   missing is not an empty notes site, it is a broken pipeline wearing a
+//   green badge. Every source listed in content-sources.json must resolve,
+//   and every repository root must carry a readable cafaye.yml whose
+//   `repository.visibility` says what may be ingested. This is the contract
+//   tier's rule, and it is the same rule for the same reason: a check that
+//   cannot find its input is worse than no check.
+//
+// THE ONE RULE THIS SCRIPT EXISTS TO ENFORCE
+//   A public repository never carries private content. If a repository whose
+//   cafaye.yml says visibility: public contains a notes/ directory, the leak
+//   has already happened at `git clone` — no build-time filter can undo a
+//   pushed file. So the sync refuses, names the repository, and exits 1. The
+//   same applies to a page inside a public repository's docs/ carrying
+//   `visibility: private` frontmatter: the page is public the moment the push
+//   lands, whatever the frontmatter says.
+//
+// --check, and why it exists
+//   `bin/sync-content --check` runs every resolution and every guard and
+//   writes nothing. It is the mode tests/visibility.mjs uses to execute the
+//   anti-leak rule against fixtures, and the mode a pre-commit hook or CI can
+//   use to answer "would this sync pass?" in a second without touching the
+//   materialized trees. The guards live in one place and both modes run them;
+//   only the writes differ.
+//
+// WHERE SOURCES RESOLVE FROM, in order, first hit wins:
+//   1. an explicit environment override (CAF_NOTES_PATH, or CAF_PROJECT_<NAME>
+//      for a project, name upper-cased, dashes as underscores) — this is what
+//      CI sets, because a runner's workspace is not a developer's machine.
+//   2. <CAF_WORKSPACE>/cafaye/<name> — the machine layout, where this
+//      repository and all its siblings sit under moon/cafaye/. Resolved two
+//      levels up from this repository's root, which is moon/ whether this is
+//      a primary checkout (moon/cafaye/docs) or a worktree (moon/wt/<name>).
+// If none resolves, the sync fails and prints what it tried.
+
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, copyFileSync } from 'node:fs';
+import { join, resolve, basename } from 'node:path';
+
+const root = resolve(import.meta.dirname, '..');
+const sourcesFile = join(root, 'content-sources.json');
+const checkOnly = process.argv.includes('--check');
+
+/** The trees this script owns. It clears and rewrites these and nothing else. */
+const PUBLIC_TREE = join(root, 'src', 'content', 'docs');
+const PUBLIC_PROJECTS = join(PUBLIC_TREE, 'projects');
+const NOTES_TREE = join(root, 'notes-site', 'src', 'content', 'docs');
+const MANIFEST = join(root, '.sync', 'manifest.json');
+
+const CONTENT_EXT = /\.mdx?$/;
+
+function fail(message) {
+  console.error(`sync-content: ${message}`);
+  process.exit(1);
+}
+
+function walk(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...walk(full));
+    } else if (CONTENT_EXT.test(entry.name) && !entry.name.startsWith('_')) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+function readFrontmatter(file) {
+  // Only the scalar fields this script makes decisions on are parsed. A full
+  // frontmatter parse is Starlight's job at build time; this script needs
+  // `visibility` and nothing else, and a YAML dependency for two fields is
+  // not worth it. The line is matched, not evaluated, so a value containing
+  // braces cannot execute anything.
+  const text = readFileSync(file, 'utf8');
+  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
+  if (!match) return {};
+  const fields = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    const kv = /^([a-z][a-z0-9-]*):\s*(.*)$/.exec(line);
+    if (kv) fields[kv[1]] = kv[2].trim().replace(/^['"]|['"]$/g, '');
+  }
+  return fields;
+}
+
+/** Read `repository.visibility` out of a repo's cafaye.yml, line-based on
+ *  purpose: a manifest that fails to parse must fail the sync, not default to
+ *  a visibility. The default wrong answer is "public", which is the one that
+ *  leaks. */
+function repoVisibility(rootDir) {
+  const file = join(rootDir, 'cafaye.yml');
+  if (!existsSync(file)) {
+    fail(`no cafaye.yml at ${file}. Every member of the fleet carries one; a repository root without it is not a cafaye repo and cannot be ingested.`);
+  }
+  const text = readFileSync(file, 'utf8');
+  const match = /^repository:\r?\n(?:[ \t]+.*\r?\n)*?[ \t]+visibility:[ \t]*(public|private)\s*$/m.exec(text);
+  if (!match) {
+    fail(`cannot read repository.visibility from ${file}. It is the field that decides what this build is allowed to publish, so a manifest missing it fails the sync rather than defaulting.`);
+  }
+  return match[1];
+}
+
+/** Where a named source lives: override, then the machine layout, then fail. */
+function resolveSource(name, envKey) {
+  const explicit = process.env[envKey];
+  if (explicit) {
+    if (!existsSync(explicit)) fail(`$${envKey} is set to ${explicit} but that path does not exist.`);
+    return resolve(explicit);
+  }
+  // The fleet root is the nearest ancestor that contains a `cafaye/`
+  // directory, found by walking up rather than assuming a depth: the primary
+  // checkout (moon/cafaye/docs) and a worktree (moon/cafaye/wt/<name>, or
+  // moon/wt/<name>) sit at different depths, and a fixed "../.." works for
+  // one and silently fails for the other.
+  let dir = root;
+  let fleetRoot = null;
+  for (;;) {
+    if (existsSync(join(dir, 'cafaye'))) {
+      fleetRoot = dir;
+      break;
+    }
+    const parent = resolve(dir, '..');
+    if (parent === dir) break;
+    dir = parent;
+  }
+  const candidate = fleetRoot ? join(fleetRoot, 'cafaye', name) : null;
+  if (candidate && existsSync(candidate)) return candidate;
+  fail(
+    `source "${name}" not found. Tried $${envKey} and ${candidate ?? `no cafaye/ directory above ${root}`}. ` +
+      `On a developer machine the fleet sits under moon/cafaye/; in CI, set CAF_WORKSPACE to the directory containing cafaye/, or ${envKey} to the checkout path.`
+  );
+}
+
+/**
+ * Derive the frontmatter a borrowed page is missing.
+ *
+ * WHY DERIVE RATHER THAN FAIL
+ *   The public site's schema requires `title` and `description`, and that rule
+ *   is right for pages this repository authors. It is wrong as a gate on
+ *   pages borrowed from repositories that predate the publishing contract:
+ *   every project page in the fleet today was written as a repository document
+ *   with no thought of a site header, and a red build over borrowed prose the
+ *   docs repository does not edit is a build nobody can fix where the fix
+ *   belongs. So the sync fills what is missing and RECORDS what it filled —
+ *   the manifest lists every derived page, and tests read it, so the day a
+ *   repository writes its own `title:` its page leaves the derived set. The
+ *   floor is honest metadata on every page; the target is authored metadata
+ *   on every page.
+ *
+ * The derivation is deliberately mechanical and visible: a title from the
+ * first heading, a description from the first paragraph, truncated. A page
+ * with no heading falls back to its filename, and that fallback is recorded
+ * distinctly so a repo can see which of its pages lost their title to a
+ * missing H1.
+ */
+function deriveFrontmatter(file) {
+  const text = readFileSync(file, 'utf8');
+  const body = text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+
+  let title = null;
+  const h1 = /^#\s+(.+)$/m.exec(body);
+  if (h1) title = h1[1].trim();
+  else {
+    // Filename stem, humanized: "event-outbox.md" -> "Event outbox".
+    title = basename(file)
+      .replace(/\.[^.]+$/, '')
+      .split(/[-_]/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+    return { title, description: '', headingless: true };
+  }
+
+  // The first prose paragraph after the headings, truncated at a word
+  // boundary. Meta description quality is the author's job; its existence is
+  // this script's.
+  const paragraphs = body
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/^#+.*$/gm, '').replace(/\s+/g, ' ').trim())
+    .filter((p) => p.length > 0);
+  const description = (paragraphs[0] ?? '').slice(0, 157);
+  const clipped =
+    (paragraphs[0] ?? '').length > 157
+      ? description.slice(0, description.lastIndexOf(' ')) + '\u2026'
+      : description;
+  return { title: yamlQuote(title), description: yamlQuote(clipped), headingless: false };
+}
+
+/** Single-quote a scalar for YAML, escaping embedded quotes. */
+function yamlQuote(value) {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+
+/** Copy a source tree into a destination, rebuilding directories. The dest is
+ *  owned by the caller and cleared before this runs. `derived` receives one
+ *  record per page that arrived without the frontmatter the build requires
+ *  and had it derived — the caller files that record into the manifest. */
+function copyTree(src, dest, derived) {
+  mkdirSync(dest, { recursive: true });
+  for (const file of walk(src)) {
+    const rel = file.slice(src.length + 1);
+    // A repo's README is its front door on github.com, not a page written for
+    // this site. Publishing it would give the platform a second, uglier copy
+    // of every project's about-page, and the ones that matter already link to
+    // the repository. The central notes repository is the one exception: its
+    // README is the notes home page, handled below.
+    if (basename(rel) === 'README.md') continue;
+    const target = join(dest, rel);
+    mkdirSync(join(target, '..'), { recursive: true });
+    if (!/^---\r?\n/.test(readFileSync(file, 'utf8'))) {
+      const fields = deriveFrontmatter(file);
+      writeFileSync(
+        target,
+        `---\ntitle: ${fields.title}\ndescription: ${fields.description}\n---\n\n` + readFileSync(file, 'utf8'),
+      );
+      derived.push({ page: rel, title: fields.title, headingless: fields.headingless });
+    } else {
+      copyFileSync(file, target);
+    }
+  }
+}
+
+function pagesIn(dir) {
+  if (!existsSync(dir)) return 0;
+  return walk(dir).length;
+}
+
+// ----------------------------------------------------------------- the sync
+
+if (!existsSync(sourcesFile)) fail(`no content-sources.json at ${sourcesFile}.`);
+const registry = JSON.parse(readFileSync(sourcesFile, 'utf8'));
+
+// 1. The central notes repository — every page is private by construction.
+const notesSource = resolveSource(registry.central, 'CAF_NOTES_PATH');
+if (!statSync(notesSource).isDirectory()) fail(`the notes source ${notesSource} is not a directory.`);
+let notesDerived = [];
+if (!checkOnly) {
+  rmSync(NOTES_TREE, { recursive: true, force: true });
+  copyTree(notesSource, NOTES_TREE, notesDerived);
+} else {
+  const pages = pagesIn(notesSource);
+  if (pages === 0) fail(`the notes source ${notesSource} contains no pages. An empty notes site is a broken sync, not an empty fleet.`);
+  notesDerived = [];
+}
+// The notes repository's README is its house rules and is also the best
+// front page the private site has, so it lands as index.md — the site root —
+// with an authored title rather than a derived one. A README in any borrowed
+// repository is skipped by copyTree above; this is the one directory whose
+// README is the product.
+const notesReadme = join(notesSource, 'README.md');
+if (!checkOnly && existsSync(notesReadme)) {
+  const body = readFileSync(notesReadme, 'utf8');
+  const firstPara = (body.split(/\n\s*\n/)[1] ?? '').replace(/\s+/g, ' ').trim().slice(0, 157);
+  writeFileSync(
+    join(NOTES_TREE, 'index.md'),
+    `---\ntitle: cafaye notes\ndescription: ${yamlQuote(firstPara || 'cafaye private notes — decisions, operations, debt and the notes that never belonged in a public repository.')}\n---\n\n` + body,
+  );
+}
+const notesPages = pagesIn(NOTES_TREE);
+if (notesPages === 0) fail(`the notes source ${notesSource} contains no pages. An empty notes site is a broken sync, not an empty fleet.`);
+console.log(`sync-content: notes <- ${notesSource} (${notesPages} pages, private)`);
+
+// 2. The fleet projects — visibility decides which tree, and the guard runs.
+if (!checkOnly) rmSync(PUBLIC_PROJECTS, { recursive: true, force: true });
+const projects = [];
+for (const name of registry.projects) {
+  const repoDir = resolveSource(name, `CAF_PROJECT_${name.toUpperCase().replace(/-/g, '_')}`);
+  const visibility = repoVisibility(repoDir);
+  const docsDir = join(repoDir, 'docs');
+  const notesDir = join(repoDir, 'notes');
+  // In check mode the dirs are never touched, so the record's counts are the
+  // pages the source holds; outside it they are the pages that landed.
+  const record = { name, visibility, docs: 0, notes: 0, path: repoDir };
+  const derived = [];
+
+  // PUBLIC REPOSITORY: docs/ may sync, notes/ must not exist. The check is on
+  // the directory's presence and its page count, not on git history — this
+  // script sees a checkout, and a notes/ directory in a public checkout is a
+  // leak in progress regardless of how it got there.
+  if (visibility === 'public') {
+    if (existsSync(notesDir) && pagesIn(notesDir) > 0) {
+      fail(
+        `${name} is a PUBLIC repository (${repoDir}) and contains ${pagesIn(notesDir)} private page(s) under notes/. ` +
+          `A public repository cannot carry private notes: the leak happens at git clone, before this build runs. ` +
+          `Move them to projects/${name}/ in the notes repository (cafaye/notes).`
+      );
+    }
+    if (existsSync(docsDir)) {
+      for (const file of walk(docsDir)) {
+        if (readFrontmatter(file).visibility === 'private') {
+          fail(
+            `${file} declares visibility: private inside the PUBLIC repository ${name} (${repoDir}). ` +
+              `Frontmatter does not un-push a page. Move it to projects/${name}/ in the notes repository.`
+          );
+        }
+      }
+      record.docs = pagesIn(docsDir);
+      if (record.docs > 0 && !checkOnly) copyTree(docsDir, join(PUBLIC_PROJECTS, name), derived);
+    }
+  }
+
+  // PRIVATE REPOSITORY: docs/ is still public content (it syncs to the public
+  // tree next to the other projects), and notes/ joins the private tree.
+  else {
+    if (existsSync(docsDir)) {
+      record.docs = pagesIn(docsDir);
+      if (record.docs > 0 && !checkOnly) copyTree(docsDir, join(PUBLIC_PROJECTS, name), derived);
+    }
+    if (existsSync(notesDir)) {
+      record.notes = pagesIn(notesDir);
+      if (record.notes > 0 && !checkOnly) copyTree(notesDir, join(NOTES_TREE, 'projects', name), derived);
+    }
+  }
+  record.derived = derived;
+  projects.push(record);
+  if (derived.length > 0) {
+    console.log(`sync-content: ${name}: ${derived.length} page(s) had title/description derived (see .sync/manifest.json)`);
+  }
+  console.log(`sync-content: ${name} <- ${repoDir} (visibility: ${visibility}, docs: ${record.docs}, notes: ${record.notes})`);
+}
+
+// 3. The manifest — the record tests read so they assert what this sync
+//    actually did rather than what it was supposed to do. Check mode prints
+//    its plan and stops here: a check that wrote the manifest would overwrite
+//    the record of the last real sync with a plan of a sync that never ran.
+if (checkOnly) {
+  const totalPublic = projects.reduce((n, p) => n + p.docs, 0);
+  const totalPrivate = projects.reduce((n, p) => n + p.notes, 0) + notesPages;
+  console.log(`sync-content: --check OK. plan: notes ${notesPages} private page(s); ${totalPublic} public project page(s); ${totalPrivate} private page(s) total.`);
+  process.exit(0);
+}
+mkdirSync(join(root, '.sync'), { recursive: true });
+writeFileSync(
+  MANIFEST,
+  JSON.stringify(
+    {
+      central: { name: registry.central, pages: notesPages, derived: notesDerived },
+      projects,
+    },
+    null,
+    2,
+  ) + '\n'
+);
+if (notesDerived.length > 0) {
+  console.log(`sync-content: notes: ${notesDerived.length} page(s) had title/description derived`);
+}
+console.log(`sync-content: done. public tree: ${pagesIn(PUBLIC_PROJECTS)} project page(s); private tree: ${pagesIn(NOTES_TREE)} page(s).`);

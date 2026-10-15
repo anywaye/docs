@@ -5,6 +5,11 @@ The cafaye documentation site — **docs.cafaye.com**. A static
 [Starlight](https://starlight.astro.build), built to a directory of HTML with no
 runtime behind it.
 
+**Two builds, two trees.** The public site builds to `dist/docs` and serves at
+`/`. The private site builds to `dist/notes` and serves at `/notes/*` behind
+the identity gate. They never share a directory, a search index, or a sitemap —
+see [Visibility](#visibility-and-the-two-builds).
+
 **Status: operator documentation for an org in early development.** Two readers:
 a design partner onboarding onto their own infrastructure, and an operator who
 has to keep it alive. The structure, the gate, and the deploy path are in place.
@@ -23,6 +28,11 @@ bin/prime --contracts # the above, plus the tier that reads core and cafe
 ```
 
 `bin/prime` is the offline suite; there is no separate lint or typecheck step.
+The suite no longer needs a sibling checkout for the *contract* tier only: the
+build itself reads content sources (below), so a developer machine with the
+fleet under `moon/cafaye/` — or a CI job that checks the registry out — is a
+prerequisite of `npm run build`, and `bin/sync-content --check` answers in one
+second whether the sources resolve and the guards pass, without building.
 The build **is** half the gate: Starlight validates every page's frontmatter,
 Astro checks every content collection, and Starlight resolves every sidebar slug,
 so a page with a missing `title` or a sidebar entry pointing at nothing fails
@@ -62,8 +72,11 @@ npm run dev      # http://localhost:4321
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Dev server with hot reload |
-| `npm run build` | Build the static site into `dist/` |
+| `npm run dev` | Dev server with hot reload (public tree) |
+| `npm run sync` | Materialize the content sources; nothing else |
+| `npm run build:public` | Public tree only, into `dist/docs` |
+| `npm run build:notes` | Private tree only, into `dist/notes` |
+| `npm run build` | **Both** — sync, then each tree, into `dist/docs` and `dist/notes` |
 | `npm run preview` | Serve `dist/` locally, as the host will |
 | `npm test` | The offline suite — **run a build first**, it reads `dist/` |
 | `npm run test:contracts` | The contract tier; needs `CORE_PATH` and a `cafe` binary |
@@ -71,14 +84,23 @@ npm run dev      # http://localhost:4321
 
 ## Deploy
 
-The output is a plain static directory, so any static host works. There is no
-adapter, no server function, and no environment variable read at runtime.
+The outputs are two plain static directories, so any static host works. There is
+no adapter, no server function, and no environment variable read at runtime.
 
 ```sh
 timeout 600 npm ci
 timeout 420 npm run build
-# publish dist/ — that is the whole deploy
+# publish dist/docs at / and dist/notes at /notes — that is the whole deploy
 ```
+
+**The two directories are the security boundary, not a detail.** Public pages
+never exist on the same path as private ones at any stage: the public build
+cannot emit a `/notes` route (tests/visibility.mjs fails if it does), and the
+notes build emits only private pages. A host mounts `dist/notes` at `/notes`
+behind the identity gate — nginx's `auth_request` against
+`https://auth.cafaye.com`'s JWKS — and everything else is served from
+`dist/docs` as-is. `dist/notes/404.html` shape-matches "no such page" for
+unauthenticated readers so a private URL's existence is not advertised.
 
 `site:` in `astro.config.mjs` is `https://docs.cafaye.com`, and it must be the
 real origin at deploy time: every canonical URL and the sitemap resolve against
@@ -103,8 +125,13 @@ it.
 
 ### CI
 
-The gate command is `bin/prime`, and that is what CI runs: no secrets, nothing
-published. `.github/workflows/ci.yml` has three jobs — `gate` (the gate on the
+The gate command is `bin/prime`, and that is what CI runs. The `gate` job is
+no longer secret-free by necessity: `npm run build` runs the sync, and the
+sync reads `cafaye/notes` (private) beside the tree, so the job checks the
+registry out sparsely first — public repos with the default token, private
+ones with `FLEET_TOKEN` — and fails loudly if a private source cannot be
+cloned. A green badge over a pipeline that could not read its sources is the
+one failure shape this repository refuses to ship. `.github/workflows/ci.yml` has three jobs — `gate` (the gate on the
 pinned interpreter, plus a suite-size guard and a tree-clean guard), `contracts`
 (a checkout of `core` and a `cafe` built from source, then `bin/prime
 --contracts`), and `pins` (the configuration claims, no toolchain, so it fails in
@@ -136,6 +163,51 @@ checkout, and a job that quietly skipped it would be a green tick over nothing.
 ## Content
 
 Pages are Markdown and MDX in `src/content/docs/`; the file path is the URL.
+
+**Three sources feed the two builds**, and `bin/sync-content` is the join:
+
+| Source | What it is | Lands in |
+| --- | --- | --- |
+| this repository's `src/content/docs/` | the platform pages, authored here | public tree |
+| each fleet repository's `docs/` | a project's own manual, authored beside its code | public tree at `projects/<name>/` |
+| `cafaye/notes` (private repo) | the organization's private register: decisions, ops, debt | notes tree |
+| a **private** repository's `notes/` | that repository's private pages, if it keeps any | notes tree at `projects/<name>/` |
+
+The sources are declared in `content-sources.json` and resolved beside the
+tree under `moon/cafaye/`, or by `CAF_NOTES_PATH` / `CAF_PROJECT_<NAME>` in
+CI. A source that does not resolve **fails the sync** — a missing notes
+repository is a broken pipeline, not an empty notes site. `--check` runs every
+guard and writes nothing.
+
+**A public repository never carries private notes.** If a repository whose
+`cafaye.yml` says `visibility: public` contains a `notes/` directory, the sync
+refuses to run and names it: the leak would happen at `git clone`, before any
+build ran, and no flag or edge rule can undo a pushed file. Its private notes
+belong in `cafaye/notes/projects/<name>/` — a page inside a public
+repository's `docs/` declaring `visibility: private` fails the same way.
+`tests/visibility.mjs` executes both guards against fixtures.
+
+Borrowed pages (`projects/`, the notes tree) that arrive without the required
+frontmatter get it **derived** — title from the first heading, description
+from the first paragraph — and every derivation is recorded in
+`.sync/manifest.json`, so a repository can see which of its pages still owe
+their own metadata. The target is authored metadata everywhere; the floor is
+honest metadata everywhere.
+
+## Visibility, and the two builds
+
+| | public (`dist/docs`) | private (`dist/notes`) |
+| --- | --- | --- |
+| Mount | `/` | `/notes/*` |
+| Auth | none | identity JWT (`auth.cafaye.com` JWKS, org match) |
+| Cache | `public, immutable` for `_astro/`, short for HTML | `private, no-store` |
+| Search index | Pagefind (when enabled) | its own index, served only behind auth |
+| Sitemap | `sitemap-index.xml` | none — a sitemap enumerates |
+
+Private pages link to public ones by absolute URL; the notes tree's
+`/notes`-prefixed links resolve inside its own artifact. `tests/smoke.mjs`
+scopes each tree's internal links to its own base, and the link gate fails a
+public page that links a private one.
 
 ```
 src/content/docs/
@@ -283,7 +355,7 @@ A docs site that hides a known defect is not being honest, it is being useless.
 
 | Not here | Why |
 | --- | --- |
-| Search | `pagefind: false`. Starlight would build a Pagefind index on every build; the packet forbids search indexing and a search box over ten pages is noise |
+| Search | `pagefind: false` on both trees. Starlight would build a Pagefind index on every build; the packet forbids search indexing. When it lands for the private tree it is a *third* gated artifact, served behind the same auth as its pages |
 | Analytics | A docs site that phones home is a privacy and maintenance surface |
 | Blog | Not asked for, and a second content type to keep honest |
 | Sitemap opt-out | `@astrojs/sitemap` ships with Starlight and emits `sitemap-index.xml` automatically. Removing it is a Starlight-side change; not blocked by the packet, which forbids *search indexing*, not a sitemap |
@@ -292,9 +364,15 @@ A docs site that hides a known defect is not being honest, it is being useless.
 ## Layout
 
 ```
-astro.config.mjs          site URL, Starlight config, the sidebar
+astro.config.mjs          public site: site URL, outDir dist/docs, Starlight config, the sidebar
+notes-site/               the private site: its own config (base /notes, outDir
+                          dist/notes), srcDir, computed sidebar (sidebar.mjs)
 src/content.config.ts     Starlight docs collection + an empty i18n collection,
                           with the advisory fields extended onto it
+bin/sync-content          the content join; --check runs the guards and writes nothing
+content-sources.json      the fleet registry the sync reads
+tests/visibility.mjs      the anti-leak suite: the guards executed against fixtures,
+                          and the materialized-tree invariants
 src/content/docs/         every page
 src/pages/404.astro       /404
 tests/smoke.mjs           the build-output half: pages, sidebar coverage both ways, icons

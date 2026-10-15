@@ -107,14 +107,29 @@ const CORE_PATH = process.env.CORE_PATH ?? resolve(root, '..', 'core');
 /** The `cafe` binary. An env seam, and the only one. */
 const CAF = process.env.CAF ?? 'cafe';
 
-/** Every content file, in a stable order so a failure names one file at a time. */
+/**
+ * Every content file, in a stable order so a failure names one file at a time.
+ *
+ * OWNED PAGES ONLY — `projects/` is excluded, and the same owned/borrowed
+ * split tests/examples.mjs's yaml check makes. The contract tier asserts
+ * claims THIS repository authors: a cafaye.yml example this site typed, an
+ * event type this site says a service declares, a span name this site
+ * prescribes. A page synced from cafaye/core's own docs/ is core's claim
+ * about core, written before this site's conventions existed, and the fleet
+ * validates it where it is authored — `cafe contract lint` over the workspace
+ * is the workspace's gate, not the docs site's. Including borrowed pages here
+ * would make the docs gate red over another repository's drift, which is the
+ * one failure a reader cannot act on from the page they are standing on.
+ */
 function contentFiles(dir = docs, out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
     a.name.localeCompare(b.name),
   )) {
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) contentFiles(full, out);
-    else if (/\.mdx?$/.test(entry.name)) out.push(full);
+    if (entry.isDirectory()) {
+      if (entry.name === 'projects') continue;
+      contentFiles(full, out);
+    } else if (/\.mdx?$/.test(entry.name)) out.push(full);
   }
   return out;
 }
