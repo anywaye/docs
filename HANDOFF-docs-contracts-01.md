@@ -58,7 +58,7 @@ and `CORE_PATH` pointing at `../core`.
 For reference, the one that *was* red before this change, now fixed:
 
     CORE_PATH=/Users/kaka/Code/any/moon/cafaye/core \
-      CAF=/tmp/cafe-built-from-master \
+      CAF=/tmp/caf-built-from-master \
       node --test tests/contracts.mjs
     # was: not ok 3 — src/content/docs/contracts.md:22: exposes/api:
     #      openapi/openapi.yaml is not a readable OpenAPI document

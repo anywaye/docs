@@ -83,16 +83,16 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   under L2 while this packet ran, the drift guard went red on it, and the tree
   was regenerated — the generated page spells what the contracts spell.
 
-- **The CLI is `cafe` everywhere, not `cafe`.** PLAN §3 L1 renames the framework
-  CLI `cafe` → `cafe` ("all `cafe …` verbs become `cafe …` in docs"), and this
+- **The CLI is `cafe` everywhere, not `caf`.** PLAN §3 L1 renames the framework
+  CLI `caf` → `cafe` ("all `caf …` verbs become `cafe …` in docs"), and this
   site is the biggest living-docs surface. Every living page and `README.md`
-  printed the old name: 297 standalone `cafe` occurrences across 25 content
-  files and `README.md`, covering CLI invocations, the quoted `cafe help` output,
+  printed the old name: 297 standalone `caf` occurrences across 25 content
+  files and `README.md`, covering CLI invocations, the quoted `caf help` output,
   shell transcripts and their prompt output, the install/clone/build path
   (`github.com/cafaye/cafe/cmd/cafe@latest`, `cafaye/cafe.git`, `./cmd/cafe`,
   `cafaye/tap/cafe`), the `cafe/internal/cli/*.go` source paths, and the
   `<repo>@cafaye.com` contact pattern. All now print the post-rename shape; the
-  physical repository rename lands at integration, so `../cafe` sibling-path
+  physical repository rename lands at integration, so `../caf` sibling-path
   mentions travel with it. `cafaye` is untouched — 397 occurrences before and
   after, because the sweep matched word boundaries only — and `conductor` naming
   belongs to a later packet. `tests/examples.mjs` follows the rename rather than
