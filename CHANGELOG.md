@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-10-15 (latest) — docs.cafaye.com is live
+
+**Deployed to the Contabo k3s cluster** behind traefik with a real Let's
+Encrypt certificate: the public site at `/` and the private notes at
+`/notes/*`, both from one Ingress. `deploy/docs.cafaye.com.yaml` is the whole
+deployment — the namespace, the nginx pod, the press-gate pod, the TLS.
+
+**The private gate is nginx `auth_request`, learned the hard way.** The first
+deploy used traefik's ForwardAuth middleware and the middleware failed to
+attach: `/notes/` served the notes home to the open internet while every
+resource reported itself correctly configured. Moving the subrequest into
+nginx puts the private/public decision in the same file as the content rules,
+where a routing quirk cannot drop it. The gate resolves the caller through
+identity's `POST /v1/introspections` (verified live: 401 for a bad token) and
+admits only the owner account.
+
+Verified live: `/`, `/getting-started/` and `/sitemap-index.xml` serve 200;
+every `/notes/*` path 401s unauthenticated — the same 401 for a forged token
+as for another org's, so the door is not an account-existence oracle.
+
+# Changelog
+
 ## 2026-10-15 (later) — press's build mode: one tenant's content, no fleet
 
 **`bin/sync-content --source <dir>` builds the way press builds for a tenant.**

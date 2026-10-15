@@ -107,6 +107,32 @@ unauthenticated readers so a private URL's existence is not advertised.
 real origin at deploy time: every canonical URL and the sitemap resolve against
 it.
 
+### Deploy (Contabo, k3s)
+
+`deploy/docs.cafaye.com.yaml` is the whole deployment: the `docs` namespace,
+an nginx pod serving the two artifacts from a hostPath, the `press-gate` pod
+(one binary from `cafaye/press`, `cmd/press-gate`), and one traefik Ingress
+with TLS from `letsencrypt-prod`. DNS is an A record at the box with the proxy
+off (ACME HTTP-01 must reach it directly).
+
+```sh
+kubectl apply -f deploy/docs.cafaye.com.yaml
+rsync -az --delete dist/docs/ box:/srv/docs/docs/
+rsync -az --delete dist/notes/ box:/srv/docs/notes/
+kubectl rollout restart deployment/docs-nginx -n docs   # the conf is a ConfigMap
+kubectl rollout restart deployment/docs-nginx -n docs
+```
+
+**The private gate is an nginx `auth_request`, not a router middleware.** The
+first deploy used traefik's ForwardAuth and the middleware silently failed to
+attach — `/notes/` served a 200 to the whole internet while looking correctly
+configured. With the subrequest inside nginx, the auth decision sits in the
+same file as the content rules and cannot be dropped by a routing quirk.
+The gate resolves the caller's token through identity's
+`POST /v1/introspections` and admits only accounts on `PRESS_NOTES_ACCOUNTS`
+— the operator account that owns the notes today; press's tenant model is
+where per-org gating arrives.
+
 ### Hosting notes
 
 - **Any static host.** Netlify, Cloudflare Pages, GitHub Pages, S3 + CloudFront,

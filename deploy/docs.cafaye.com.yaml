@@ -1,0 +1,229 @@
+# docs.cafaye.com — the public site at / and the private notes at /notes.
+#
+# Plain manifests, deliberately NOT an Argo application: this namespace is the
+# documentation surface, not a fleet service, and it belongs to the docs
+# pipeline rather than to the fleet's chart release flow. (The chart route is
+# the next step, when press deploys as a service; the static site needs no
+# release pipeline to serve a directory.)
+#
+# The security boundary is two directories, not one: dist/docs is served at /
+# with no auth; dist/notes is served at /notes through traefik's ForwardAuth
+# to press-gate, which resolves the bearer token via identity's
+# introspection route. The nginx pod cannot reach the notes directory
+# contents any differently — the gate is in front of it, at the router.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: docs
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docs-nginx-conf
+  namespace: docs
+data:
+  nginx.conf: |
+    worker_processes 1;
+    error_log /dev/stderr warn;
+    pid /tmp/nginx.pid;
+    events { worker_connections 256; }
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+      access_log /dev/stdout;
+      sendfile on;
+      server {
+        listen 8080;
+        server_name _;
+
+        # The public tree: /x -> /usr/share/nginx/html/docs/x.
+        location / {
+          root /usr/share/nginx/html/docs;
+          try_files $uri $uri/ =404;
+          error_page 404 /404.html;
+        }
+        location = / {
+          root /usr/share/nginx/html/docs;
+          try_files /index.html =404;
+        }
+        location = /404.html {
+          root /usr/share/nginx/html/docs;
+          internal;
+        }
+
+        # The private tree: /notes/x -> /usr/share/nginx/html/notes/x.
+        # The gate is a subrequest, not a router middleware: nginx asks the
+        # press-gate service (identity introspection + tenant allowlist)
+        # before every notes request, and serves only a 204. One decision
+        # point, in one file, on the pod that owns the content — a router
+        # middleware that fails to attach takes the whole gate with it
+        # silently, which is the failure this shape cannot have.
+        location /notes/ {
+          root /usr/share/nginx/html;
+          auth_request /__notes_gate;
+          auth_request_set $notes_reader $upstream_http_x_notes_reader;
+          try_files $uri $uri/ =404;
+          error_page 404 /notes/404.html;
+        }
+        # The subrequest target. Internal: never reachable directly. The
+        # gate reads only the Authorization header, which is all that is
+        # forwarded.
+        location = /__notes_gate {
+          internal;
+          proxy_pass http://press-gate.docs.svc.cluster.local:8081/verify;
+          proxy_pass_request_body off;
+          proxy_set_header Content-Length "";
+          proxy_set_header Authorization $http_authorization;
+        }
+        location = /notes {
+          return 301 /notes/;
+        }
+        # The directory root gets the same gate: an exact-match location
+        # without the subrequest would be the one door left open.
+        location = /notes/ {
+          root /usr/share/nginx/html;
+          auth_request /__notes_gate;
+          try_files /notes/index.html =404;
+        }
+
+        # Fingerprinted assets: immutable, cached hard, public only here.
+        location ~ ^/_astro/ {
+          root /usr/share/nginx/html/docs;
+          expires 1y;
+          add_header Cache-Control "public, immutable" always;
+        }
+        location ~ ^/notes/_astro/ {
+          root /usr/share/nginx/html;
+          expires 1y;
+          add_header Cache-Control "public, immutable" always;
+        }
+
+        location = /healthz { return 200 "ok\n"; }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-nginx
+  namespace: docs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docs-nginx
+  template:
+    metadata:
+      labels:
+        app: docs-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: content
+              mountPath: /usr/share/nginx/html
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+      volumes:
+        - name: conf
+          configMap:
+            name: docs-nginx-conf
+        - name: content
+          hostPath:
+            path: /srv/docs
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-nginx
+  namespace: docs
+spec:
+  selector:
+    app: docs-nginx
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: press-gate
+  namespace: docs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: press-gate
+  template:
+    metadata:
+      labels:
+        app: press-gate
+    spec:
+      containers:
+        - name: gate
+          image: ghcr.io/cafaye/press-gate:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: PRESS_GATE_ADDR
+              value: ":8081"
+            - name: PRESS_IDENTITY_URL
+              value: "https://auth.cafaye.com"
+            # The internal tenant's allowlist: the operator account that owns
+            # the notes. A token for any other org gets the same 401 as a
+            # forged one. Multi-tenant gating is press's tenant model; this
+            # is where it plugs in.
+            - name: PRESS_NOTES_ACCOUNTS
+              value: "1d02fb67-5ed7-4862-ae88-116150564bbc"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: press-gate
+  namespace: docs
+spec:
+  selector:
+    app: press-gate
+  ports:
+    - port: 8081
+      targetPort: 8081
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: docs
+  namespace: docs
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: docs.cafaye.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: docs-nginx
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - docs.cafaye.com
+      secretName: docs-tls
