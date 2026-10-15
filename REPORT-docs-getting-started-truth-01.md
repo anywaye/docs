@@ -9,7 +9,7 @@
 1. Remove or replace the stale caution block about `bin/dev` not finishing
    for `identity`, `courier` or `billing` (the syslog log-driver failure).
 2. A truth pass over the rest of the page — every command, env var, path
-   and claim checked against `cafaye/caf`, `cafaye/kit` and the service repos.
+   and claim checked against `cafaye/cafe`, `cafaye/kit` and the service repos.
 3. Do not invent the install path.
 
 ## Corrections made, with evidence
@@ -110,67 +110,67 @@ base as `identity`"; the caution now says the Dockerfile sets
 
 ### The rest of the page (truth pass)
 
-- **Thirteen `caf` subcommands, eleven do real work, two are stubs.**
-  `caf/internal/cli/stub_test.go:26-29` — stubs are `init` (0 args) and
+- **Thirteen `cafe` subcommands, eleven do real work, two are stubs.**
+  `cafe/internal/cli/stub_test.go:26-29` — stubs are `init` (0 args) and
   `new` (1 arg); `:33` — working commands are `backup`, `contract`,
   `deploy`, `dev`, `doctor`, `env`, `gen`, `lock`, `mcp`, `reclaim`,
-  `version`. The help list in the page matches `caf/internal/cli/*.go`
+  `version`. The help list in the page matches `cafe/internal/cli/*.go`
   `Summary:` strings exactly (verified all 13).
 - **`doctor` exits 1 when any project or reclamation row is `fail`.**
-  `caf/internal/cli/doctor.go:149` — "Exit code: 0 unless some row is
+  `cafe/internal/cli/doctor.go:149` — "Exit code: 0 unless some row is
   `fail`, then 1. A `warn` never moves it."
 - **The project table is `runtime`, `machine`, `ports`, `plan`.**
-  `caf/internal/cli/doctor_check.go:98-101` — the four `sectionProject`
+  `cafe/internal/cli/doctor_check.go:98-101` — the four `sectionProject`
   rows in that order.
 - **The output format `4 state check(s): 4 ok, 0 warn, 0 fail`.**
-  `caf/internal/cli/doctor_check.go:674`.
+  `cafe/internal/cli/doctor_check.go:674`.
 - **`every published port is free and inside 15000-15999`.**
-  `caf/internal/cli/doctor_check.go:447`.
+  `cafe/internal/cli/doctor_check.go:447`.
 - **`16 GiB and 8 CPUs` format.**
-  `caf/internal/cli/doctor_check.go:386` — `formatBytes(memory) + " and " + strconv.Itoa(cpus) + " CPUs"`.
+  `cafe/internal/cli/doctor_check.go:386` — `formatBytes(memory) + " and " + strconv.Itoa(cpus) + " CPUs"`.
 - **Ten tools in the doctor table, in order.**
-  `caf/internal/cli/doctor.go:33-42` — git, docker, docker compose, tilt,
+  `cafe/internal/cli/doctor.go:33-42` — git, docker, docker compose, tilt,
   go, ruby, elixir, python (python3 then python), bun, rust (rustc then cargo).
-- **`caf init` takes `-dir` (default `.`) and `-force`; `caf new` takes `-template` and `-name`.**
-  `caf/internal/cli/init.go:18-19`; `caf/internal/cli/new.go:19-20`.
-- **Usage errors exit 2 with `caf: usage: caf <cmd> wants N arguments, got M (usage: …)`.**
-  `caf/internal/cli/command.go:100` — the format string; `caf/internal/cli/cli.go:138-140` —
-  `caf: %v` on stderr, `exitUsage` (2); `:199-200` — `exitFailure = 1`, `exitUsage = 2`.
-- **`caf new` returns `not implemented in v0` with exit 1.**
-  `caf/internal/cli/command.go:111` — `errNotImplemented`; `stub_test.go:57-68` —
+- **`cafe init` takes `-dir` (default `.`) and `-force`; `cafe new` takes `-template` and `-name`.**
+  `cafe/internal/cli/init.go:18-19`; `cafe/internal/cli/new.go:19-20`.
+- **Usage errors exit 2 with `cafe: usage: cafe <cmd> wants N arguments, got M (usage: …)`.**
+  `cafe/internal/cli/command.go:100` — the format string; `cafe/internal/cli/cli.go:138-140` —
+  `cafe: %v` on stderr, `exitUsage` (2); `:199-200` — `exitFailure = 1`, `exitUsage = 2`.
+- **`cafe new` returns `not implemented in v0` with exit 1.**
+  `cafe/internal/cli/command.go:111` — `errNotImplemented`; `stub_test.go:57-68` —
   the stub exits 1 with its reason on stderr.
-- **`caf version` reports `caf 0.0.0-dev (commit unknown)` for an untagged build.**
-  `caf/internal/cli/version.go:21` — `devVersion = "0.0.0-dev"`; `:25` —
-  `unknownCommit = "unknown"`; `:17` — `String()` is `caf %s (commit %s)`.
-- **`caf contract lint` prints `OK <path>` / `INVALID <path>: <error>`, exits 1 on any invalid or no manifest.**
-  `caf/internal/cli/contract.go:256,259` — the two output lines; `:231` —
+- **`cafe version` reports `cafe 0.0.0-dev (commit unknown)` for an untagged build.**
+  `cafe/internal/cli/version.go:21` — `devVersion = "0.0.0-dev"`; `:25` —
+  `unknownCommit = "unknown"`; `:17` — `String()` is `cafe %s (commit %s)`.
+- **`cafe contract lint` prints `OK <path>` / `INVALID <path>: <error>`, exits 1 on any invalid or no manifest.**
+  `cafe/internal/cli/contract.go:256,259` — the two output lines; `:231` —
   "Exits 1 if any manifest is invalid, or if the path holds none";
-  `caf/internal/contract/lint.go:160` — `no %s found under %s`.
+  `cafe/internal/contract/lint.go:160` — `no %s found under %s`.
 - **The lint walk skips `.git`, `node_modules`, `deps`, `_build`, `target`.**
-  `caf/internal/contract/lint.go:20-28` — `skippedDirs`.
+  `cafe/internal/contract/lint.go:20-28` — `skippedDirs`.
 - **The schema is vendored at `internal/contract/schemas/manifest-0.2.json` and pinned by sha256.**
-  `caf/internal/contract/schema.go:19` — `//go:embed schemas/manifest-0.2.json`;
+  `cafe/internal/contract/schema.go:19` — `//go:embed schemas/manifest-0.2.json`;
   `:22-24` — `manifestSchemaPin` with the sha256.
 - **Three cross-field rules, schema checked first.**
-  `caf/internal/contract/conventions.go:22-27` — `Check()` returns schema
+  `cafe/internal/contract/conventions.go:22-27` — `Check()` returns schema
   violations first, conventions only on a pass; `:33-55` — `checkEventPrefixes`
   ("must start with this service's own name"); `:59` — `checkSelfConsume`;
   `checkDeclaredSurface` — exposes must name an OpenAPI document or an event.
-- **`caf contract resolve` output `yes  ^0.2.0 allows 0.2.0: 0.2.0 is in [0.2.0, 0.3.0)`.**
-  `caf/internal/cli/contract.go:293` — `%-3s  %s allows %s: %s`;
-  `caf/internal/contract/version.go:165,167` — `is in [%s, %s)` / `is not in [%s, %s)`.
-- **`caf dev` prints `project <name>: <service> (<lang>)`, `skipped <svc>: <reason>`, `wrote <file>`.**
-  `caf/internal/cli/dev.go:236,238,240`; `caf/internal/dev/plan.go:426` —
+- **`cafe contract resolve` output `yes  ^0.2.0 allows 0.2.0: 0.2.0 is in [0.2.0, 0.3.0)`.**
+  `cafe/internal/cli/contract.go:293` — `%-3s  %s allows %s: %s`;
+  `cafe/internal/contract/version.go:165,167` — `is in [%s, %s)` / `is not in [%s, %s)`.
+- **`cafe dev` prints `project <name>: <service> (<lang>)`, `skipped <svc>: <reason>`, `wrote <file>`.**
+  `cafe/internal/cli/dev.go:236,238,240`; `cafe/internal/dev/plan.go:426` —
   "optional dependency, and the local registry does not know how to run it".
 - **A generated compose file is marked do-not-edit.**
-  `caf/internal/dev/render.go:28-29` — "Do not edit: every run rewrites
+  `cafe/internal/dev/render.go:28-29` — "Do not edit: every run rewrites
   this file. The manifest is the source of truth."
-- **`caf deploy` usage `caf deploy [flags] <service>`, flags `-env`, `-version`, `-dry-run`, `-yes`.**
-  `caf/internal/cli/deploy.go:96,99-102`.
+- **`cafe deploy` usage `cafe deploy [flags] <service>`, flags `-env`, `-version`, `-dry-run`, `-yes`.**
+  `cafe/internal/cli/deploy.go:96,99-102`.
 - **`-env` defaults to empty, not a named stage.**
-  `caf/internal/cli/deploy.go:99` — `fs.StringVar(&opts.environment, "env", "", …)`.
+  `cafe/internal/cli/deploy.go:99` — `fs.StringVar(&opts.environment, "env", "", …)`.
 - **The deploy error names `config/deploy.yml` and the kit template to copy.**
-  `caf/internal/deploy/project.go:46-47` — "has no %s, so there is nothing
+  `cafe/internal/deploy/project.go:46-47` — "has no %s, so there is nothing
   to deploy. / Copy it from cafaye/kit at the ref your kit.ref names:
   kit/templates/kamal/deploy.yml.erb -> config/deploy.yml".
 - **kit's kamal templates: `deploy.yml.erb`, `kamal-backup.yml.erb`, `drill.sh`.**
@@ -304,6 +304,6 @@ added 278 packages, and audited 279 packages in 11s
 == prime ok (node v22.19.0)
 ```
 
-Exit 0. The contract tier was not run (no `core` checkout / `caf` binary
+Exit 0. The contract tier was not run (no `core` checkout / `cafe` binary
 in this worktree's environment); it is not required for this page's
 changes, which touch no manifest example, event type or span name.

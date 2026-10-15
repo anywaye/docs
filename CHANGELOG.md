@@ -207,7 +207,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   newest first, linking to a page that exists. `troubleshooting.md` points at
   the feed, so a page written for strangers is not a page nothing links to.
   The counts in AGENTS.md and README (130 shell fences, 10 JSON, 2 manifests,
-  6 `caf` subcommands, 79 external links, 0 redirects, 22 tests 0 skipped) were
+  6 `cafe` subcommands, 79 external links, 0 redirects, 22 tests 0 skipped) were
   re-measured, not carried over.
 - **`COURIER_FORCE_SSL` documented on the courier page.** Courier master
   `2263d32` moved `force_ssl` out of compile-time `config/prod.exs` into a
@@ -234,7 +234,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   described the retiring Kamal path. The new page documents prerequisites and
   sizing, the install sequence, TLS and domains (launch blocker B7's
   documentation half), the deploy loop (Argo pull-only; no helm-from-CI path
-  and one may never be added), backup and restore (CloudNativePG, `caf backup`,
+  and one may never be added), backup and restore (CloudNativePG, `cafe backup`,
   `kubectl cnpg`, rclone offsite), and what is deliberately not here. Every
   claim cites `DEPLOYMENT.md` or a file:line; the install steps are marked
   **unverified** because `kit/templates/substrate/` does not exist on this
@@ -267,7 +267,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   Kamal drill instructions (`bin/drill`) are deleted — the path retires at
   parity and an operator following them today gets nothing. Kept: the
   per-service durable-state table and the keys table, both mechanism-independent.
-  The substrate path (CNPG, `caf backup`, `kubectl cnpg`, rclone) is documented
+  The substrate path (CNPG, `cafe backup`, `kubectl cnpg`, rclone) is documented
   and marked unverified where the implementation does not exist.
 
 - **`install.sh` follows W106: it brings up the launch tier, not the e2e
@@ -333,7 +333,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   sentences that still name `guard`** are in the entry below.
 
 - **`muse` still declares a dependency named `guard`, and two pages now say so.**
-  `muse/cafaye.yml` carries `dependencies[].name: guard`, so `caf dev` and
+  `muse/cafaye.yml` carries `dependencies[].name: guard`, so `cafe dev` and
   `pantry` read a service name the rename removed. `architecture/topology.md`
   and `runbooks/service-down.md` both claim that dependency, and both now state
   the fleet's meaning (`gateway`) and the drift, rather than claiming agreement
@@ -356,31 +356,31 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   so the two do not collide), and the prose now says why the name is not
   `gateway`.
 
-- **The contract tier validated three manifests with three `caf` processes, and
-  was red in CI against the `caf` CI builds.** `tests/contracts.mjs` ran
-  `caf contract lint <file>` once per manifest, so the tier's cost was the cost
+- **The contract tier validated three manifests with three `cafe` processes, and
+  was red in CI against the `cafe` CI builds.** `tests/contracts.mjs` ran
+  `cafe contract lint <file>` once per manifest, so the tier's cost was the cost
   of starting a process per fence: measured at ~12.9 ms per spawn against ~1 ms
-  of linting. `caf contract lint` already takes a directory and walks it in one
+  of linting. `cafe contract lint` already takes a directory and walks it in one
   process, printing one line per document, so every manifest is now written
   into a single scratch tree and **one** invocation validates all of them —
-  3 processes → 1, and the verdicts are still per manifest, read out of `caf`'s
+  3 processes → 1, and the verdicts are still per manifest, read out of `cafe`'s
   own `OK <path>` / `INVALID <path>: <the first error>` lines.
 
   **The red is the part worth knowing about.** Handed each fence as if it were a
-  repository root, the tier asked `caf` to apply the rule that a repository's own
+  repository root, the tier asked `cafe` to apply the rule that a repository's own
   manifest must have the OpenAPI document it names. `contracts.md`'s example
   legitimately names `exposes.api: openapi/openapi.yaml` and ships no document,
   because it is showing the manifest format rather than being one — so the tier
   reported a page's example as invalid and CI was red. A `yaml` fence is a copy
-  of a manifest in a page, not a repository, and `caf`'s own walk already draws
+  of a manifest in a page, not a repository, and `cafe`'s own walk already draws
   that distinction. Linted as a manifest in a tree, the example is valid; it
   always was.
 
   **What did not change:** no assertion was weakened, nothing was skipped, no
-  dependency was added, `caf` and `core` were not touched, and a failure still
-  names the page and line (`src/content/docs/pilot.md:279: …`) plus `caf`'s own
+  dependency was added, `cafe` and `core` were not touched, and a failure still
+  names the page and line (`src/content/docs/pilot.md:279: …`) plus `cafe`'s own
   reason. A new assertion holds the new parser to **one verdict per manifest
-  written** and quotes what `caf` printed, so a `caf` that reworded its output
+  written** and quotes what `cafe` printed, so a `cafe` that reworded its output
   fails loudly instead of leaving this tier green over nothing.
 
   Numbers, commands, and the machine are in `MEASUREMENTS-contracts-tier.md`.
@@ -441,16 +441,16 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Fixed
 
-- **`caf deploy` and `caf mcp` were documented as stubs. They are not, and this
+- **`cafe deploy` and `cafe mcp` were documented as stubs. They are not, and this
   was the most load-bearing falsehood in the documentation.** A prospect
   reading *Pilot* and *Pricing* was told the headline verb parses its flags and
-  returns `not implemented in v0`, and that five of `caf`'s commands are
-  flags-only. `caf/internal/cli/stub_test.go` holds the table that is the
+  returns `not implemented in v0`, and that five of `cafe`'s commands are
+  flags-only. `cafe/internal/cli/stub_test.go` holds the table that is the
   single source of truth, and it says three of twelve are stubs — `gen`, `init`,
   `new` — while `deploy`, `mcp`, `backup`, `contract`, `dev`, `doctor`, `env`
-  and `reclaim` all work. Measured rather than inferred: `caf gen`, `caf init`
-  and `caf new` were each run and returned the sentinel; `caf deploy` printed a
-  real configuration error naming the file to copy from `kit`; `caf mcp` started
+  and `reclaim` all work. Measured rather than inferred: `cafe gen`, `cafe init`
+  and `cafe new` were each run and returned the sentinel; `cafe deploy` printed a
+  real configuration error naming the file to copy from `kit`; `cafe mcp` started
   a server and logged a session connect and disconnect. Corrected in
   `pilot.md`, `pricing.md`, `getting-started.md` and `upgrading.md`.
 
@@ -460,10 +460,10 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   from a stale snapshot rather than from what the code does.
 
 - **The example under "Step 6" could not have worked as written.** It read
-  `caf deploy identity --dry-run`, but `caf` requires flags to precede
+  `cafe deploy identity --dry-run`, but `cafe` requires flags to precede
   positional arguments; run verbatim it fails with
-  `caf deploy wants 1 argument, got 2`. The correct order is
-  `caf deploy --dry-run identity`. The same paragraph said `-env` defaults to
+  `cafe deploy wants 1 argument, got 2`. The correct order is
+  `cafe deploy --dry-run identity`. The same paragraph said `-env` defaults to
   `staging`, and `deploy.go` declares `fs.StringVar(&opts.environment, "env",
   "", ...)` — the default is empty, naming no stage. It also omitted `-version`,
   which the command does accept. All three corrected against the source, and the
@@ -525,7 +525,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     still here" is not, and the page no longer says it.** The measurement stands
     over the sentence: a first run gets `postgres:16.6-alpine`, not 17, because
     the `.env` `bin/dev` writes comes from `kit/.env.example` and overrides kit's
-    `17-alpine` compose default; `caf dev` renders `postgres:16-alpine`. That is
+    `17-alpine` compose default; `cafe dev` renders `postgres:16-alpine`. That is
     three values, and `topology.md` now states the standard and the three values
     separately. `docs-25`'s correction of the Database column also survives, and
     it is why that column reads *via `kit`'s container* for three rows: those
@@ -558,7 +558,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     `sh` fences, because both sides' pages are now in the same site. The file's
     own rule is *"Measured on this branch by running the suite"*, so 136 is what
     it now says, and the other five counts were re-read from the same run
-    (12 JSON, 2 manifests, 6 `caf` subcommands, 69 external links, 0 redirects).
+    (12 JSON, 2 manifests, 6 `cafe` subcommands, 69 external links, 0 redirects).
 
   - **The remaining contested measurements were re-run against the service
     repositories and hold**, so nothing in the tree changed to accommodate this
@@ -626,7 +626,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     `pg_isready`-does-not-authenticate note were all still true and are still
     here.
   - A new drift subsection records what `kit`'s own fleet gate says, because
-    `caf contract lint` reads manifests and cannot see which container a service
+    `cafe contract lint` reads manifests and cannot see which container a service
     runs. `tests/fleet_check.py` was **run against the workspace**: six findings
     across three repositories, four of them about the database, all `WARN`
     rather than `FAIL` because none of the three has a `kit.ref` yet. The two
@@ -885,7 +885,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **`tenant-provisioning` cited a commit that does not exist.** It claimed every
   quoted response came from "a real session against `identity` at commit
   `27fe8a6`". That sha is not in `identity`'s history — `git cat-file` refuses
-  it — and it is a commit in **`caf`**, so the page named the wrong
+  it — and it is a commit in **`cafe`**, so the page named the wrong
   repository's history. Replaced with what is verifiable without re-running
   anything: the routes, the role minimums and the members-list defect read off
   `identity` `08e346d`, with an instruction to re-run before relying on it.
@@ -1223,10 +1223,10 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   16`. `CORE_PATH` pointed at an empty directory: `gate.nonzero`, plus
   `gate.floor` and two `gate.proof-missing`, and **nothing skipped**. `CAF` set
   to `/usr/bin/true`: **all 22 tests passed, exit 0**, the tier still printed
-  `manifests validated by caf contract lint: 2`, and the single thing that
-  caught it was the proof that matches `caf contract lint`'s own stdout — the
+  `manifests validated by cafe contract lint: 2`, and the single thing that
+  caught it was the proof that matches `cafe contract lint`'s own stdout — the
   count-based proof was satisfied by the stub, because that line is printed by
-  the test and not by `caf`.
+  the test and not by `cafe`.
 
 ### Fixed
 
@@ -1241,7 +1241,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   tier needs.
 - **A stale count in `AGENTS.md`** — "26 external links" where the suite measures
   **50**. The other five counts on that line (103 shell fences, 11 JSON fences, 2
-  manifests, 6 `caf` subcommands, 0 redirects) were re-measured and are correct.
+  manifests, 6 `cafe` subcommands, 0 redirects) were re-measured and are correct.
 
 ### Added
 
@@ -1249,7 +1249,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   jobs — `gate`, `contracts`, `pins` — and `.github/workflows/external-links.yml`
   for the network tier. The gate runs on the pinned interpreter and *asserts* it,
   holds the suite size by equality rather than as a floor, and fails if the gate
-  left the tree dirty. The `contracts` job checks out `core`, builds `caf` from
+  left the tree dirty. The `contracts` job checks out `core`, builds `cafe` from
   source and runs the contract tier; the `pins` job holds the configuration
   claims and needs no toolchain, so it fails in seconds.
 - **`tests/links.mjs`** — the link half of the gate, and offline by
@@ -1262,16 +1262,16 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   placeholder.
 - **`tests/examples.mjs`** — the code examples, checked. Every ` ```sh ` fence
   parses under `bash -n`, every ` ```json ` fence is valid JSON, every ` ```yaml `
-  fence is a manifest, and every `caf` invocation in a fence names a subcommand
-  the `caf help` output **quoted in `getting-started.md`** lists — read out of
+  fence is a manifest, and every `cafe` invocation in a fence names a subcommand
+  the `cafe help` output **quoted in `getting-started.md`** lists — read out of
   this repository's own prose rather than from a list written beside it.
 - **`tests/contracts.mjs`, and `bin/prime --contracts`** — the only tier that can
   catch an example contradicting something that has actually shipped. Every
-  documented `cafaye.yml` goes through the real `caf contract lint` against
+  documented `cafaye.yml` goes through the real `cafe contract lint` against
   core's real schema, as does this repository's own manifest; every event type a
   page says a service declares is checked against core's catalog; and every span
   name in `observability.md` is checked against core's `span-naming.schema.json`.
-  It **fails with a message rather than skipping** when `core` or `caf` is
+  It **fails with a message rather than skipping** when `core` or `cafe` is
   missing, because a contract check that cannot find the contract is worse than
   no contract check.
 - **`bin/check-external-links`** — the network tier, in its own file and on its
@@ -1351,7 +1351,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   - `courier` — was *"Status: v0 scaffold… deliberately **no notification logic
     yet**. There is no Swoosh, no provider adapter, no job queue, no preference
     store, and no migrations"*, and its manifest was recorded as failing
-    `caf contract lint` over two-segment event types. Now: the Swoosh pipeline,
+    `cafe contract lint` over two-segment event types. Now: the Swoosh pipeline,
     preference store, Oban worker, six migrations, and outbound webhooks over
     the **Standard Webhooks** spec with an SSRF guard; the manifest is corrected
     and the event types carry the `courier.` prefix.
@@ -1379,8 +1379,8 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     than by convention, and that `error.type` is **not** migrated.
   - `services/index.md` — the status table, refreshed, with the three gaps a
     reader would otherwise plan around named in one line.
-- `index.mdx` — *"Of the ten `caf` subcommands, four do real work… and
-  `darkroom` is an empty repository"* is gone: **`caf dev` now works**, and
+- `index.mdx` — *"Of the ten `cafe` subcommands, four do real work… and
+  `darkroom` is an empty repository"* is gone: **`cafe dev` now works**, and
   `darkroom` is three milestones past that sentence. The tooling table no longer
   advertises `cafaye-py` and `cafaye-ts`, which **do not exist as repositories**;
   `cafaye-rb` is described as what it is — **the shared Ruby gem** (JWKS
@@ -1450,8 +1450,8 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - `troubleshooting.md` — the **"Uploads fail at 90%"** entry, which answered
   "there is no upload path today, `darkroom` is an **empty repository**", is
   rewritten around the three real failures (`409` at completion, `422` checksum,
-  and the 1 GiB memory cost at complete time). The `caf contract lint` entry no
-  longer names `caf` and `courier`. New entry: **"A suite is green and I do not
+  and the 1 GiB memory cost at complete time). The `cafe contract lint` entry no
+  longer names `cafe` and `courier`. New entry: **"A suite is green and I do not
   believe it"** — the skipped-tier table, and the fact that eight of thirteen
   repositories have no CI at all.
 - `architecture/index.md` — **"`darkroom` is an empty repository"** removed from
@@ -1460,7 +1460,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - `contracts.md` — the five-part rule for a conformant event type, the fact that
   a manifest and what a service emits are two different lists (`identity`
   declares three and writes eight; `courier` declares five and publishes one),
-  and a pointer to the telemetry schemas that `caf contract lint` also reads.
+  and a pointer to the telemetry schemas that `cafe contract lint` also reads.
 - `guides/index.md`, `runbooks/index.md` — the walkable-procedures list now
   includes Upgrading and Running the gates, and says five unbuilt commands rather
   than six.
@@ -1494,7 +1494,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   the liveness/readiness table with each service's 503 body, every environment
   variable for `identity`, `guard`, `billing`, and `muse`, the HTTP surface of
   each service, an ASCII dependency graph, a "what is not wired yet" table, and
-  the three repositories `caf contract lint` currently fails on.
+  the three repositories `cafe contract lint` currently fails on.
 - **Runbooks** (`runbooks/`) — the §5 promise and the §8 risk control, as five
   procedures plus an index stating the two facts every one of them assumes
   (probe failures never leak; no service publishes events):
@@ -1529,15 +1529,15 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   loops back to sign-in, sign-in works but the API is 401, everything 404s,
   uploads fail, webhooks arrive and nothing happens, 5xx that a restart hides,
   403 on an account you own, members list with empty ids, Stripe webhooks
-  failing, `muse` refusing to start, `caf` exiting 2, and "nothing is broken and
+  failing, `muse` refusing to start, `cafe` exiting 2, and "nothing is broken and
   nothing is happening".
 
 ### Changed
 
 - **Getting Started** (`getting-started.md`) — rewritten as a six-step path that
-  works: `caf doctor` → install → read the command table → `caf init` a project
+  works: `cafe doctor` → install → read the command table → `cafe init` a project
   → run a service locally → deploy to your own infrastructure. Every command was
-  run against a binary built from `moon/cafaye/caf`, and the output is quoted.
+  run against a binary built from `moon/cafaye/cafe`, and the output is quoted.
   The per-service local stacks, the migration commands (goose, Rails, plain
   SQL), the per-service Dockerfile table, and the liveness/readiness contract are
   all there, because those are what actually exist.
@@ -1565,18 +1565,18 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 Three claims the site made that are not true, all verified against the real CLI:
 
-- `caf init my-saas` was documented. **`caf init` takes 0 positional arguments**
-  and `caf init my-saas` is a usage error, exit 2. The command that takes a name
-  is `caf new <name>`.
-- `go build -o caf .` was documented. **It fails** — `no Go files in <path>`, exit
-  1 — because the main package is at `cmd/caf`. `go build ./cmd/caf` is correct.
-- `caf contract test` was documented. **There is no `test` subcommand**; the
-  verbs are `lint` and `resolve`, and `caf contract test` exits 2 with
+- `cafe init my-saas` was documented. **`cafe init` takes 0 positional arguments**
+  and `cafe init my-saas` is a usage error, exit 2. The command that takes a name
+  is `cafe new <name>`.
+- `go build -o cafe .` was documented. **It fails** — `no Go files in <path>`, exit
+  1 — because the main package is at `cmd/cafe`. `go build ./cmd/cafe` is correct.
+- `cafe contract test` was documented. **There is no `test` subcommand**; the
+  verbs are `lint` and `resolve`, and `cafe contract test` exits 2 with
   `unknown contract subcommand "test"`.
 
 ### Notes
 
-- **Verified against running code, not against prose.** The `caf` binary was
+- **Verified against running code, not against prose.** The `cafe` binary was
   built from source and every subcommand was executed. The tenant-provisioning
   and backup-and-restore flows were run end to end against a live `identity`
   with Postgres, and the muse vault key generator was run to confirm its output
@@ -1594,7 +1594,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   3. `identity`'s `/v1/accounts` routes are registered in code but absent from
      its `openapi/v1.yaml`, and it emits `identity.member.accepted`, which is not
      a row in core's catalog.
-  4. `caf contract lint` fails on `caf`, `courier`, and `parlor` today. The
+  4. `cafe contract lint` fails on `cafe`, `courier`, and `parlor` today. The
      `courier` failure is a genuine spec disagreement (two-segment versus
      three-segment event types), not a typo, and specs are manager-owned.
 - No page claims a command, flag, endpoint, or environment variable that was not
@@ -1614,7 +1614,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   here**, because it is read at a different moment by a different person.
 
   It opens by saying the thing that decides the deal before anything else:
-  **there is no hosted cafaye.** `caf deploy` is a stub, so "hosted pilot" means
+  **there is no hosted cafaye.** `cafe deploy` is a stub, so "hosted pilot" means
   you run it in your own infrastructure. Then, in order: what you get (seven
   services, what each owns, what each one will fail you on), **the licence
   position across all thirteen repositories** — ten state no licence at all,
@@ -1622,24 +1622,24 @@ Three claims the site made that are not true, all verified against the real CLI:
   in writing before building commercially — what it costs to run, and the four
   things that leave your infrastructure if you turn them on.
 
-  The prerequisite check is `caf doctor`, and the ten-row toolchain table on the
-  page **is** the `tools` table in `caf/internal/cli/doctor.go`, in that order,
-  because that is where the requirement comes from. Step 3 is `caf contract
+  The prerequisite check is `cafe doctor`, and the ten-row toolchain table on the
+  page **is** the `tools` table in `cafe/internal/cli/doctor.go`, in that order,
+  because that is where the requirement comes from. Step 3 is `cafe contract
   lint`, whose output is greppable and which exits 1 on an invalid manifest *and*
   on a path holding none.
 
   The path itself is eight steps — install, clone `identity` (the only service
-  with no cafaye dependency), lint the manifest, `caf dev --dry-run` then
-  `caf dev`, apply migrations, first request, the two things a default stack
+  with no cafaye dependency), lint the manifest, `cafe dev --dry-run` then
+  `cafe dev`, apply migrations, first request, the two things a default stack
   does not mount, then tenant provisioning — and **every step carries the failure
   branch beside it**, because a step that cannot fail is not a step a stuck
   reader can use.
 
   Two things the page found by running it rather than reading about it:
-  `caf dev` **does not run migrations and does not publish Postgres on a host
+  `cafe dev` **does not run migrations and does not publish Postgres on a host
   port**, so the first request on a fresh stack is a bare 500 whose real reason
   (`relation "users" does not exist`) is only in the service's logs; and
-  `caf dev` sets no `OIDC_*` or `MFA_*` variable, so `/.well-known/jwks.json`
+  `cafe dev` sets no `OIDC_*` or `MFA_*` variable, so `/.well-known/jwks.json`
   404s and the MFA management routes are unmounted. Both now have a recipe, and
   `getting-started.md` points at it.
 
@@ -1660,13 +1660,13 @@ Three claims the site made that are not true, all verified against the real CLI:
   claims changed as a result and were corrected rather than kept:
   - **The session token is 43 characters, not 64.** It is 32 random bytes,
     base64url, unpadded. A number a reader would have counted.
-  - **`caf contract lint` over the workspace is 31 manifests: 26 `OK`, 5
+  - **`cafe contract lint` over the workspace is 31 manifests: 26 `OK`, 5
     `INVALID`.** Topology's drift audit now tables all five and says which one
     is a defect: `parlor`. Three of the others are **negative fixtures for
     `core`'s own conformance tests**, now tracked on `core`'s `master` rather
     than in a worker worktree, which exist to be rejected — the concrete reason
     a raw manifest count is worthless as a health signal.
-  - **`caf contract lint` prints one line per manifest, not per repository.**
+  - **`cafe contract lint` prints one line per manifest, not per repository.**
     `pantry` alone contributes ten, because its registry ships a copy of every
     service's `cafaye.yml`. The page said "one line per repository" and was
     wrong.
@@ -1678,7 +1678,7 @@ Three claims the site made that are not true, all verified against the real CLI:
     no schema, and **three** have neither — the two `oidc_client` types plus
     `identity.member.accepted`. The page said "three… and a fourth".
   - **`go install …@latest` writes to `$(go env GOBIN)`,** which under a version
-    manager is not `$GOPATH/bin` and may not be on `PATH`. `caf: command not
+    manager is not `$GOPATH/bin` and may not be on `PATH`. `cafe: command not
     found` after a successful install is now a named failure branch on step 1,
     with the `go env GOBIN` fix.
 
@@ -1691,7 +1691,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   and on 23 named security tests missing from the log. Corrected in
   `running-the-gates.md`, `troubleshooting.md`, `index.mdx`, `runbooks/index.md`
   and `pilot.md`. The reusable workflow now has **eight** callers
-  (`caf`, `core`, `courier`, `darkroom`, `guard`, `identity`, `muse`, `parlor`)
+  (`cafe`, `core`, `courier`, `darkroom`, `guard`, `identity`, `muse`, `parlor`)
   and **one** repository with no workflow at all: `docs`.
 
 - **The contact list on `pilot.md` was missing `guard@cafaye.com` and
@@ -1702,34 +1702,34 @@ Three claims the site made that are not true, all verified against the real CLI:
 ### Notes
 
 - **The repositories moved underneath this packet, twice, and every claim was
-  re-derived rather than inherited.** `identity` landed `identity-07` and `caf`
-  landed `caf-05` while the page was being written; `core` landed `core-07`
+  re-derived rather than inherited.** `identity` landed `identity-07` and `cafe`
+  landed `cafe-05` while the page was being written; `core` landed `core-07`
   while it was being corrected. The CLI claims were re-checked against
-  `caf@460acf3` — still ten commands, still five stubs, still ten tools in the
+  `cafe@460acf3` — still ten commands, still five stubs, still ten tools in the
   same order, still six project checks, still a 4 GiB / 4 CPU floor — and the
   manifest count re-measured, which is why it is 31 and not 35. That the number
   moved twice in an hour **is** the argument for never quoting it, and both pages
   now say so in those words.
-- Every command on `pilot.md` was run, against `caf` at `460acf3` and
-  `identity` at `master` (`35c2576`): `go install`, `caf version`,
-  `caf doctor`, `caf contract lint` (single manifest, whole workspace, and
-  `kit`, which ships none), `caf dev --dry-run`, `caf dev`, the migration loop,
+- Every command on `pilot.md` was run, against `cafe` at `460acf3` and
+  `identity` at `master` (`35c2576`): `go install`, `cafe version`,
+  `cafe doctor`, `cafe contract lint` (single manifest, whole workspace, and
+  `kit`, which ships none), `cafe dev --dry-run`, `cafe dev`, the migration loop,
   `POST /v1/users`, `POST /v1/session`, `GET /v1/me`, the outbox query, and the
   JWKS, discovery and MFA 404s. The steps that could not be run — Linux, a
   production deployment, the MFA enrollment walkthrough, `muse`, Stripe — are
   named on the page itself, not only here.
-- `caf doctor`'s exit code was checked in all three states: with a project, with
+- `cafe doctor`'s exit code was checked in all three states: with a project, with
   no project at all, and `--help`. **It exits 0 every time.** It is a report,
   not a gate, and the page says so.
-- `caf contract lint` exits 1 in all three interesting cases: an invalid
+- `cafe contract lint` exits 1 in all three interesting cases: an invalid
   manifest, a directory with no manifest, and `kit`, which ships none.
 - The "every service is one stateless container" claim was re-derived from all
   seven Dockerfiles: all multi-stage, all `USER`-set to a non-root account, none
   declaring a `VOLUME`. `darkroom`'s Dockerfile is at `docker/Dockerfile` rather
-  than the project root, and `caf dev` renders the right path because it comes
+  than the project root, and `cafe dev` renders the right path because it comes
   from the manifest — checked rather than assumed.
 - **One read-only repository was written to by accident and repaired.**
-  `caf dev --dry-run` writes `caf.dev.compose.yaml` into the project directory
+  `cafe dev --dry-run` writes `caf.dev.compose.yaml` into the project directory
   even though it starts nothing, and the dry-run against `darkroom` left one
   behind. It was deleted immediately and `darkroom` verified clean at `bcaa2fe`.
   The behaviour is real and is now stated on the page.
@@ -1747,7 +1747,7 @@ Three claims the site made that are not true, all verified against the real CLI:
 - **Home** (`src/content/docs/index.mdx`) — what cafaye is in one paragraph,
   then the services and tooling tables mirroring the org README, with cards for
   the three entry points.
-- **Getting Started** — installing `caf`, `caf init`, `caf dev`. Every command
+- **Getting Started** — installing `cafe`, `cafe init`, `cafe dev`. Every command
   that has not shipped is marked *Coming soon* rather than presented as working.
 - **Services** — an overview page and one page each for `identity`, `billing`,
   `courier`, `darkroom`, `muse`, `guard`, and `parlor`. Each page states the

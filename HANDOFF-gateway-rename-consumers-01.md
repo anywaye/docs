@@ -67,7 +67,7 @@ packet did not choose between them:
    facing identifiers — is arguably the manager's call rather than docs'.
 
 No other repository in the fleet links to `/services/guard/` (checked by grep
-across identity, courier, cafaye-ts, caf and parlor), so the blast radius of
+across identity, courier, cafaye-ts, cafe and parlor), so the blast radius of
 option 1 is confined to this repository plus whatever is already published.
 
 ## The tripwire sense, so the successor does not have to re-derive it
@@ -90,7 +90,7 @@ Real tripwires in these files, none of which may be renamed:
 
 `docs`'s own gate greps for names. `bin/prime --contracts` proves
 `# pass N` with a floor of 16, `# skipped 0`, a contract tier with a floor of 7,
-`manifests-validated-by-caf` with a floor of 2, `caf-lint-output`,
+`manifests-validated-by-cafe` with a floor of 2, `cafe-lint-output`,
 `event-claims-checked` (floor 9) and `span-names-checked` (floor 6).
 
 `span-names-checked` is the one to read before starting: `observability.md:159`

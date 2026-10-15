@@ -64,8 +64,8 @@ timeoutSeconds: 1200     # CI's own budget; measured warm run is ~75s
 | `offline-no-skip` | — | — | nothing skipped in the offline tier |
 | `contract-tier-ran` | 6 | 6 | **the contract tier is not optional to anybody** |
 | `contract-no-skip` | — | — | nothing skipped in the contract tier |
-| `manifests-validated-by-caf` | 2 | 2 | the docs' manifests reached the real validator |
-| `caf-lint-output` | — | — | **`caf` itself produced output** |
+| `manifests-validated-by-cafe` | 2 | 2 | the docs' manifests reached the real validator |
+| `cafe-lint-output` | — | — | **`cafe` itself produced output** |
 | `event-claims-checked` | 8 | 8 | the prose vs core's catalog of 30 |
 | `span-names-checked` | 6 | 6 | the prose vs core's span-naming pattern |
 
@@ -143,23 +143,23 @@ than a green badge over a check that ran nothing.
 skipped, exit 0 — including:
 
 ```
-ok 3 - every cafaye.yml example in the docs passes the real caf validator
-#     \# manifests validated by caf contract lint: 2
+ok 3 - every cafaye.yml example in the docs passes the real cafe validator
+#     \# manifests validated by cafe contract lint: 2
 ```
 
-The count-based proof `manifests-validated-by-caf` was **satisfied by the stub**,
-because that `console.log` lives in the test and not in `caf`. The single thing
-that changed in the entire log is that `caf contract lint`'s own stdout line
+The count-based proof `manifests-validated-by-cafe` was **satisfied by the stub**,
+because that `console.log` lives in the test and not in `cafe`. The single thing
+that changed in the entire log is that `cafe contract lint`'s own stdout line
 stopped appearing, so:
 
-> `FAIL gate.proof-missing: proof 'caf-lint-output' never appeared`
+> `FAIL gate.proof-missing: proof 'cafe-lint-output' never appeared`
 
-That is why `caf-lint-output` exists with **no floor and no count in it**: it is
+That is why `cafe-lint-output` exists with **no floor and no count in it**: it is
 the only proof in the file that a program actually ran. A proof that only counted
 things would have been green.
 
-Its cost, stated: the phrase `OK <path>` belongs to `caf`, not to this
-repository. If `caf` rewords it, the proof goes red and names itself.
+Its cost, stated: the phrase `OK <path>` belongs to `cafe`, not to this
+repository. If `cafe` rewords it, the proof goes red and names itself.
 
 ## Findings — two stale claims about this repository's own gate
 
@@ -232,7 +232,7 @@ of the repository it names, and this repository's suite cannot reach
 1. **Adding a test turns this declaration red** until the two floors (16 and 6)
    and `BASELINE_TESTS` are raised in the same commit. That is the intended
    direction.
-2. **If `caf` changes its lint wording**, `caf-lint-output` goes red. Fix it
+2. **If `cafe` changes its lint wording**, `cafe-lint-output` goes red. Fix it
    here, in the same commit.
 3. **`node --test`'s summary shape is load-bearing for four proofs.** If a Node
    upgrade reorders or renames those lines, four proofs go red at once. That is

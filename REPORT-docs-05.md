@@ -51,11 +51,11 @@ deliberately does not use and that the reason stays written down.
 | file | asserts | red-proved by |
 | --- | --- | --- |
 | `tests/links.mjs` | every `#fragment` names a heading that exists; every internal link names a built page; every redirect resolves and shadows no live page; every external href is well-formed `https:` with a real host and no placeholder | a deep link to a heading that does not exist; a redirect to a page that does not exist; an `http://` link |
-| `tests/examples.mjs` | every ` ```sh ` fence parses under `bash -n`; every ` ```json ` fence is valid JSON; every ` ```yaml ` fence is a manifest; every `caf` invocation names a subcommand the quoted `caf help` lists | a dangling line continuation; a trailing comma; an invented `caf` subcommand; an undeclared placeholder |
-| `tests/contracts.mjs` | documented `cafaye.yml` examples and this repository's own through the **real `caf contract lint`**; event-type claims against core's catalog; span names against core's `span-naming.schema.json` | a schema-invalid key; a claim about a type core does not publish; a span name core's pattern rejects; **`core` absent** and **`caf` absent**, both of which must be red and never a skip |
+| `tests/examples.mjs` | every ` ```sh ` fence parses under `bash -n`; every ` ```json ` fence is valid JSON; every ` ```yaml ` fence is a manifest; every `cafe` invocation names a subcommand the quoted `cafe help` lists | a dangling line continuation; a trailing comma; an invented `cafe` subcommand; an undeclared placeholder |
+| `tests/contracts.mjs` | documented `cafaye.yml` examples and this repository's own through the **real `cafe contract lint`**; event-type claims against core's catalog; span names against core's `span-naming.schema.json` | a schema-invalid key; a claim about a type core does not publish; a span name core's pattern rejects; **`core` absent** and **`cafe` absent**, both of which must be red and never a skip |
 
 Counts, printed so a check that finds nothing does not look like a check that
-passed: **103** shell fences, **11** JSON fences, **2** manifests, **6** `caf`
+passed: **103** shell fences, **11** JSON fences, **2** manifests, **6** `cafe`
 subcommands (vocabulary of 12 read from the quoted help), **50** external links,
 **0** redirects, **8** event-type claims against core's **30** published types,
 **6 good / 4 rejected** span names.
@@ -93,14 +93,14 @@ pass; in every case the example was the thing that was wrong.**
    which says nothing about the database" and "Readiness, which is the one that
    has to name it" — which is what the prose immediately below already argued.
 
-4. **`tests/examples.mjs` found a `caf` vocabulary, and I nearly shipped it
-   wrong.** The first version read the *second* word after `caf` as part of the
-   subcommand name, so `caf deploy identity` and `caf help init` both failed
-   against correct examples. `contract` is the only `caf` command that owns
+4. **`tests/examples.mjs` found a `cafe` vocabulary, and I nearly shipped it
+   wrong.** The first version read the *second* word after `cafe` as part of the
+   subcommand name, so `cafe deploy identity` and `cafe help init` both failed
+   against correct examples. `contract` is the only `cafe` command that owns
    subcommands. The check now takes the second word only under `contract`, and
-   the vocabulary is read from the `caf help` output **quoted in
+   the vocabulary is read from the `cafe help` output **quoted in
    `getting-started.md`** rather than from a list written beside it — so there is
-   one place in this repository that says what `caf` can do.
+   one place in this repository that says what `cafe` can do.
 
 ## Two bugs the red proofs found in my own CI
 
@@ -143,7 +143,7 @@ Both would have shipped, and both are recorded in the files.
   a **transitive** dependency of Astro and Starlight, and AGENTS.md's rule is
   that those two are the only dependencies. A gate reaching into somebody else's
   dependency tree breaks on an unrelated upgrade — and it would be the *weaker*
-  check anyway, since `caf contract lint` against core's real schema is the
+  check anyway, since `cafe contract lint` against core's real schema is the
   better answer to "is this manifest correct".
 
 ## Red proofs
@@ -202,9 +202,9 @@ red on the broken anchor above and on nothing else; the first run of
    documentation and from the fleet's working files, not observed. The first push
    to `worker/docs-05` is the first real run, and the manager should read that
    run's log rather than trust this sentence.
-2. **The `contracts` job's `caf` build was not exercised on a runner.** I built
-   `caf` from a sibling checkout on this machine and ran the tier against it;
-   the job clones `cafaye/caf` and builds it the way `cafaye-ts`'s CI already
+2. **The `contracts` job's `cafe` build was not exercised on a runner.** I built
+   `cafe` from a sibling checkout on this machine and ran the tier against it;
+   the job clones `cafaye/cafe` and builds it the way `cafaye-ts`'s CI already
    does, but that exact clone-and-build inside Actions is unrun.
 3. **I could not measure the runner's default node**, which is reason 3 for not
    adopting kit's `none` job. The claim is that a gate on "whatever the image
@@ -228,7 +228,7 @@ red on the broken anchor above and on nothing else; the first run of
    service.** No example that needs one is executed. The `sh` fences are parsed,
    not run — which catches the rot that is nearly always a broken continuation
    or an unterminated quote, and does not catch an example whose *arguments* went
-   stale. The `caf` subcommand check is the only one that looks at meaning, and
+   stale. The `cafe` subcommand check is the only one that looks at meaning, and
    it covers the command name only, not its flags.
 7. **I did not verify the 26 external links resolve from a GitHub runner**, only
    from this machine. GitHub's runner IPs are rate-limited differently, and a
