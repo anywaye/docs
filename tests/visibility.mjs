@@ -31,6 +31,19 @@ import { test } from 'node:test';
 const root = resolve(import.meta.dirname, '..');
 const fixtures = join(import.meta.dirname, 'fixtures', 'fleet');
 
+/** Run the sync in --source mode against a directory. */
+function syncSourceMode(dir) {
+	try {
+		const stdout = execFileSync(process.execPath, [join(root, 'bin', 'sync-content'), '--source', dir], {
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'pipe'],
+		});
+		return { status: 0, stdout, stderr: '' };
+	} catch (err) {
+		return { status: err.status, stdout: err.stdout?.toString() ?? '', stderr: err.stderr?.toString() ?? '' };
+	}
+}
+
 /** Run the sync in --check mode against a fixture fleet, env-driven. */
 function syncCheck(projectCorePath, notesPath) {
   try {
@@ -67,6 +80,17 @@ test('a private repository carrying notes/ syncs cleanly', () => {
   const result = syncCheck(join(fixtures, 'private-with-notes'), join(fixtures, 'notes-central'));
   assert.equal(result.status, 0, `expected exit 0, got ${result.status}\n${result.stderr}`);
   assert.match(result.stdout, /visibility: private, docs: 1, notes: 1/, 'the plan must show both trees receiving the private repo');
+});
+
+test('source mode refuses a directory that holds no content', () => {
+	// A tenant build with no content is a build with nothing to serve, and
+	// an empty dist is the failure shape this repository refuses to ship
+	// green. The source mode checks for either docs/ or notes/ before it
+	// replaces anything.
+	const empty = join(fixtures, 'empty');
+	const result = syncSourceMode(empty);
+	assert.equal(result.status, 1, `expected exit 1, got ${result.status}\n${result.stdout}`);
+	assert.match(result.stderr, /neither docs\/ nor notes\//, 'the failure must name what was missing');
 });
 
 test('a missing notes source fails the sync rather than building an empty notes site', () => {

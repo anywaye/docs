@@ -77,6 +77,7 @@ npm run dev      # http://localhost:4321
 | `npm run build:public` | Public tree only, into `dist/docs` |
 | `npm run build:notes` | Private tree only, into `dist/notes` |
 | `npm run build` | **Both** — sync, then each tree, into `dist/docs` and `dist/notes` |
+| `bin/sync-content --source <dir>` | The tenant build press drives: `<dir>/docs/**` and `<dir>/notes/**` into the two trees, **no fleet needed**. Replaces the whole content tree — a disposable engine checkout only |
 | `npm run preview` | Serve `dist/` locally, as the host will |
 | `npm test` | The offline suite — **run a build first**, it reads `dist/` |
 | `npm run test:contracts` | The contract tier; needs `CORE_PATH` and a `cafe` binary |

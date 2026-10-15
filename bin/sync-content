@@ -27,6 +27,28 @@
 //   `visibility: private` frontmatter: the page is public the moment the push
 //   lands, whatever the frontmatter says.
 //
+// --source <dir>, and the two ways this script runs
+//   Without it, the sync builds the way this repository's own gate does:
+//   the fleet beside the tree (moon/cafaye/*), the registry in
+//   content-sources.json, and the guards that check a public repository for
+//   notes/. That is the mode CI and a developer run.
+//
+//   **--source REPLACES THE WHOLE CONTENT TREE, INCLUDING THE PAGES THIS
+//   REPOSITORY AUTHORS.** It is for a disposable engine checkout — the
+//   sandbox press clones for one build — never for a working checkout, where
+//   it deletes committed pages and only git can bring them back. The layout
+//   the worker extracts the tenant's content into is what the mode reads.
+//
+//   With `--source <dir>` the sync builds the way press builds for a tenant:
+//   one content directory, laid out as <dir>/docs/** (public) and
+//   <dir>/notes/** (private), materialized into the two trees with no fleet
+//   beside it and no per-repo visibility to read. The anti-leak guard still
+//   applies at the SOURCE of that content — press ingests from the notes
+//   repository and each repository's docs/ through the same rules — and the
+//   layout the sync writes is the same two trees the fleet build writes.
+//   A tenant build is not a weaker build; it is the same build with one
+//   tenant's content.
+//
 // --check, and why it exists
 //   `bin/sync-content --check` runs every resolution and every guard and
 //   writes nothing. It is the mode tests/visibility.mjs uses to execute the
@@ -51,6 +73,11 @@ import { join, resolve, basename } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const sourcesFile = join(root, 'content-sources.json');
 const checkOnly = process.argv.includes('--check');
+const sourceArgIndex = process.argv.indexOf('--source');
+const sourceDir = sourceArgIndex === -1 ? null : process.argv[sourceArgIndex + 1];
+if (sourceArgIndex !== -1 && (!sourceDir || sourceDir.startsWith('-'))) {
+  fail('--source needs a directory argument: bin/sync-content --source <dir>');
+}
 
 /** The trees this script owns. It clears and rewrites these and nothing else. */
 const PUBLIC_TREE = join(root, 'src', 'content', 'docs');
@@ -241,7 +268,48 @@ function pagesIn(dir) {
 if (!existsSync(sourcesFile)) fail(`no content-sources.json at ${sourcesFile}.`);
 const registry = JSON.parse(readFileSync(sourcesFile, 'utf8'));
 
-// 1. The central notes repository — every page is private by construction.
+// 0. The tenant-content mode: one directory, docs/ public and notes/ private,
+//    materialized into the two trees exactly as the fleet build does. There is
+//    no registry to honor and no per-repo cafaye.yml to read — that checking
+//    happened where the content was ingested — so the guards below do not run
+//    and the sync cannot fail over a sibling that was never checked out.
+if (sourceDir) {
+  if (!existsSync(sourceDir)) fail(`--source ${sourceDir} does not exist`);
+  const docsDir = join(sourceDir, 'docs');
+  const notesDir = join(sourceDir, 'notes');
+  if (!existsSync(docsDir) && !existsSync(notesDir)) {
+    fail(`${sourceDir} holds neither docs/ nor notes/ — a tenant build with no content is a build with nothing to serve`);
+  }
+  // The whole public tree is the tenant's: there is no platform shell in a
+  // tenant build, because a per-tenant home page that is the same page for
+  // every tenant is a page nobody authored for them. A tenant's docs/
+  // therefore carries its own index.
+  if (!checkOnly) {
+    rmSync(PUBLIC_TREE, { recursive: true, force: true });
+    mkdirSync(PUBLIC_TREE, { recursive: true });
+    if (existsSync(docsDir)) copyTree(docsDir, PUBLIC_TREE, []);
+    rmSync(NOTES_TREE, { recursive: true, force: true });
+    if (existsSync(notesDir)) copyTree(notesDir, NOTES_TREE, []);
+  }
+  const publicPages = existsSync(docsDir) ? pagesIn(docsDir) : 0;
+  const privatePages = existsSync(notesDir) ? pagesIn(notesDir) : 0;
+  if (!checkOnly) {
+    // The build's own record of which mode ran, read by both configs at
+    // config time. Written by the mode that ran and not cleared by the
+    // other, because a build is a single act: a fleet build always
+    // overwrites it, so the only stale marker possible is one from a
+    // previous tenant build the operator never followed with a real build.
+    writeFileSync(join(root, '.sync', 'mode'), 'source\n');
+  }
+  if (checkOnly) {
+    console.log(`sync-content: --source OK. plan: ${publicPages} public page(s), ${privatePages} private page(s).`);
+  } else {
+    console.log(`sync-content: --source ${sourceDir}: ${publicPages} public page(s), ${privatePages} private page(s).`);
+  }
+  process.exit(0);
+}
+
+// 1. The central notes repository — every page is private. By construction.
 const notesSource = resolveSource(registry.central, 'CAF_NOTES_PATH');
 if (!statSync(notesSource).isDirectory()) fail(`the notes source ${notesSource} is not a directory.`);
 let notesDerived = [];
@@ -341,6 +409,7 @@ if (checkOnly) {
   process.exit(0);
 }
 mkdirSync(join(root, '.sync'), { recursive: true });
+writeFileSync(join(root, '.sync', 'mode'), 'fleet\n');
 writeFileSync(
   MANIFEST,
   JSON.stringify(

@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-10-15 (later) — press's build mode: one tenant's content, no fleet
+
+**`bin/sync-content --source <dir>` builds the way press builds for a tenant.**
+It takes one content directory — `<dir>/docs/**` public, `<dir>/notes/**`
+private — materializes it into the same two trees the fleet build writes, and
+exits. No registry, no sibling checkouts, no per-repo cafaye.yml: the
+anti-leak checking happened where the content was ingested, and the tenant
+build is the same build with one tenant's content rather than a weaker build.
+
+**The mode REPLACES the whole content tree, and says so at the top of the
+script.** It is for the disposable engine checkout press clones per build,
+never for a working checkout — running it in one deletes committed pages, and
+that mistake was made once while proving the mode, which is why the warning
+leads the header rather than trailing it.
+
+**Both sites compute their navigation in source mode.** The public site's
+curated sidebar promises fleet slugs a tenant never shipped; in source mode
+the config reads `.sync/mode` — the build's own record of which mode ran —
+and computes the sidebar from the tenant's tree instead, sharing one module
+with the notes site. A red build over content nobody controls is a gate
+nobody acts on.
+
+**The guard the source mode still carries:** a directory holding neither
+`docs/` nor `notes/` fails the build — an empty dist is the failure shape
+this repository refuses to ship green.
+
+The suite is 45 tests.
+
+# Changelog
+
 ## 2026-10-15 — the two-build pipeline: public at /, private notes at /notes
 
 **The repository builds twice and publishes twice.** The public site emits
