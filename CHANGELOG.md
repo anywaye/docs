@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-15 (deploy fixes) — two silent failures, both found by measuring
+
+**A directory URL 403'd instead of 404ing.** `try_files $uri $uri/` is the
+directory-listing shape: a directory with no index page (`/projects/core/`,
+which is a group in the sidebar rather than a page) answered 403 from nginx's
+autoindex refusal. A docs site that 403s a URL that does not exist answers a
+question the reader did not ask. `try_files $uri $uri/index.html` serves what
+was built and 404s the rest.
+
+**The TLS Certificate vanished from cert-manager while its secret kept
+serving.** The first deploy's certificate was created by the ingress
+annotation and later cleaned up with the ingress it came from; the secret
+kept answering, and the expiry would have arrived with nothing to renew it.
+The manifest now carries the Certificate explicitly (`docs-tls`,
+letsencrypt-prod), so renewal is a resource in the file rather than a side
+effect of another one.
+
+Live verification of the whole surface: public pages 200, a synced fleet page
+(`/projects/core/account-scope/`) 200, page-less directories 404, nonexistent
+paths 404, every `/notes/*` path 401 unauthenticated.
+
+# Changelog
+
 ## 2026-10-15 (latest) — docs.cafaye.com is live
 
 **Deployed to the Contabo k3s cluster** behind traefik with a real Let's

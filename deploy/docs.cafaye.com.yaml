@@ -40,7 +40,12 @@ data:
         # The public tree: /x -> /usr/share/nginx/html/docs/x.
         location / {
           root /usr/share/nginx/html/docs;
-          try_files $uri $uri/ =404;
+          # $uri for the files (sitemap, 404.html), $uri/index.html for the
+          # pages — and NOT $uri/, which is the directory-listing shape that
+          # turns a page-less directory like /projects/core/ into a 403.
+          # try_files' job here is to answer exactly what was built and 404
+          # everything else, which is what a static site is.
+          try_files $uri $uri/index.html =404;
           error_page 404 /404.html;
         }
         location = / {
@@ -63,7 +68,7 @@ data:
           root /usr/share/nginx/html;
           auth_request /__notes_gate;
           auth_request_set $notes_reader $upstream_http_x_notes_reader;
-          try_files $uri $uri/ =404;
+          try_files $uri $uri/index.html =404;
           error_page 404 /notes/404.html;
         }
         # The subrequest target. Internal: never reachable directly. The
@@ -203,13 +208,24 @@ spec:
     - port: 8081
       targetPort: 8081
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: docs-tls
+  namespace: docs
+spec:
+  secretName: docs-tls
+  dnsNames:
+    - docs.cafaye.com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: docs
   namespace: docs
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: traefik
   rules:
