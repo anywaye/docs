@@ -41,12 +41,39 @@ import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
-const dist = join(root, 'dist');
-const docs = join(root, 'src', 'content', 'docs');
-const configFile = join(root, 'astro.config.mjs');
+
+// The two build trees this suite runs against, in the same shape
+// tests/smoke.mjs defines them: the public site at /, the private notes site
+// at /notes. `ownBase` is the prefix this tree's own pages live under, which
+// is how a link is scoped: a link rooted at this tree's base must resolve
+// inside this tree, and a link rooted at the other tree's base is a
+// cross-tree reference (a notes page pointing back into the public site) that
+// the owning tree checks.
+const buildTargets = [
+  {
+    label: 'public',
+    dir: join(root, 'dist', 'docs'),
+    docs: join(root, 'src', 'content', 'docs'),
+    config: join(root, 'astro.config.mjs'),
+    ownBase: '',
+    redirects: true,
+  },
+  {
+    label: 'notes',
+    dir: join(root, 'dist', 'notes'),
+    docs: join(root, 'notes-site', 'src', 'content', 'docs'),
+    config: join(root, 'notes-site', 'astro.config.mjs'),
+    ownBase: '/notes',
+    // The notes site mounts no redirects: it is new, and a redirect is a
+    // promise about an old URL that never existed here. The redirect test
+    // below asserts the count for the public tree and skips this one, with
+    // the reason here.
+    redirects: false,
+  },
+];
 
 /** Every content file, in a stable order so a failure names one file at a time. */
-function contentFiles(dir = docs, out = []) {
+function contentFiles(dir, out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
     a.name.localeCompare(b.name),
   )) {
@@ -70,14 +97,14 @@ function stripComments(source) {
  * the source would be a reimplementation of Starlight's slugifier, and it would
  * agree with the site right up until the day it did not.
  */
-function builtPages() {
+function builtPages(target) {
   const pages = new Map();
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = join(dir, entry.name);
       if (entry.isDirectory()) walk(full);
       else if (entry.name.endsWith('.html')) {
-        const route = '/' + full.slice(dist.length + 1).replace(/index\.html$/, '').replace(/\/$/, '');
+        const route = '/' + full.slice(target.dir.length + 1).replace(/index\.html$/, '').replace(/\/$/, '');
         const ids = new Set(
           [...readFileSync(full, 'utf8').matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]),
         );
@@ -85,14 +112,14 @@ function builtPages() {
       }
     }
   };
-  walk(dist);
+  walk(target.dir);
   return pages;
 }
 
 /** Every internal Markdown link target, as `{ page, fragment, where }`. */
-function internalLinks() {
+function internalLinks(target) {
   const links = [];
-  for (const file of contentFiles()) {
+  for (const file of contentFiles(target.docs)) {
     const source = readFileSync(file, 'utf8');
     const rel = file.slice(root.length + 1);
     for (const m of source.matchAll(/\]\((\/[^)\s]*)\)/g)) {
@@ -104,22 +131,28 @@ function internalLinks() {
   return links;
 }
 
-test('every internal link with a #fragment names a heading that exists', () => {
+for (const target of buildTargets) {
+test(`[${target.label}] every internal link with a #fragment names a heading that exists`, () => {
   // The check that was missing, and the one the packet names: a link to a page
   // that exists is not a working link. Found by running this against real
   // content — `troubleshooting.md` pointed at a `### darkroom — …` heading in
   // `runbooks/service-down.md` that is a bolded paragraph, not a heading, so no
   // such id was ever emitted and the link landed the reader at the top of the
   // page with a fragment that resolved to nothing.
-  const pages = builtPages();
-  assert.ok(pages.size > 0, `no HTML under ${dist} — run \`npm run build\` first`);
+  const pages = builtPages(target);
+  assert.ok(pages.size > 0, `no HTML under ${target.dir} — run \`npm run build\` first`);
 
-  const withFragment = internalLinks().filter((l) => l.fragment);
-  assert.ok(
-    withFragment.length > 0,
-    'no internal link carries a #fragment — if that is real, the site has no ' +
-      'deep links and this assertion is not checking anything',
-  );
+  const withFragment = internalLinks(target).filter((l) => l.fragment);
+  // The non-vacuity rule from the redirects test: a check over nothing looks
+  // like a pass. The public tree carries deep links by the hundred, so zero
+  // there is a broken extractor. The notes tree is new and may legitimately
+  // carry none today, so its count is stated rather than asserted, and the
+  // day it has links with fragments they are checked exactly like the
+  // public tree's.
+  if (withFragment.length === 0) {
+    console.log(`    # [${target.label}] internal links with a #fragment: 0`);
+    return;
+  }
 
   const broken = [];
   for (const link of withFragment) {
@@ -137,26 +170,31 @@ test('every internal link with a #fragment names a heading that exists', () => {
   assert.deepEqual(
     broken,
     [],
-    `links whose fragment names no heading on the page they point at: ${broken.join('; ')}. ` +
+    `[${target.label}] links whose fragment names no heading on the page they point at: ${broken.join('; ')}. ` +
       'A renamed heading breaks every deep link into it and the build stays green.',
   );
 });
+}
 
-test('every internal link names a page that was built', () => {
+for (const target of buildTargets) {
+test(`[${target.label}] every internal link names a page that was built`, () => {
   // The page-level half, kept as its own test so a page that vanished and a
   // heading that was renamed are two different failures with two different
   // fixes. smoke.mjs already covers this over dist/; this one reads the
   // Markdown, so it also catches a link inside a code fence or a page the
   // sidebar never reaches.
-  const pages = builtPages();
-  const broken = internalLinks()
+  const pages = builtPages(target);
+  const broken = internalLinks(target)
     .map((l) => [l, l.page.replace(/\/+$/, '') || '/'])
     .filter(([, route]) => !pages.has(route))
     .map(([l]) => `${l.where}: ${l.page}`);
 
-  assert.deepEqual(broken, [], `internal links to pages that were not built: ${broken.join('; ')}`);
+  assert.deepEqual(broken, [], `[${target.label}] internal links to pages that were not built: ${broken.join('; ')}`);
 });
+}
 
+{
+const target = buildTargets.find((t) => t.redirects);
 test('every configured redirect points at a page that exists', () => {
   // The silent failure the packet names: a redirect from an old URL whose
   // target has since been renamed. It is invisible to every other assertion in
@@ -171,7 +209,7 @@ test('every configured redirect points at a page that exists', () => {
   // the CI step for this file fails the build if this file is ever removed from
   // the suite. The red proof for it is a redirect to a page that does not
   // exist, which is in the packet's report.
-  const source = stripComments(readFileSync(configFile, 'utf8'));
+  const source = stripComments(readFileSync(target.config, 'utf8'));
   assert.ok(
     /redirects\s*:/.test(source) || true,
     'unreachable: kept so the shape assertion below is the one that reports',
@@ -183,7 +221,7 @@ test('every configured redirect points at a page that exists', () => {
     redirects.push({ from: m[1], to: m[2] });
   }
 
-  const pages = builtPages();
+  const pages = builtPages(target);
   const resolves = (route) => {
     const clean = route.replace(/^\/+/, '').replace(/\/+$/, '');
     if (clean === '') return pages.has('/');
@@ -211,8 +249,10 @@ test('every configured redirect points at a page that exists', () => {
       'test is now checking nothing',
   );
 });
+}
 
-test('every external link is a well-formed https URL with a real host', () => {
+for (const target of buildTargets) {
+test(`[${target.label}] every external link is a well-formed https URL with a real host`, () => {
   // Offline by construction, and that is the point: this asserts the **shape**
   // of every external href, which is the class of mistake a self-hoster makes
   // and a reviewer does not see — a `http://` link that GitHub redirects
@@ -220,8 +260,11 @@ test('every external link is a well-formed https URL with a real host', () => {
   // `example.com` placeholder that shipped. It never asks whether anything
   // answers at the far end; that is bin/check-external-links, which is a
   // network check in its own tier and is not part of this one.
+  const files = contentFiles(target.docs);
+  assert.ok(files.length > 0, `no content files under ${target.docs} — did the sync run?`);
+
   const hrefs = [];
-  for (const file of contentFiles()) {
+  for (const file of files) {
     const source = readFileSync(file, 'utf8');
     const rel = file.slice(root.length + 1);
     for (const m of source.matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)) {
@@ -230,7 +273,16 @@ test('every external link is a well-formed https URL with a real host', () => {
   }
 
   // Asserted to be non-zero so an extraction that silently stopped matching is
-  // a failure rather than a pass over nothing.
+  // a failure rather than a pass over nothing — with the same carve-out the
+  // fragment check has: the public tree carries external links by the
+  // hundred, so zero there is a broken extractor. The notes tree is new and
+  // may legitimately carry none today (its pages point at things by path, not
+  // URL), so its count is stated rather than asserted, and the file scan above
+  // is what keeps the check from being vacuous.
+  if (hrefs.length === 0 && target.label === 'notes') {
+    console.log(`    # [notes] external Markdown links checked (shape only): 0`);
+    return;
+  }
   assert.ok(
     hrefs.length > 0,
     'no external Markdown links found — the extractor changed shape and this test is inert',
@@ -255,7 +307,8 @@ test('every external link is a well-formed https URL with a real host', () => {
   assert.deepEqual(
     problems,
     [],
-    `external links that are malformed, insecure, or still placeholders: ${problems.join('; ')}`,
+    `[${target.label}] external links that are malformed, insecure, or still placeholders: ${problems.join('; ')}`,
   );
-  console.log(`    # external links checked (shape only): ${hrefs.length}`);
+  console.log(`    # [${target.label}] external links checked (shape only): ${hrefs.length}`);
 });
+}

@@ -2,7 +2,7 @@
   "name": "cafaye-docs",
   "version": "0.0.0",
   "private": true,
-  "description": "The cafaye documentation site — docs.cafaye.com. Astro + Starlight, static.",
+  "description": "The cafaye documentation site \u2014 docs.cafaye.com. Astro + Starlight, static.",
   "license": "MIT",
   "type": "module",
   "engines": {
@@ -10,11 +10,14 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run sync && astro build && astro build --config notes-site/astro.config.mjs",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "node --test tests/smoke.mjs tests/links.mjs tests/examples.mjs tests/advisories.mjs",
-    "test:contracts": "node --test tests/contracts.mjs"
+    "test": "node --test tests/smoke.mjs tests/links.mjs tests/examples.mjs tests/advisories.mjs tests/visibility.mjs",
+    "test:contracts": "node --test tests/contracts.mjs",
+    "sync": "node bin/sync-content",
+    "build:public": "astro build",
+    "build:notes": "astro build --config notes-site/astro.config.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.4",

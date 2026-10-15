@@ -16,6 +16,41 @@ which means the ways it *can* break are quiet: a broken link, a page that
 vanishes from the sidebar, a build that has silently stopped producing output.
 The gate is shaped around those, not around code coverage.
 
+## The two builds, and where content comes from
+
+**Public at `/`, private at `/notes`, two dist directories, one repository.**
+`npm run build` runs `bin/sync-content` and then two Astro builds: the public
+site (`astro.config.mjs`) into `dist/docs`, the private site
+(`notes-site/astro.config.mjs`, base `/notes`) into `dist/notes`. The sync
+materializes:
+
+- this repository's `src/content/docs/` — the public tree (owned);
+- each fleet repository's `docs/` — into `src/content/docs/projects/<name>/`
+  (borrowed; the repo stays the source of truth beside its code);
+- `cafaye/notes` (private repo) — the notes tree (the org's private register);
+- a **private** repository's `notes/` — the notes tree at `projects/<name>/`.
+
+**A public repository never carries private notes.** A `notes/` directory in a
+repo whose `cafaye.yml` says `visibility: public` fails the sync, names the
+repo, and tells the writer where the notes belong: `cafaye/notes/projects/<name>/`.
+The same failure covers a page inside a public repo's `docs/` declaring
+`visibility: private`. The leak these rules prevent happens at `git clone`,
+not at serve time — the guard is a guard because no serve-time rule can undo
+a pushed file. `tests/visibility.mjs` executes both guards against fixtures
+in `tests/fixtures/fleet/`, so a regression in the guard is a red build, not
+a story.
+
+**Borrowed pages get derived frontmatter and it is recorded.** A page from a
+repository that predates this site's conventions arrives without
+`title`/`description`; the sync derives them (heading, first paragraph) and
+records every derivation in `.sync/manifest.json`. The floor is honest
+metadata everywhere; the target is authored metadata everywhere — a repo can
+see exactly which of its pages still owe their own.
+
+**Never edit `projects/` or the notes tree by hand.** Both are build output.
+Changes belong in the repository that owns the content, and the sync brings
+them here on the next build. They are gitignored for this reason.
+
 ## The gate
 
 **`bin/prime` must be green before any commit.** It is `npm ci && npm run build

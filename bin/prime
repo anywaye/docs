@@ -28,6 +28,16 @@
 #   a contributor with no `core` beside their worktree cannot run the thing that
 #   is supposed to stop them committing.
 #
+#   Since the two-build pipeline, the OFFLINE tier needs one more thing and
+#   it is worth being exact: the build runs bin/sync-content, which reads the
+#   content sources — this repository's pages, each fleet repository's docs/
+#   (and notes/, if the repository is private), and cafaye/notes. On a
+#   developer machine that is moon/cafaye/ beside the worktree; in CI it is
+#   the sparse fan-out .github/workflows/ci.yml performs. A source that does
+#   not resolve fails the sync — this gate never covers a build whose
+#   content silently went missing. `bin/sync-content --check` is the fast
+#   answer to "do my sources resolve".
+#
 #   `--contracts` adds the **contract tier** (tests/contracts.mjs), which is
 #   the only tier that can catch an example contradicting a *shipped* contract:
 #   the `cafaye.yml` examples run through the real `cafe contract lint` against

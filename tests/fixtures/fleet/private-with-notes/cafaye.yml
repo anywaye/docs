@@ -1,0 +1,8 @@
+name: identity
+description: fixture — a private repository carrying its own notes
+language: go
+core: ^0.2.0
+repository:
+  url: git@github.com:cafaye/identity.git
+  defaultBranch: master
+  visibility: private

@@ -1,5 +1,50 @@
 # Changelog
 
+## 2026-10-15 — the two-build pipeline: public at /, private notes at /notes
+
+**The repository builds twice and publishes twice.** The public site emits
+`dist/docs` (mounted at `/`); the new private site emits `dist/notes`
+(mounted at `/notes`, behind identity). They never share a directory, a
+search index or a sitemap: tests/visibility.mjs fails the build if the public
+tree grows a `notes` route or a public repository contributes anything to the
+notes tree. `bin/sync-content` is the join; `bin/sync-content --check` runs
+every guard and writes nothing.
+
+**Per-repo docs/ is live; per-repo notes/ is forbidden in public repos.** Each
+fleet repository's `docs/` materializes into the public site at
+`projects/<name>/` — its manual stays beside its code. A `notes/` directory in
+a repository whose `cafaye.yml` says `visibility: public` **fails the sync and
+names the repository**: the leak would happen at `git clone`, not at serve
+time. Those notes belong in `cafaye/notes/projects/<name>/`, the new private
+repository that holds the organization's register (decisions, ops, debt —
+graduated out of `moon/`, which stays a workspace and not an archive).
+
+**The gate found real drift and the drift was fixed, not absorbed.** Four
+broken examples in the fleet's own docs (two shell fences in
+`cafaye/kit/docs/customer-upstream.md` that were shell redirections in
+disguise, two invalid-JSON fences in `cafaye/core/docs`) were caught the
+first time the borrowed pages were compiled; both repositories are fixed on
+master. Borrowed pages that arrive without frontmatter get it derived — title
+from the first heading, description from the first paragraph — and every
+derivation is recorded in `.sync/manifest.json`, so borrowed content is honest
+metadata today and authored metadata is the visible target.
+
+**Scope of the mechanical checks adjusted, not weakened.** The suite went
+22 → 44 tests and now runs its build-output, link, example and contract
+assertions over both trees; where a check's premise is per-tree (a fence kind
+that exists on one side, a vocabulary quoted in an owned public page), the
+count is stated rather than asserted on the tree that has none, exactly as the
+redirect check already did. The contract tier's manifest and catalog
+assertions cover pages this repository authors; a borrowed page is the source
+repository's claim, validated where it is authored.
+
+CI's `gate` job checks the registry out sparsely beside the tree — public
+repos with the default token, `cafaye/notes` and private repos with
+`FLEET_TOKEN` — because a pipeline that cannot read its sources is not a
+gate. `BASELINE_TESTS` is held by equality at 44.
+
+# Changelog
+
 All notable changes to the cafaye documentation site are recorded here. The
 format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to

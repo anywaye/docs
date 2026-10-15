@@ -1,0 +1,23 @@
+{
+  "central": "notes",
+  "projects": [
+    "billing",
+    "box",
+    "cafe",
+    "cafaye-py",
+    "cafaye-rb",
+    "cafaye-ts",
+    "core",
+    "courier",
+    "darkroom",
+    "gateway",
+    "identity",
+    "keyholder",
+    "kit",
+    "muse",
+    "pantry",
+    "parlor",
+    "website"
+  ],
+  "$comment": "The fleet repos whose docs/ and notes/ trees the build ingests. A repo without a cafaye.yml is not a fleet member (oauth-stub is a scratch repo) and stays out."
+}
