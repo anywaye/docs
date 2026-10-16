@@ -36,7 +36,7 @@ second whether the sources resolve and the guards pass, without building.
 The build **is** half the gate: Starlight validates every page's frontmatter,
 Astro checks every content collection, and Starlight resolves every sidebar slug,
 so a page with a missing `title` or a sidebar entry pointing at nothing fails
-`npm run build`. The other half is the suite, in four files:
+`npm run build`. The other half is the suite, in five files plus the contract tier:
 
 | file | what it asserts |
 | --- | --- |
@@ -44,6 +44,8 @@ so a page with a missing `title` or a sidebar entry pointing at nothing fails
 | `tests/links.mjs` | every internal link's **`#fragment` names a heading that exists**, every internal link names a page that was built, every redirect resolves and shadows nothing, and every external href is a well-formed `https:` URL |
 | `tests/examples.mjs` | every ` ```sh ` fence parses under `bash -n`, every ` ```json ` fence is valid JSON, every ` ```yaml ` fence is a manifest, and every `cafe` invocation in a fence names a subcommand `cafe` actually has |
 | `tests/advisories.mjs` | every advisory page carries its whole `advisory` block, ids are unique and well-formed, and the index lists every advisory exactly once, newest first |
+| `tests/visibility.mjs` | a public repo never carries private notes — guards executed against fixtures, and the public dist never carries a `/notes` route |
+| `tests/api-markdown.mjs` | every page has a markdown twin at `api/<slug>.md` in the right dist with the exact source, no private twin in the public dist, and `/api/` serves no HTML |
 | `tests/contracts.mjs` | **the contract tier**, run by `--contracts`: every documented `cafaye.yml` through the real `cafe contract lint`, this repository's own manifest too, every event type a page says a service declares against core's catalog, and every span name against core's span-naming schema |
 
 The offline tier needs no network, no sibling checkout and nothing but node and
@@ -102,6 +104,20 @@ behind the identity gate — nginx's `auth_request` against
 `https://auth.cafaye.com`'s JWKS — and everything else is served from
 `dist/docs` as-is. `dist/notes/404.html` shape-matches "no such page" for
 unauthenticated readers so a private URL's existence is not advertised.
+
+**Write markdown once, deliver it twice.** The build emits, for every page, the
+raw markdown beside the built HTML: `dist/docs/api/<slug>.md` from the public
+tree, `dist/notes/api/<slug>.md` from the private tree, served at
+`/api/<slug>.md` and `/notes/api/<slug>.md` respectively. Starlight HTML for
+humans, the source markdown (frontmatter included) for agents, from the same
+build — `bin/emit-markdown` runs after both Astro builds so a page without its
+twin is a build failure, not a runtime surprise. The twins are **per-tree**
+because the auth decision is per-tree: public markdown is public and cacheable
+like its pages, private markdown sits behind the **same** `auth_request` as
+`/notes/` — one gate, two paths — and the nginx conf is the single place that
+decision is made. `tests/api-markdown.mjs` proves it: every page has a twin
+whose content equals the source, `dist/docs/api/notes/` does not exist, and
+`/api/` itself serves no HTML wrapper.
 
 `site:` in `astro.config.mjs` is `https://docs.cafaye.com`, and it must be the
 real origin at deploy time: every canonical URL and the sitemap resolve against
@@ -166,7 +182,7 @@ seconds). `.github/workflows/external-links.yml` is the network tier and is a
 **separate file on purpose**: it never runs on a pull request, because a third
 party that will not answer is a red build on a change that did not cause it.
 
-The suite size is held by **equality**: `16 tests, 0 skipped`. A floor would
+The suite size is held by **equality**: `49 tests, 0 skipped`. A floor would
 accept a suite that lost the link and example checks entirely, which is the
 whole point of having them.
 
@@ -228,13 +244,20 @@ honest metadata everywhere.
 | Mount | `/` | `/notes/*` |
 | Auth | none | identity JWT (`auth.cafaye.com` JWKS, org match) |
 | Cache | `public, immutable` for `_astro/`, short for HTML | `private, no-store` |
+| API markdown | `/api/<slug>.md` (`dist/docs/api/`) — public, cacheable | `/notes/api/<slug>.md` (`dist/notes/api/`) — same gate as `/notes/` |
 | Search index | Pagefind (when enabled) | its own index, served only behind auth |
 | Sitemap | `sitemap-index.xml` | none — a sitemap enumerates |
 
 Private pages link to public ones by absolute URL; the notes tree's
 `/notes`-prefixed links resolve inside its own artifact. `tests/smoke.mjs`
 scopes each tree's internal links to its own base, and the link gate fails a
-public page that links a private one.
+public page that links a private one. **The markdown twins are per-tree for the
+same reason the pages are: a private twin behind the public `/api/` would leak
+at `git clone` time the way a private page in a public repo does. The nginx conf
+(`deploy/docs.cafaye.com.yaml`) is the single place the private/public decision
+is made — `location /api/` is public, `location /notes/api/` carries the same
+`auth_request` as `location /notes/` — and `tests/api-markdown.mjs` fails the
+build if `dist/docs/api/notes/` exists.
 
 ```
 src/content/docs/
@@ -397,6 +420,7 @@ notes-site/               the private site: its own config (base /notes, outDir
 src/content.config.ts     Starlight docs collection + an empty i18n collection,
                           with the advisory fields extended onto it
 bin/sync-content          the content join; --check runs the guards and writes nothing
+bin/emit-markdown         emit the markdown twins: src/content/docs/* -> dist/*/api/<slug>.md
 content-sources.json      the fleet registry the sync reads
 tests/visibility.mjs      the anti-leak suite: the guards executed against fixtures,
                           and the materialized-tree invariants
@@ -406,10 +430,12 @@ tests/smoke.mjs           the build-output half: pages, sidebar coverage both wa
 tests/links.mjs           the link half, offline: fragments, pages, redirects, external shape
 tests/examples.mjs        the examples: sh parses, json is json, cafe invocations are real
 tests/advisories.mjs      the advisory feed: complete metadata, and an index that lists all of it
+tests/api-markdown.mjs    the markdown twins: every page has its twin, private twins only in notes dist
 tests/contracts.mjs       the contract tier: core's schemas, and the real cafe validator
 bin/prime                 the gate (--contracts adds the contract tier)
 bin/check-external-links  the network tier: do the external links answer
 .github/workflows/        ci.yml (gate, contracts, pins) + external-links.yml (network)
+deploy/docs.cafaye.com.yaml the deploy manifest: nginx with the per-tree /api/ locations
 cafaye.yml                the cafaye manifest, so the org tooling finds this repo
 mise.toml                 node 22.19.0
 ```
