@@ -299,6 +299,11 @@ if (sourceDir) {
     // other, because a build is a single act: a fleet build always
     // overwrites it, so the only stale marker possible is one from a
     // previous tenant build the operator never followed with a real build.
+    // The mkdir is load-bearing: a fresh checkout has no .sync/ yet, and
+    // writing the marker into the void is how press's first tenant build
+    // failed — on a machine where every earlier build had left the
+    // directory behind.
+    mkdirSync(join(root, '.sync'), { recursive: true });
     writeFileSync(join(root, '.sync', 'mode'), 'source\n');
   }
   if (checkOnly) {
