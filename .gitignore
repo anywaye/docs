@@ -40,3 +40,6 @@ dist/
 # the record of the last sync — what each tree holds and what was derived.
 # Derived by the build, so gitignore says nothing about it; tests read it.
 /.sync/
+
+# the cached deploy key provision reads from the operator host alias
+.ci-deploy-key
