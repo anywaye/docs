@@ -53,7 +53,7 @@ log "the fleet sources"
 # public ones do not need it, and the retry mirrors ci.yml.
 mkdir -p "$WORKSPACE/cafaye"
 cd "$WORKSPACE/cafaye"
-node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).projects.join(" "))' "$DOCS_DIR/content-sources.json" > /tmp/press-projects.txt
+node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).projects.join("\n"))' "$DOCS_DIR/content-sources.json" > /tmp/press-projects.txt
 while read -r repo; do
   [ -n "$repo" ] || continue
   target="$WORKSPACE/cafaye/$repo"
