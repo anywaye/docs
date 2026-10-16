@@ -318,6 +318,9 @@ if (!checkOnly) {
   copyTree(notesSource, NOTES_TREE, notesDerived);
 } else {
   const pages = pagesIn(notesSource);
+  if (process.env.CAF_SYNC_DEBUG) {
+    console.error(`DEBUG: notesSource=${notesSource} walkCount=${join(notesSource, '.') && pages} entries=${readdirSync(notesSource, { withFileTypes: true }).length}`);
+  }
   if (pages === 0) fail(`the notes source ${notesSource} contains no pages. An empty notes site is a broken sync, not an empty fleet.`);
   notesDerived = [];
 }
