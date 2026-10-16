@@ -318,9 +318,6 @@ if (!checkOnly) {
   copyTree(notesSource, NOTES_TREE, notesDerived);
 } else {
   const pages = pagesIn(notesSource);
-  if (process.env.CAF_SYNC_DEBUG) {
-    console.error(`DEBUG: notesSource=${notesSource} walkCount=${join(notesSource, '.') && pages} entries=${readdirSync(notesSource, { withFileTypes: true }).length}`);
-  }
   if (pages === 0) fail(`the notes source ${notesSource} contains no pages. An empty notes site is a broken sync, not an empty fleet.`);
   notesDerived = [];
 }
@@ -338,7 +335,12 @@ if (!checkOnly && existsSync(notesReadme)) {
     `---\ntitle: cafaye notes\ndescription: ${yamlQuote(firstPara || 'cafaye private notes — decisions, operations, debt and the notes that never belonged in a public repository.')}\n---\n\n` + body,
   );
 }
-const notesPages = pagesIn(NOTES_TREE);
+// In check mode nothing is written, so the count to guard is the SOURCE's;
+// in write mode it is the tree that just received the copy — a copy that
+// silently wrote nothing is the failure this guard exists for. Getting this
+// wrong is how the check passed on every machine that had ever built the
+// site and failed on the first fresh clone: the sandbox caught it.
+const notesPages = checkOnly ? pagesIn(notesSource) : pagesIn(NOTES_TREE);
 if (notesPages === 0) fail(`the notes source ${notesSource} contains no pages. An empty notes site is a broken sync, not an empty fleet.`);
 console.log(`sync-content: notes <- ${notesSource} (${notesPages} pages, private)`);
 
