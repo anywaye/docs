@@ -92,13 +92,22 @@ function fail(message) {
   process.exit(1);
 }
 
+// The names a content tree carries that are not content: Starlight's own
+// underscore convention, and the macOS archive pollution that follows a
+// tarball off a Mac. `tar` on macOS writes `._<name>` AppleDouble sidecars
+// and `.DS_Store` beside every file; a tenant tarball built there carries
+// them, and the engine's loader does not ignore `._`-prefixed files — it
+// tried to parse one as a page and failed with garbage frontmatter. The
+// fleet runs macOS, so this is not an edge case.
+const NOT_CONTENT = /^_|\.DS_Store$/;
+
 function walk(dir) {
   const out = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
       out.push(...walk(full));
-    } else if (CONTENT_EXT.test(entry.name) && !entry.name.startsWith('_')) {
+    } else if (CONTENT_EXT.test(entry.name) && !NOT_CONTENT.test(entry.name) && !entry.name.startsWith('._')) {
       out.push(full);
     }
   }
