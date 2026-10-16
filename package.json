@@ -10,10 +10,10 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run sync && astro build && astro build --config notes-site/astro.config.mjs",
+    "build": "npm run sync && astro build && astro build --config notes-site/astro.config.mjs && node bin/emit-markdown",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "node --test tests/smoke.mjs tests/links.mjs tests/examples.mjs tests/advisories.mjs tests/visibility.mjs",
+    "test": "node --test tests/smoke.mjs tests/links.mjs tests/examples.mjs tests/advisories.mjs tests/visibility.mjs tests/api-markdown.mjs",
     "test:contracts": "node --test tests/contracts.mjs",
     "sync": "node bin/sync-content",
     "build:public": "astro build",

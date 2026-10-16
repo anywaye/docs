@@ -130,6 +130,12 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Added
 
+- **`/api/<slug>.md` — the markdown twins, for agents.** Agents are the majority of this documentation's readers, and a Starlight page served to an agent is 100 kB of chrome around 3 kB of content. The engine now emits, for every page, the raw markdown beside the built HTML, served at `/api/<slug>.md` — the same auth rules as the page itself. **Write markdown once, deliver it twice:** Starlight HTML for humans, the source markdown (frontmatter included) for agents, from the same build.
+
+  `bin/emit-markdown` walks the materialized content trees (`src/content/docs/` and `notes-site/src/content/docs/`, already populated by `bin/sync-content`) and writes each page's raw markdown to `<dist>/api/<slug>.md` in **both** dists (`dist/docs/api/…` and `dist/notes/api/…`). `slug` is the page's URL path the way Starlight/Astro actually build it — each segment sluggified (lowercased) the way `github-slugger` does, so `projects/box/BOUNDARIES.md` becomes `api/projects/box/boundaries.md` on a case-sensitive filesystem — and the file is exactly what the author wrote. The step runs as the last leg of `npm run build` (after both Astro builds), so a page without its twin is a build failure, not a runtime surprise.
+
+  The twins are **per-tree, not per-host**, because the auth decision is per-tree: `dist/docs/api/…` is public and cacheable (served at `/api/…` with no auth, `public, max-age=3600`, `text/markdown`), `dist/notes/api/…` sits behind the **same** `auth_request` as `/notes/` (served at `/notes/api/…`, `private, no-store`), and the nginx conf in `deploy/docs.cafaye.com.yaml` is the single place that decision is made — one gate, two paths. `location /api/` and `location /notes/api/` are explicit prefix locations with `try_files $uri =404` and `default_type text/markdown`; an agent hitting `/api/` itself gets a 404, never a human page. `tests/api-markdown.mjs` proves it: for every page, the twin exists and its content equals the source; `dist/docs/api/notes` does not exist; no `api/index.html` wrapper is emitted.
+
 - **`services/box.md`, `services/pantry.md`, `services/keyholder.md` — the
   three services the index omitted.** The [services page](/services/) listed
   seven services and named neither `box` (the operated control plane),

@@ -92,6 +92,40 @@ data:
           try_files /notes/index.html =404;
         }
 
+        # The markdown twins: /api/<slug>.md beside the built HTML, for
+        # agents — write markdown once, deliver it twice. Starlight HTML for
+        # humans, the source markdown for agents, from the same build. The
+        # twins are per-tree, not per-host: the public tree's /api/ is public
+        # and cacheable (like its pages), the notes tree's /notes/api/ sits
+        # behind the SAME auth_request as /notes/ — one gate, two paths —
+        # because private markdown is private for the same reason private HTML
+        # is. The nginx conf is the single place the private/public decision
+        # is made. An agent hitting /api/ itself gets a 404, never a human
+        # page.
+        location /api/ {
+          root /usr/share/nginx/html/docs;
+          try_files $uri =404;
+          default_type text/markdown;
+          add_header Content-Type "text/markdown; charset=utf-8" always;
+          expires 1h;
+          add_header Cache-Control "public, max-age=3600" always;
+        }
+        location = /api {
+          return 301 /api/;
+        }
+        location /notes/api/ {
+          root /usr/share/nginx/html;
+          auth_request /__notes_gate;
+          auth_request_set $notes_reader $upstream_http_x_notes_reader;
+          try_files $uri =404;
+          default_type text/markdown;
+          add_header Content-Type "text/markdown; charset=utf-8" always;
+          add_header Cache-Control "private, no-store" always;
+        }
+        location = /notes/api {
+          return 301 /notes/api/;
+        }
+
         # Fingerprinted assets: immutable, cached hard, public only here.
         location ~ ^/_astro/ {
           root /usr/share/nginx/html/docs;
