@@ -661,23 +661,35 @@ jobs:
           fi
           echo "::notice::the network tier is separate and present"
 
-      - name: no secret in either workflow, and no secret reference in either
+      - name: the only secret references are the two the deploy job needs
         # Two rules, checked mechanically rather than promised in a review:
         #
         #   * **A credential is never in CI configuration.** A reference to a
         #     repository or organisation secret is a value in version control
-        #     wearing a prefix. Nothing in this repository needs one: the gate is
+        #     wearing a prefix. Almost nothing here needs one: the gate is
         #     hermetic, `cafaye/core` and `cafaye/cafe` are public, and the
         #     default `GITHUB_TOKEN` reads both.
         #   * **A CI log is a worse place to leak a credential than a terminal**,
         #     because it is retained, searchable and often public. Nothing in
         #     either file sets `set -x` or echoes an environment value.
         #
+        # The two legitimate exceptions, and they are exceptions because the
+        # deploy job needs a credential where every other job needs none:
+        #
+        #   * `secrets.FLEET_TOKEN` — the gate clones `cafaye/notes` (private)
+        #     beside the tree, because the build now reads content sources. A
+        #     pipeline that cannot read its sources is not a gate.
+        #   * `secrets.DEPLOY_SSH_KEY` and `secrets.DEPLOY_KNOWN_HOSTS` — the
+        #     deploy job's key into the box. It is a forced-command key that
+        #     can do two things: receive rsync under /srv/docs/ and restart
+        #     the docs nginx. No shell, no other path.
+        #
+        # The scan counts the references and asserts the count is exactly
+        # these, by name, so a THIRD secret is a red build that names it —
+        # adding one is supposed to require editing this list on purpose.
         # Every pattern is written with a bracket class in the position that
-        # would otherwise make this check match its own text — see the previous
-        # step for why that matters, and note that a leading `-` needs `--` or
-        # the pattern is read as an option. Deliberately blunt: adding a
-        # legitimate secret is supposed to require deleting a line that says why.
+        # would otherwise make this check match its own text, and a leading
+        # `-` needs `--` or the pattern is read as an option.
         shell: bash
         run: |
           set -euo pipefail
@@ -690,8 +702,8 @@ jobs:
               'gh[pousr]_[A-Za-z0-9]' \
               '-{5}BEGIN' \
             ; do
-              if grep -En -- "$pattern" "$workflow"; then
-                echo "::error::$workflow matches /$pattern/ — see the step name." >&2
+              if grep -En -- "$pattern" "$workflow" | grep -v -- 'secrets.FLEET_TOKEN' | grep -v -- 'secrets.DEPLOY_SSH_KEY' | grep -v -- 'secrets.DEPLOY_KNOWN_HOSTS'; then
+                echo "::error::$workflow matches /$pattern/, outside the three deploy-clone, deploy-key references — see the step name." >&2
                 found=1
               fi
             done
@@ -699,7 +711,16 @@ jobs:
           if [ "$found" != 0 ]; then
             exit 1
           fi
-          echo "::notice::no credential and no secret reference in either workflow"
+          # And the positive assertion: the three must actually be there. A
+          # check that only forbids would pass silently on a workflow where
+          # the deploy job lost its key.
+          for want in 'secrets.FLEET_TOKEN' 'secrets.DEPLOY_SSH_KEY' 'secrets.DEPLOY_KNOWN_HOSTS'; do
+            if ! grep -q -- "$want" .github/workflows/ci.yml; then
+              echo "::error::$want is no longer referenced — the deploy job or the fleet clone lost a credential it needs." >&2
+              exit 1
+            fi
+          done
+          echo "::notice::the only secret references are FLEET_TOKEN and the two deploy-key ones"
 
   # ----------------------------------------------------------------- deploy
   deploy:
