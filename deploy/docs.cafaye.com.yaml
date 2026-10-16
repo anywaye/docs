@@ -219,6 +219,10 @@ spec:
               value: ":8081"
             - name: PRESS_IDENTITY_URL
               value: "https://auth.cafaye.com"
+            - name: PRESS_JWKS_URL
+              value: "https://auth.cafaye.com/.well-known/jwks.json"
+            - name: PRESS_NOTES_AUDIENCE
+              value: "notes"
             # The internal tenant's allowlist: the operator account that owns
             # the notes. A token for any other org gets the same 401 as a
             # forged one. Multi-tenant gating is press's tenant model; this
