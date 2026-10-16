@@ -116,6 +116,13 @@ const PLACEHOLDERS = [
   // a docker container name and a postgres superuser, in the version-skew trap
   [/<pg-container>/g, 'postgres'],
   [/<superuser>/g, 'postgres'],
+  // a service repository name in kit's publish guide (borrowed: projects/kit/publish.md)
+  // — the guide documents the exact manager commands with a placeholder for the
+  // service being published, which is not a shell redirection.
+  [/<service>/g, 'myservice'],
+  // a helm chart name in the same guide — the short-form `bin/publish` defaults
+  // to `ghcr.io/cafaye/<chart-name>` when no `--image` is given.
+  [/<chart-name>/g, 'mychart'],
 ];
 
 function substitutePlaceholders(body) {
