@@ -209,6 +209,19 @@ jobs:
           fi
           echo "::notice::node $running, from mise.toml"
 
+      - name: ship the build, on master
+        # The gate builds the two trees; the deploy job needs exactly what
+        # the gate proved. Uploading here rather than rebuilding there is
+        # not a shortcut — it is the point: the artifact that deploys is
+        # the artifact the suite passed, not a second build that could
+        # differ. Pull requests upload nothing and deploy nothing.
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-dist
+          path: dist/
+          retention-days: 7
+
       - name: bin/prime — the gate
         # `bin/prime`, unmodified: `npm ci`, `npm run build`, `npm test`. Not a
         # CI-only variant of it, and not a hand-assembled list of its three
@@ -687,3 +700,39 @@ jobs:
             exit 1
           fi
           echo "::notice::no credential and no secret reference in either workflow"
+
+  # ----------------------------------------------------------------- deploy
+  deploy:
+    name: deploy (master only)
+    needs: gate
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-dist
+          path: dist
+
+      - name: the deploy key
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          printf '%s\n' "${{ secrets.DEPLOY_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+
+      - name: ship the two trees to the box
+        run: |
+          set -euo pipefail
+          ssh_opts="-o IdentitiesOnly=yes -o BatchMode=yes"
+          rsync -az --delete -e "ssh $ssh_opts" dist/docs/  root@169.58.108.209:/srv/docs/docs/
+          rsync -az --delete -e "ssh $ssh_opts" dist/notes/ root@169.58.108.209:/srv/docs/notes/
+
+      - name: reload the content
+        # The content is a hostPath volume the pod mounts and the conf is a
+        # ConfigMap; a restart is what makes both current. The forced command
+        # on the box permits exactly this and nothing else.
+        run: |
+          set -euo pipefail
+          ssh -o IdentitiesOnly=yes -o BatchMode=yes root@169.58.108.209 rollout
