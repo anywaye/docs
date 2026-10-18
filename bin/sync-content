@@ -215,7 +215,7 @@ function deriveFrontmatter(file) {
       .split(/[-_]/)
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
-    return { title, description: '', headingless: true };
+    return { title: yamlQuote(title), description: yamlQuote(''), headingless: true };
   }
 
   // The first prose paragraph after the headings, truncated at a word
@@ -252,6 +252,9 @@ function copyTree(src, dest, derived) {
     // the repository. The central notes repository is the one exception: its
     // README is the notes home page, handled below.
     if (basename(rel) === 'README.md') continue;
+    // AGENTS.md is agent-facing repo documentation, not site content. It is
+    // published in the repository, never on the docs site.
+    if (basename(rel) === 'AGENTS.md') continue;
     const target = join(dest, rel);
     mkdirSync(join(target, '..'), { recursive: true });
     if (!/^---\r?\n/.test(readFileSync(file, 'utf8'))) {
@@ -358,6 +361,33 @@ const notesPages = checkOnly ? pagesIn(notesSource) : pagesIn(NOTES_TREE);
 if (notesPages === 0) fail(`the notes source ${notesSource} contains no pages. An empty notes site is a broken sync, not an empty fleet.`);
 console.log(`sync-content: notes <- ${notesSource} (${notesPages} pages, private)`);
 
+// 1b. The public central content repository — pure Markdown/MDX, the public
+//     counterpart to the notes repository. Its root IS the content (no docs/
+//     subdir), same as notes. Materialized into the public tree root, so the
+//     site-authored pages live in a content-only repository rather than in
+//     this engine.
+const publicCentralName = registry.publicCentral;
+let publicCentralSource = null;
+let publicCentralPages = 0;
+let publicCentralDerived = [];
+if (publicCentralName) {
+  publicCentralSource = resolveSource(publicCentralName, 'CAF_PUBLIC_CONTENT_PATH');
+  if (!statSync(publicCentralSource).isDirectory()) fail(`the public content source ${publicCentralSource} is not a directory.`);
+  if (checkOnly) {
+    publicCentralPages = pagesIn(publicCentralSource);
+    if (publicCentralPages === 0) fail(`the public content source ${publicCentralSource} contains no pages.`);
+  } else {
+    // Rebuild the whole public tree root from this source; projects/ is
+    // recreated below, so removing it here is safe.
+    rmSync(PUBLIC_TREE, { recursive: true, force: true });
+    mkdirSync(PUBLIC_TREE, { recursive: true });
+    copyTree(publicCentralSource, PUBLIC_TREE, publicCentralDerived);
+    publicCentralPages = pagesIn(PUBLIC_TREE);
+    if (publicCentralPages === 0) fail(`the public content source ${publicCentralSource} produced no pages.`);
+  }
+  console.log(`sync-content: ${publicCentralName} <- ${publicCentralSource} (${publicCentralPages} pages, public)`);
+}
+
 // 2. The fleet projects — visibility decides which tree, and the guard runs.
 if (!checkOnly) rmSync(PUBLIC_PROJECTS, { recursive: true, force: true });
 const projects = [];
@@ -422,9 +452,9 @@ for (const name of registry.projects) {
 //    its plan and stops here: a check that wrote the manifest would overwrite
 //    the record of the last real sync with a plan of a sync that never ran.
 if (checkOnly) {
-  const totalPublic = projects.reduce((n, p) => n + p.docs, 0);
+  const totalPublic = publicCentralPages + projects.reduce((n, p) => n + p.docs, 0);
   const totalPrivate = projects.reduce((n, p) => n + p.notes, 0) + notesPages;
-  console.log(`sync-content: --check OK. plan: notes ${notesPages} private page(s); ${totalPublic} public project page(s); ${totalPrivate} private page(s) total.`);
+  console.log(`sync-content: --check OK. plan: notes ${notesPages} private page(s); ${publicCentralPages} public central page(s); ${totalPublic} public project page(s); ${totalPrivate} private page(s) total.`);
   process.exit(0);
 }
 mkdirSync(join(root, '.sync'), { recursive: true });
@@ -434,6 +464,7 @@ writeFileSync(
   JSON.stringify(
     {
       central: { name: registry.central, pages: notesPages, derived: notesDerived },
+      publicCentral: { name: publicCentralName, pages: publicCentralPages, derived: publicCentralDerived },
       projects,
     },
     null,
@@ -443,4 +474,7 @@ writeFileSync(
 if (notesDerived.length > 0) {
   console.log(`sync-content: notes: ${notesDerived.length} page(s) had title/description derived`);
 }
-console.log(`sync-content: done. public tree: ${pagesIn(PUBLIC_PROJECTS)} project page(s); private tree: ${pagesIn(NOTES_TREE)} page(s).`);
+if (publicCentralDerived.length > 0) {
+  console.log(`sync-content: ${publicCentralName}: ${publicCentralDerived.length} page(s) had title/description derived`);
+}
+console.log(`sync-content: done. public tree: ${pagesIn(PUBLIC_TREE)} page(s) (${publicCentralPages} central + ${pagesIn(PUBLIC_PROJECTS)} project); private tree: ${pagesIn(NOTES_TREE)} page(s).`);

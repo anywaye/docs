@@ -24,15 +24,6 @@ import { computedSidebar, lastBuildMode } from './sidebar.mjs';
 function CURATED_SIDEBAR() {
   return [
         { label: 'Home', link: '/' },
-        // `Hosted pilot` sits second, above `Start here`, because it is read by a
-        // different person at a different moment: somebody who has already
-        // evaluated the platform and is now blocked, not somebody deciding
-        // whether to adopt it. Burying it under Runbooks would hide it from the
-        // only reader who needs it.
-        {
-          label: 'Hosted pilot',
-          items: [{ slug: 'pilot' }],
-        },
         // `Pricing, licence and security` answers the three questions a stranger
         // evaluating a purchase has and cannot answer from the rest of the site:
         // what it costs, what they are legally agreeing to, and what happens to
@@ -42,11 +33,11 @@ function CURATED_SIDEBAR() {
         // at the bottom so it is not buried under runbooks a buyer never opens.
         {
           label: 'Pricing, licence and security',
-          items: [{ slug: 'pricing' }, { slug: 'licensing' }, { slug: 'security' }],
+          items: [{ slug: 'commercial' }, { slug: 'security' }],
         },
         {
           label: 'Start here',
-          items: [{ slug: 'getting-started' }, { slug: 'contracts' }],
+          items: [{ slug: 'getting-started' }],
         },
         {
           label: 'Upgrading',
@@ -56,13 +47,6 @@ function CURATED_SIDEBAR() {
           label: 'Architecture',
           items: [
             { slug: 'architecture' },
-            { slug: 'architecture/topology' },
-            // Directly under `topology`, because that is the path an operator
-            // takes: the table tells them the service has a database, and the
-            // next question is always "whose database, and how do I know I am
-            // allowed into it". `topology` is a reference table and cannot hold
-            // the answer, which takes a page.
-            { slug: 'architecture/one-cluster' },
             { slug: 'observability' },
           ],
         },
@@ -106,16 +90,9 @@ function CURATED_SIDEBAR() {
             // reaches for before any other: it is how the stack gets installed
             // and how it changes afterwards. The rest are incident procedures.
             { slug: 'runbooks/deployment' },
-            { slug: 'runbooks/tenant-provisioning' },
-            // Reconciliation sits beside provisioning because D2's mechanism
-            // makes a sale two procedures: the account exists, then a human
-            // grants the entitlement by hand.
-            { slug: 'runbooks/entitlement-reconciliation' },
             { slug: 'runbooks/backup-and-restore' },
             { slug: 'runbooks/secret-rotation' },
             { slug: 'runbooks/service-down' },
-            { slug: 'runbooks/billing-webhooks' },
-            { slug: 'running-the-gates' },
           ],
         },
         // The advisory feed sits after `Runbooks` and before `Troubleshooting`

@@ -1,4 +1,4 @@
-# AGENTS.md — working in `cafaye/docs`
+# AGENTS.md — working in `cafaye/loom` (the docs engine)
 
 Read this before changing anything here. The house rules in `moon/PLAN.md` §1
 and §3 apply on top of it. **Never push. Never create a remote.** Work on
@@ -320,3 +320,5 @@ mise.toml                 node 22.19.0 — covers Astro 7's floor and every tran
 - **Do not touch anything outside this worktree.**
 - **Bound long or networked commands with `timeout N`** — `npm install` and
   `npm run build` especially.
+## Secrets
+- No `.env` files with values. Use `cafe secret set/get/list` (dev) and `cafe dev` (injects). See `docs/secrets.md`.

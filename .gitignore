@@ -43,3 +43,5 @@ dist/
 
 # the cached deploy key provision reads from the operator host alias
 .ci-deploy-key
+keyring/
+secrets/

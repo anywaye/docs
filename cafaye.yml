@@ -21,8 +21,8 @@
 # This manifest exists so `cafe dev`, `pantry`, and the org tooling can find this
 # repository the way they find any other. It is not read by the build: nothing
 # in npm run build reads cafaye.yml, so a mistake here cannot reach a page.
-name: docs
-description: The cafaye documentation site — docs.cafaye.com. Astro + Starlight, static.
+name: loom
+description: "The cafaye documentation engine — Astro/Starlight build, sync, tests, and bin/prime for docs.cafaye.com."
 language: typescript
 core: ^0.2.0
 
