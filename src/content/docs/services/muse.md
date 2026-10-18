@@ -48,7 +48,7 @@ whose two authorisation claim names disagree. An unreachable key set is a `503`,
 never a `401`, and **the service does not serve unauthenticated traffic when
 `identity` is down.** `tests/test_auth.py` asserts the token never reaches a log,
 a span or an error body. [Security and trust](/security/) carries the measured
-detail and the commit; [topology](/architecture/topology/) and the
+detail and the commit; [topology](/architecture/) and the
 [services table](/services/) carry it too.
 :::
 
@@ -83,7 +83,7 @@ the variable and the command above that generates a valid one.
 It is green without `MUSE_CORE_SCHEMAS`, and that green run has **not** checked
 that `muse`'s copied event patterns are still byte-identical to core's schemas —
 which is the one check that catches drift between the two repositories. See
-[Running the gates](/running-the-gates/#muse--the-core-parity-tests).
+[Running the gates](/getting-started/#muse--the-core-parity-tests).
 
 - **Repository:** [github.com/cafaye/muse](https://github.com/cafaye/muse)
 - **Language:** Python

@@ -201,5 +201,5 @@ step 6 has the Kamal mechanics; this page is what replaces them.
   page.
 - [Runbooks](/runbooks/) — the index.
 - [Getting started](/getting-started/) — step 6 has the retiring Kamal path.
-- [Topology](/architecture/topology/) — ports, probes, environment variables.
+- [Topology](/architecture/) — ports, probes, environment variables.
 - [Upgrading](/upgrading/) — moving to the current contracts.

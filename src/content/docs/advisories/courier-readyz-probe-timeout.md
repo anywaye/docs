@@ -124,4 +124,4 @@ about the probe being wrongly *read*, not about the dependency being fine.
 the measurement conditions: a database taken away under a running pool, in the
 release image, against `postgres:17`. The distinction between the two probes is
 recorded in the same file and in the fleet's reference for
-[health and readiness endpoints](/architecture/topology/).
+[health and readiness endpoints](/architecture/).

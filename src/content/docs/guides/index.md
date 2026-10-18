@@ -29,7 +29,7 @@ the real `cafe` binary and the real service repositories:
   unbuilt commands marked.
 - [Upgrading](/upgrading/) — if you already run a deployment. What breaks in the
   contracts and the order to fix it in.
-- [Tenant provisioning](/runbooks/tenant-provisioning/) — create an account,
+- [Tenant provisioning](/runbooks/) — create an account,
   invite somebody, promote them, and verify it. Quoted from a live session.
 - [Backup and restore](/runbooks/backup-and-restore/) — what the backup covers,
   the bucket it will not save for you, the data you lose when
@@ -39,18 +39,18 @@ the real `cafe` binary and the real service repositories:
   be rotated.
 - [A service is down](/runbooks/service-down/) — which service, which kind of
   down, and what not to do.
-- [Billing webhooks failing](/runbooks/billing-webhooks/) — inspect, replay,
+- [Billing webhooks failing](/runbooks/) — inspect, replay,
   recover, and why a replay is safe.
-- [Running the gates](/running-the-gates/) — the exact command for every
+- [Running the gates](/getting-started/) — the exact command for every
   repository, and the tiers that skip by default. Read this one before you
   believe a green badge.
 
 ## In the meantime
 
-- [Contracts](/contracts/) — how the services find each other. The one thing
+- [Contracts](/getting-started/) — how the services find each other. The one thing
   worth understanding before anything else.
 - [Architecture](/architecture/) — what each service owns and why.
-- [Topology](/architecture/topology/) — ports, probes, environment variables,
+- [Topology](/architecture/) — ports, probes, environment variables,
   and the cross-repo drift audit.
 - [Observability](/observability/) — the telemetry contract, and the honest
   answer to "is the stack running".

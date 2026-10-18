@@ -35,7 +35,7 @@ Secret-shaped answers and refused.
 **By default, nothing leaves your infrastructure.** No service exports telemetry
 unless you configure it, there is no licence check, no update check, and no
 analytics in any of them. The four things that *will* egress, and only if you turn
-them on, are [listed in one table](/pilot/#what-leaves-your-infrastructure):
+them on, are [listed in one table](/getting-started/#what-leaves-your-infrastructure):
 presigned upload writes to a bucket you name, LLM provider requests to providers
 whose keys you supply, Stripe calls in your Stripe account, and email delivery
 once you configure an adapter.
@@ -302,7 +302,7 @@ secrets](/runbooks/secret-rotation/).
 
 ## One drift we found, recorded rather than papered over
 
-The [hosted-pilot page](/pilot/#what-is-not-production-ready-yet) lists, as a
+The [hosted-pilot page](/getting-started/#what-is-not-production-ready-yet) lists, as a
 blocker, that **`muse` does not verify the token it is given** and that its auth
 is a stub. **That was true when the page was written and it is not true of the
 current source.** Measured on 2026-10-01 at `muse` `e3f53b0`: `muse` verifies the
@@ -323,7 +323,7 @@ stale sentence is a finding, not a thing to quietly rewrite. The finding was
 recorded here first, and in the same pass that recorded it the pages that are
 *not* snapshots were corrected so that two truths do not sit side by side: the
 [services table](/services/), the [services page for `muse`](/services/muse/),
-[topology](/architecture/topology/) and the [architecture index](/architecture/)
+[topology](/architecture/) and the [architecture index](/architecture/)
 all state the verified behaviour now. The hosted-pilot page corrects its own rows
 too, and dates them — a snapshot row that names the date it was measured stops
 reading as a current claim without anything being quietly rewritten. What is
@@ -351,7 +351,7 @@ What exists now:
   no `cafaye.yml` at all.
 - **A design-partner agreement**, which is where a response window and a
   disclosure process would be written down before any work started. See [the
-  design-partner flow](/pilot/#the-design-partner-flow).
+  design-partner flow](/getting-started/#the-design-partner-flow).
 
 **Open questions for us, and the answers are not ours to give from a public
 page:** who receives a report, what response time applies, whether a report is
@@ -360,9 +360,9 @@ coordinated disclosure window exists.
 
 ## See also
 
-- [Licensing](/licensing/) — the split across the fleet, what each grant
+- [Licensing](/commercial/) — the split across the fleet, what each grant
   permits a buyer to do, and the dated measurement behind every row.
-- [Pricing](/pricing/) — what is free, what is sold, and which of the three paid
+- [Pricing](/commercial/) — what is free, what is sold, and which of the three paid
   products is in operation.
 - [Rotating secrets](/runbooks/secret-rotation/) — the inventory, what can be
   rotated today, and the two that cannot.

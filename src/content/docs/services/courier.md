@@ -26,7 +26,7 @@ need a provider webhook, which is a later packet.
 
 **And no publisher loop reaches a bus.** `courier`'s Oban worker relays to the
 outbox path; there is no broker in the platform, so a recorded event is still a
-row. See [Topology](/architecture/topology/#what-is-not-wired-yet).
+row. See [Topology](/architecture/#what-is-not-wired-yet).
 
 **`courier` exports traces.** It configures a batch processor over an OTLP
 exporter and installs its own span processor, because the Erlang OTel SDK cannot

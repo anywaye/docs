@@ -144,7 +144,7 @@ mise run security   # gem audit and Brakeman
 
 `bin/prime` prepares the test database itself, so there is no second tier to
 miss — but it does need a reachable Postgres. [Running the
-gates](/running-the-gates/#billing-and-cafaye-rb--database-in-the-gate-not-outside-it).
+gates](/getting-started/#billing-and-cafaye-rb--database-in-the-gate-not-outside-it).
 
 - **Repository:** [github.com/cafaye/billing](https://github.com/cafaye/billing)
 - **Language:** Ruby

@@ -72,7 +72,7 @@ stack itself, one command.
 Read `core`'s
 [`fleet.yml`](https://github.com/cafaye/core/blob/master/fleet.yml) for the
 machine-readable version of this table, and
-[Running the gates](/running-the-gates/) for the tier that checks this page
+[Running the gates](/getting-started/) for the tier that checks this page
 against it.
 
 | Service | Spec'd | Instrumented | Deployed | What it emits |
@@ -361,8 +361,8 @@ planned":
 
 ## See also
 
-- [Topology](/architecture/topology/) — the probes table, and the variables each
+- [Topology](/architecture/) — the probes table, and the variables each
   service actually reads.
-- [Contracts](/contracts/) — the rest of the spec surface.
-- [Running the gates](/running-the-gates/) — how each repository's suite is run,
+- [Contracts](/getting-started/) — the rest of the spec surface.
+- [Running the gates](/getting-started/) — how each repository's suite is run,
   including the tiers that do not run by default.

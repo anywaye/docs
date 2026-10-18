@@ -98,7 +98,7 @@ rather than restored.
    gets Postgres's default, which grants `CONNECT` to `PUBLIC` — it is open to
    every role in the cluster, and it looks correct because the service connects
    to it successfully. Run the one-query sweep on [one cluster, many
-   databases](/architecture/one-cluster/#how-to-tell-whether-isolation-is-actually-in-place)
+   databases](/architecture/#how-to-tell-whether-isolation-is-actually-in-place)
    after any restore that creates a database.
 
 ### The keys that decide whether a dump is readable
@@ -218,7 +218,7 @@ cluster is a hole the isolation sweep will find. On the Kamal path that was
   unreadable.
 - [A service is down](/runbooks/service-down/) — when the answer is "restore
   from the snapshot".
-- [Tenant provisioning](/runbooks/tenant-provisioning/) — creates the rows a
+- [Tenant provisioning](/runbooks/) — creates the rows a
   restore is trying to bring back.
-- [One cluster, many databases](/architecture/one-cluster/) — why a restore
+- [One cluster, many databases](/architecture/) — why a restore
   does not bring the isolation boundary back with it.

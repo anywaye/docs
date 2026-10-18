@@ -144,4 +144,4 @@ one means waiting out `IDENTITY_JWKS_TTL_MS`.
   `RATE_LIMIT_REQUESTS`, `RATE_LIMIT_WINDOW_MS`, `TRUSTED_PROXIES`, and the two
   groups that switch routing on: `ROUTE_TABLE`, plus `ASSERTION_SIGNING_KEY_FILE`,
   `ASSERTION_SIGNING_KEY_ID`, `ASSERTION_ISSUER` and `ASSERTION_TTL_MS` — see
-  [Topology](/architecture/topology/#gateway)
+  [Topology](/architecture/#gateway)

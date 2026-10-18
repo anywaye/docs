@@ -197,7 +197,7 @@ nobody.
 **Or the webhook was refused and nothing was stored.** A `400` on the processor
 side writes no row at all, so "nothing happened" and "it was rejected" look
 identical from outside. See [billing webhooks
-failing](/runbooks/billing-webhooks/).
+failing](/runbooks/).
 
 **Or you are looking at the wrong event name.** `courier`'s types are now
 three-segment — `courier.email.delivered`, not `email.delivered` — so a consumer
@@ -250,7 +250,7 @@ connect, or a service whose `/healthz` is 200 and whose `/readyz` is 503. The
 fleet runs **one Postgres with a database and a role per service**, so this is
 now a question about which database the role was allowed into, not about which
 machine to look at. [One cluster, many
-databases](/architecture/one-cluster/) is the full picture; this entry is the
+databases](/architecture/) is the full picture; this entry is the
 diagnosis.
 
 ### Check
@@ -332,7 +332,7 @@ query timeout. **The error is in step 1, in the Postgres log, and nowhere else.*
 **And a fourth thing, which is not a connection failure at all:** a service whose
 migrations have not run reports `relation "users" does not exist` on a
 connection that works fine. That is [a schema
-mismatch](/running-the-gates/#identity--needs-a-database-and-migrations-applied),
+mismatch](/getting-started/#identity--needs-a-database-and-migrations-applied),
 and the error naming a relation rather than a host is the tell.
 
 ### Do
@@ -395,7 +395,7 @@ ever accepted.
 
 Ask whether the invitation was delivered. If it was not, send the token. If it
 was and they accepted it, check the token they used belongs to their account.
-Full procedure in [tenant provisioning](/runbooks/tenant-provisioning/).
+Full procedure in [tenant provisioning](/runbooks/).
 
 ---
 
@@ -479,7 +479,7 @@ Three different things, and the status code in Stripe's dashboard splits them:
 
 ### Do
 
-[Billing webhooks failing](/runbooks/billing-webhooks/) — the full procedure,
+[Billing webhooks failing](/runbooks/) — the full procedure,
 including why a replay is safe by construction and how to force Stripe to resend
 what a `400` lost.
 
@@ -597,7 +597,7 @@ already on the bus; [Upgrading](/upgrading/) is the note.
 The drift a linter cannot find — an event a service emits without declaring it, a
 declared event with no schema, a manifest transcribed at a commit that has since
 moved — is in the
-[drift audit](/architecture/topology/#the-drift-the-linter-cannot-see).
+[drift audit](/architecture/#the-drift-the-linter-cannot-see).
 
 ### Do
 
@@ -612,7 +612,7 @@ than a smaller gate that is honest.
 ### Check
 
 The ignored/skipped count, not the exit code. See [Running the
-gates](/running-the-gates/) for the exact command per repository.
+gates](/getting-started/) for the exact command per repository.
 
 ### What it usually means
 
@@ -638,7 +638,7 @@ any test skips.
 ### Do
 
 Run the tier yourself before you believe the commit. [Running the
-gates](/running-the-gates/) has the command for each.
+gates](/getting-started/) has the command for each.
 
 ---
 
@@ -655,7 +655,7 @@ transport; the table and the transactional discipline are implemented in
 `identity`, `billing`, `muse`, `courier` and `darkroom`, and the transport is not.
 
 This also applies to anything you expected to be automatic in
-[provisioning](/runbooks/tenant-provisioning/): the invitation email is not sent,
+[provisioning](/runbooks/): the invitation email is not sent,
 because `courier` has no provider adapter configured.
 
 **One thing that is real and is not this:** `courier`'s **outbound webhooks**. If
@@ -692,12 +692,12 @@ same evidence, and both are cheap to act on:
 
 - [A service is down](/runbooks/service-down/) — the same ground, keyed by
   component.
-- [One cluster, many databases](/architecture/one-cluster/) — the data topology,
+- [One cluster, many databases](/architecture/) — the data topology,
   the connection budget, and the query that tells you whether the boundary is
   still in place.
 - [Runbooks](/runbooks/) — the five procedures.
-- [Topology](/architecture/topology/) — ports, probes, environment variables,
+- [Topology](/architecture/) — ports, probes, environment variables,
   and the cross-repo drift audit.
-- [Running the gates](/running-the-gates/) — when the answer is "the suite was
+- [Running the gates](/getting-started/) — when the answer is "the suite was
   green and it did not run the part I needed".
 - [Upgrading](/upgrading/) — when the answer is "I am on the old contracts".

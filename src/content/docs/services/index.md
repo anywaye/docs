@@ -57,11 +57,11 @@ still describes the Rust tree and has not been rewritten** — that is a known g
 in a neighbouring page, recorded here rather than left to look current.
 
 For the path that takes you from nothing to a running deployment, read
-[Hosted pilot onboarding](/pilot/) — it is the same walk-through aimed at
+[Hosted pilot onboarding](/getting-started/) — it is the same walk-through aimed at
 somebody who has already decided.
 
 For the ports, probes, environment variables, and dependency graph behind this
-table, see [Topology](/architecture/topology/).
+table, see [Topology](/architecture/).
 
 ## Why one language per service?
 

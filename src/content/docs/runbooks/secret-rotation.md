@@ -140,7 +140,7 @@ select stripe_event_id, type, processed_at, error
 
 A rising `error` count with an `ignored:` or `failed:` prefix is a mapping
 problem, not a rotation problem. See [billing webhooks
-failing](/runbooks/billing-webhooks/).
+failing](/runbooks/).
 
 ---
 
@@ -629,7 +629,7 @@ schedules is a rotation that does not happen:
 
 - [Backup and restore](/runbooks/backup-and-restore/) — the vault key is what
   makes one of those dumps readable.
-- [Tenant provisioning](/runbooks/tenant-provisioning/) — the credentials this
+- [Tenant provisioning](/runbooks/) — the credentials this
   creates.
-- [Topology](/architecture/topology/) — every environment variable, in one
+- [Topology](/architecture/) — every environment variable, in one
   table.

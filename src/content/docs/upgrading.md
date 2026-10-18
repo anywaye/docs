@@ -284,6 +284,6 @@ grep -rn -E "['\"](email|notification)\.(queued|delivered|bounced|complained|sup
 
 ## See also
 
-- [Contracts](/contracts/) — the manifest, the envelope, and where the specs live.
-- [Topology](/architecture/topology/) — what is wired, what is not.
+- [Contracts](/getting-started/) — the manifest, the envelope, and where the specs live.
+- [Topology](/architecture/) — what is wired, what is not.
 - [Troubleshooting](/troubleshooting/) — keyed by the symptom you can see.

@@ -151,7 +151,7 @@ does not compile the `s3` feature at all. The database tier is separate:
 ./bin/prime --db     # + the #[ignore]d database tests, against TEST_DATABASE_URL
 ```
 
-See [Running the gates](/running-the-gates/#darkroom--three-tiers-two-of-them-non-default).
+See [Running the gates](/getting-started/#darkroom--three-tiers-two-of-them-non-default).
 
 - **Repository:** [github.com/cafaye/darkroom](https://github.com/cafaye/darkroom)
 - **Language:** Rust

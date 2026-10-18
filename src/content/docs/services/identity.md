@@ -51,7 +51,7 @@ discovery document** rather than a stub that looks finished.
 in the same transaction as its domain change, and its only `Publisher`
 implementation is a deliberate no-op — starting it would mark every event
 published and drain the outbox into nowhere. See [tenant
-provisioning](/runbooks/tenant-provisioning/) for the working end-to-end flow.
+provisioning](/runbooks/) for the working end-to-end flow.
 :::
 
 ## Because this is the platform's security boundary, the bar is higher
@@ -151,7 +151,7 @@ a short password with a `422` naming the field.
 generated: unset, and the management routes are not mounted at all. A local
 stack from `cafe dev` will not set it, so a `404` on `/v1/mfa` there is the
 configuration, not a missing feature. See [Hosted pilot
-onboarding](/pilot/#step-7--check-the-two-things-this-stack-is-not-giving-you).
+onboarding](/getting-started/#step-7--check-the-two-things-this-stack-is-not-giving-you).
 
 ## The gate
 
@@ -193,7 +193,7 @@ does not finish for this repository — see [Getting
 started](/getting-started/#step-5--run-a-service-locally).
 
 `gofmt -l .` must print nothing. See [Running the
-gates](/running-the-gates/#identity--needs-a-database-and-migrations-applied).
+gates](/getting-started/#identity--needs-a-database-and-migrations-applied).
 
 - **Repository:** [github.com/cafaye/identity](https://github.com/cafaye/identity)
 - **Language:** Go

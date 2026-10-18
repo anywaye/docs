@@ -19,7 +19,14 @@ export const collections = {
     // the notes repository has no advisories collection; when private notes
     // grow a dated feed, that feed's fields are added here in the same commit
     // as the first page that uses them.
-    schema: docsSchema(),
+    schema: docsSchema({
+      extend: z.object({
+        // Optional role tags for future role-based private builds. Absent means
+        // "all operators" (the current org-level privacy model). Ignored by
+        // the build today; consumed only when role-based builds are wired up.
+        roles: z.array(z.string().min(1)).optional(),
+      }),
+    }),
   }),
   // Empty like the public site's: Starlight queries the i18n collection on
   // every build and warns when it is undefined. English-only until a decision

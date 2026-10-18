@@ -554,7 +554,7 @@ select count(*) filter (where published_at is null) as unpublished,
 - [Backup and restore](/runbooks/backup-and-restore/) — when the answer is
   "restore".
 - [Rotating secrets](/runbooks/secret-rotation/) — the crash-on-startup cases.
-- [Topology](/architecture/topology/) — every port, probe, and environment
+- [Topology](/architecture/) — every port, probe, and environment
   variable in one table.
-- [Running the gates](/running-the-gates/) — when the answer is "run the suite
+- [Running the gates](/getting-started/) — when the answer is "run the suite
   before you restart anything".

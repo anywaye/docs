@@ -1,12 +1,13 @@
 {
   "central": "notes",
   "projects": [
+    "anywaye",
     "billing",
     "box",
-    "cafe",
     "cafaye-py",
     "cafaye-rb",
     "cafaye-ts",
+    "cafe",
     "core",
     "courier",
     "darkroom",
@@ -19,5 +20,6 @@
     "parlor",
     "website"
   ],
-  "$comment": "The fleet repos whose docs/ and notes/ trees the build ingests. A repo without a cafaye.yml is not a fleet member (oauth-stub is a scratch repo) and stays out."
+  "$comment": "The fleet repos whose docs/ and notes/ trees the build ingests. A repo without a cafaye.yml is not a fleet member (oauth-stub is a scratch repo) and stays out.",
+  "publicCentral": "docs"
 }
