@@ -1,5 +1,7 @@
 # docs
 
+**Current direction (2026-10-19):** Ship is the product. The cafaye stack is internal infrastructure; we are not selling or supporting it as a standalone product as of this date. We continue to develop and improve it, treating the founder as the primary customer and keeping "build once, run everywhere" true, with the expectation that it may be offered again later.
+
 The cafaye documentation site — **docs.cafaye.com**. A static
 [Astro](https://astro.build) site with
 [Starlight](https://starlight.astro.build), built to a directory of HTML with no
