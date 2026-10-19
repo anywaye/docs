@@ -39,7 +39,7 @@ consumes: []
 repository:
   url: git@github.com:cafaye/docs.git
   defaultBranch: master
-  visibility: public
+  visibility: private
 
 owner:
   team: docs
