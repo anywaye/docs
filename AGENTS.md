@@ -1,7 +1,7 @@
 # AGENTS.md — working in `cafaye/loom` (the docs engine)
 
-Read this before changing anything here. The house rules in `moon/PLAN.md` §1
-and §3 apply on top of it. **Never push. Never create a remote.** Work on
+Read this before changing anything here. The house rules — SSH remotes for the repositories cafaye owns, and tests first: write the test, watch it fail, then implement —
+apply on top of it. **Never push. Never create a remote.** Work on
 `worker/<packet-id>`; the manager merges to `master`.
 
 ## What this repository is

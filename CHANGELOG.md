@@ -92,7 +92,7 @@ a repository whose `cafaye.yml` says `visibility: public` **fails the sync and
 names the repository**: the leak would happen at `git clone`, not at serve
 time. Those notes belong in `cafaye/notes/projects/<name>/`, the new private
 repository that holds the organization's register (decisions, ops, debt —
-graduated out of `moon/`, which stays a workspace and not an archive).
+graduated out of the `moon/` workspace layer, which was a workspace and not an archive).
 
 **The gate found real drift and the drift was fixed, not absorbed.** Four
 broken examples in the fleet's own docs (two shell fences in
@@ -1726,7 +1726,7 @@ Three claims the site made that are not true, all verified against the real CLI:
 - No page claims a command, flag, endpoint, or environment variable that was not
   read out of a source file, a `cafaye.yml`, a `Dockerfile`, a
   `docker-compose.yml`, or a test.
-- Nothing under `moon/refs/` or in jumpstart-pro was read or used.
+- Nothing under `moon/refs/` (now `reference/`) or in jumpstart-pro was read or used.
 - The navigation gained sections and nothing else. `pagefind: false` is
   unchanged, and no dependency was added.
 - One Vite notice about a module level directive in `index.mdx` remains: it is
@@ -1862,7 +1862,7 @@ Three claims the site made that are not true, all verified against the real CLI:
 - No dependency was added. No assertion was changed and no smoke test was
   removed: the suite is **7 tests before and after**. No screenshot of a
   terminal appears anywhere, because the repository's existing style uses none.
-- Nothing under `moon/refs/` or in jumpstart-pro was read or used.
+- Nothing under `moon/refs/` (now `reference/`) or in jumpstart-pro was read or used.
 
 ## [0.1.0] — 2026-09-30
 

@@ -29,7 +29,7 @@
 //
 // --source <dir>, and the two ways this script runs
 //   Without it, the sync builds the way this repository's own gate does:
-//   the fleet beside the tree (moon/cafaye/*), the registry in
+//   the fleet beside the tree (cafaye/*), the registry in
 //   content-sources.json, and the guards that check a public repository for
 //   notes/. That is the mode CI and a developer run.
 //
@@ -62,9 +62,9 @@
 //      for a project, name upper-cased, dashes as underscores) — this is what
 //      CI sets, because a runner's workspace is not a developer's machine.
 //   2. <CAF_WORKSPACE>/cafaye/<name> — the machine layout, where this
-//      repository and all its siblings sit under moon/cafaye/. Resolved two
-//      levels up from this repository's root, which is moon/ whether this is
-//      a primary checkout (moon/cafaye/docs) or a worktree (moon/wt/<name>).
+//      repository and all its siblings sit under cafaye/. Resolved two
+//      levels up from this repository's root, which is cafaye/ whether this is
+//      a primary checkout (cafaye/docs) or a worktree (work/wt/<name>).
 // If none resolves, the sync fails and prints what it tried.
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, copyFileSync } from 'node:fs';

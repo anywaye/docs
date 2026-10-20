@@ -32,7 +32,7 @@ bin/prime --contracts # the above, plus the tier that reads core and cafe
 `bin/prime` is the offline suite; there is no separate lint or typecheck step.
 The suite no longer needs a sibling checkout for the *contract* tier only: the
 build itself reads content sources (below), so a developer machine with the
-fleet under `moon/cafaye/` — or a CI job that checks the registry out — is a
+fleet under `cafaye/` — or a CI job that checks the registry out — is a
 prerequisite of `npm run build`, and `bin/sync-content --check` answers in one
 second whether the sources resolve and the guards pass, without building.
 The build **is** half the gate: Starlight validates every page's frontmatter,
@@ -219,7 +219,7 @@ Pages are Markdown and MDX in `src/content/docs/`; the file path is the URL.
 | a **private** repository's `notes/` | that repository's private pages, if it keeps any | notes tree at `projects/<name>/` |
 
 The sources are declared in `content-sources.json` and resolved beside the
-tree under `moon/cafaye/`, or by `CAF_NOTES_PATH` / `CAF_PROJECT_<NAME>` in
+tree under `cafaye/`, or by `CAF_NOTES_PATH` / `CAF_PROJECT_<NAME>` in
 CI. A source that does not resolve **fails the sync** — a missing notes
 repository is a broken pipeline, not an empty notes site. `--check` runs every
 guard and writes nothing.
@@ -329,7 +329,7 @@ So every command, flag, endpoint, and environment variable on this site is
 written from one of these, never from a plausible guess:
 
 1. **A source file.** The `cafe` subcommands come from
-   `moon/cafaye/cafe/internal/cli/*.go`; a flag is documented because the flag
+   `cafaye/cafe/internal/cli/*.go`; a flag is documented because the flag
    set declares it.
 2. **A machine-readable file.** `cafaye.yml`, `Dockerfile`,
    `docker-compose.yml`, `db/schema.rb`, `openapi/v1.yaml`, `mise.toml`.
