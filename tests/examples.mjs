@@ -127,6 +127,12 @@ const PLACEHOLDERS = [
   // A packet id names work, not a file, so the placeholder is a name and not a
   // shell redirection.
   [/<packet-id>/g, 'packet-id'],
+  // a reference clone's origin and the commit it was pinned at, in the
+  // reference shelf index (borrowed: the private notes tree). The index lists
+  // one row per clone with both, and the re-clone command takes them as
+  // arguments — so they are names in a command line, not shell redirections.
+  [/<origin>/g, 'https://github.com/cafaye/core.git'],
+  [/<pinned-sha>/g, '0f0797f'],
 ];
 
 function substitutePlaceholders(body) {
