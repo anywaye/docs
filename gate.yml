@@ -59,7 +59,7 @@
 # A gate that has never been seen red is not a gate. All three of these were
 # run against this file on this tree, and each is a different class of defect
 # rather than three copies of one. Full transcripts, including what the gate
-# itself reported while the checker was red, are in `REPORT-docs-06-gate.md`.
+# itself reported while the checker was red, are in `REPORT-docs-06-gate`.
 #
 #   1. `tests/links.mjs` and `tests/examples.mjs` removed from the `test`
 #      script — the two files AGENTS.md calls "the whole deliverable".
@@ -187,7 +187,7 @@ gate:
     #    preamble describes. Deleting `tests/links.mjs` and
     #    `tests/examples.mjs` from the `test` script leaves a **green** gate at
     #    7 tests — and `gate.floor` is red. That breakage was run rather than
-    #    reasoned about; the transcript is in `REPORT-docs-06-gate.md` under
+    #    reasoned about; the transcript is in `REPORT-docs-06-gate` under
     #    "the red proofs".
     - id: offline-suite
       match: '(?s)^== npm test\n.*?^# pass ([0-9]+)$'

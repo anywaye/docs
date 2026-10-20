@@ -48,6 +48,10 @@ function CURATED_SIDEBAR() {
           items: [
             { slug: 'architecture' },
             { slug: 'observability' },
+            // `error-tracking` sits under Architecture because it is the third
+            // leg of the same story: what the platform observes, where an
+            // unhandled error goes, and how it gets there.
+            { slug: 'error-tracking' },
           ],
         },
         {

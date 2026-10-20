@@ -32,7 +32,7 @@ own infrastructure.
 **The launch deploy path is the substrate, not Kamal.** The customer-facing
 deployment substrate — k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
 Redis + Alloy/Loki/Grafana + Prometheus — is decided in
-`DEPLOYMENT.md` in the moon repository (recorded publicly in
+`cafaye/notes/deployment.md` (recorded publicly in
 [Deployment](/runbooks/deployment/)) and
 is what the launch stack ships on. `cafe deploy` drives Kamal today; the k3s/Argo
 implementation lands behind the same `deploy.Runner` interface, so the command
@@ -656,7 +656,7 @@ The Kamal mechanics below are real and they are what runs today — but Kamal
 retires at parity, not before, and the launch stack does not ship on it. The
 customer-facing substrate (k3s + ArgoCD + CloudNativePG, installed by
 `curl https://cafaye.com/box/install | sh`) is decided in
-`DEPLOYMENT.md` in the moon repository and
+`cafaye/notes/deployment.md` and
 is documented in [Deployment](/runbooks/deployment/). The k3s/Argo
 implementation of `cafe deploy` lands behind the same `deploy.Runner` interface
 (`cafe/internal/cli/deploy.go`), so the command you type does not change — the
@@ -1196,7 +1196,7 @@ checkout. It is not `MUSE_CORE_SCHEMAS=core/schemas`.
 ### `pantry` — the drift tests need the whole fleet
 
 ```sh
-PANTRY_CAFAYE_ROOT=/Users/kaka/Code/any/moon/cafaye ./bin/prime
+PANTRY_CAFAYE_ROOT=/Users/kaka/Code/any/cafaye ./bin/prime
 ```
 
 `pantry`'s gate is green on a clone of `pantry` alone. The eight drift tests
@@ -1382,7 +1382,7 @@ you already pay for. And Cafaye Ops is a service rather than a remote: the box
 lives on your cloud account, and what you buy is the operation of it, not a
 destination for the command. The launch deploy path is the substrate (k3s +
 ArgoCD + CloudNativePG), decided in
-`DEPLOYMENT.md` in the moon repository;
+`cafaye/notes/deployment.md`;
 Kamal is the current implementation and retires at parity, not before.
 [Deployment](/runbooks/deployment/) is its runbook.
 
@@ -1658,7 +1658,7 @@ the others.
 **If the clone fails on SSH**, you do not have a key registered on GitHub. Use
 HTTPS for a read-only clone if you have to — `git clone
 https://github.com/cafaye/identity.git` — but keep SSH for anything you push.
-PLAN.md §1 makes SSH the rule for repositories cafaye owns.
+SSH is the rule for repositories cafaye owns.
 
 If you are adding **your own** service rather than running ours, `cafe new` and
 `cafe init` are stubs — they parse their flags and return `not implemented in

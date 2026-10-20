@@ -29,7 +29,7 @@
 //   the platform matches. The claims in this repository that a human must
 //   still check by reading are the prose ones — whether a documented status
 //   line is true today, whether a table describes the shape of a service
-//   correctly, whether a sentence is honest. See REPORT-docs-05.md.
+//   correctly, whether a sentence is honest. See REPORT-docs-05.
 //
 // A NOTE ON WHY `bash -n` AND NOT "RUN THE COMMAND"
 //   Running a documented command would need the toolchain the command is for —
@@ -123,6 +123,10 @@ const PLACEHOLDERS = [
   // a helm chart name in the same guide — the short-form `bin/publish` defaults
   // to `ghcr.io/cafaye/<chart-name>` when no `--image` is given.
   [/<chart-name>/g, 'mychart'],
+  // a work-packet id in the debt register (borrowed: the private notes tree).
+  // A packet id names work, not a file, so the placeholder is a name and not a
+  // shell redirection.
+  [/<packet-id>/g, 'packet-id'],
 ];
 
 function substitutePlaceholders(body) {

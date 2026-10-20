@@ -38,7 +38,7 @@
 //   This file used to run `cafe contract lint <file>` once per manifest, which
 //   means the cost of this tier was the cost of starting a process per fence.
 //   Measured on this branch: ~12.9 ms per spawn against ~1 ms of linting, so
-//   the startup was most of what the tier did (MEASUREMENTS-contracts-tier.md,
+//   the startup was most of what the tier did (MEASUREMENTS-contracts-tier,
 //   with the before and after and the exact commands).
 //
 //   `cafe contract lint <path>` already takes a **directory** and walks it in one

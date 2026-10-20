@@ -12,13 +12,13 @@ the fleet's gates run on today.
 
 **The substrate path is decided, not built.** Postgres is CloudNativePG;
 `cafe backup` drives `kubectl cnpg` and proves a restore into a scratch database
-it then drops (DEPLOYMENT.md:30, 53-54). The CNPG implementation of
+it then drops (cafaye/notes/deployment.md). The CNPG implementation of
 `backup.Runner` has not landed, so the specific `kubectl cnpg` subcommands are
 **unverified** — named here as the driver, not as a procedure a reader can copy.
 
 **The Kamal path retires at parity, not before.** The fleet's gates run on
 compose/Kamal today and keep running until the substrate exists
-(DEPLOYMENT.md:49-51). `kamal-backup` running as a Kamal accessory — dumping
+(cafaye/notes/deployment.md). `kamal-backup` running as a Kamal accessory — dumping
 Postgres with `pg_dump`, writing through restic into an R2 bucket — is the
 mechanism those gates use. Its detailed drill instructions (`bin/drill`) are
 removed from this page: the path retires at parity, and an operator following
@@ -126,20 +126,20 @@ credential, and it is the one most worth writing down twice.**
 
 ## The substrate path: CloudNativePG and `cafe backup`
 
-**Backups and failover are configuration** (DEPLOYMENT.md:30) — CloudNativePG's
+**Backups and failover are configuration** (cafaye/notes/deployment.md) — CloudNativePG's
 whole argument is that a Postgres backup is a declarative object, not a script.
 We sell code that runs on the customer's server, so their data loss is our
 support ticket.
 
 **`cafe backup` is the command.** It gets the same treatment as `cafe deploy`:
 `backup.Runner` gains a CNPG implementation driving `kubectl cnpg`, replacing the
-Kamal drill (DEPLOYMENT.md:53-54). The command's own description — quoted in
+Kamal drill (cafaye/notes/deployment.md). The command's own description — quoted in
 [getting started](/getting-started/) — is *"take one real backup and prove it
 restores, into a scratch database it then drops."*
 
 :::caution[Unverified — the CNPG implementation does not exist yet]
-`backup.Runner`'s CNPG implementation has not landed; DEPLOYMENT.md:53-54 says it
-"gains" one, future tense. The driver is `kubectl cnpg` (DEPLOYMENT.md:54); the
+`backup.Runner`'s CNPG implementation has not landed; cafaye/notes/deployment.md says it
+"gains" one, future tense. The driver is `kubectl cnpg` (cafaye/notes/deployment.md); the
 specific subcommands are not documented here because the implementation that
 would name them does not exist. When it lands, this section is the thing to
 write — and a subcommand invented in the meantime is one a reader will type
@@ -148,7 +148,7 @@ against a cluster that does not have it.
 
 **The offsite copy is rclone, and it is deliberately not part of the backup
 story.** Observability data is the one stateful thing the box can afford to lose
-(DEPLOYMENT.md:35).
+(cafaye/notes/deployment.md).
 
 ## The retiring Kamal path
 

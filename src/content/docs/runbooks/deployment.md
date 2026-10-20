@@ -4,8 +4,8 @@ description: The operator runbook for the cafaye substrate — one box, one inst
 ---
 
 **Status: decided, not built.** The substrate this page documents is fixed by a
-decision record — `DEPLOYMENT.md`
-in the moon repository — and the install script that builds it does not exist on
+decision record — `cafaye/notes/deployment.md`, private, and restated in the
+table below — and the install script that builds it does not exist on
 the branch this page was written against. Every install step below is therefore
 marked **unverified**: it records what the decision says will happen, not what a
 script was read doing. The rule is the one the whole docs site follows — a
@@ -13,12 +13,12 @@ runbook that invents a flag is worse than a runbook with a TODO.
 
 **The one sentence that generates everything:** the substrate must install in one
 command on one box, and everything that can drift from Git must not
-(DEPLOYMENT.md:17-19).
+(cafaye/notes/deployment.md).
 
 ## The substrate, slot by slot
 
 The decision record fixes each slot and the reason for it
-(DEPLOYMENT.md:25-35):
+(cafaye/notes/deployment.md):
 
 | Slot | What runs | Why |
 | --- | --- | --- |
@@ -36,13 +36,13 @@ The decision record fixes each slot and the reason for it
 
 **One box.** The whole stack runs on a single node — k3s with a sqlite datastore,
 because one binary is a cluster and adding nodes later is a join token, not a
-migration (DEPLOYMENT.md:27).
+migration (cafaye/notes/deployment.md).
 
 **8GB comfortable; 4GB no longer qualifies once the Grafana stack lands**
-(DEPLOYMENT.md:97).
+(cafaye/notes/deployment.md).
 
 **The operator's machine needs `kubectl`, `git` and `curl`.** The install is
-`curl https://cafaye.com/box/install | sh` (DEPLOYMENT.md:98); everything after it is
+`curl https://cafaye.com/box/install | sh` (cafaye/notes/deployment.md); everything after it is
 `kubectl` to inspect and `git` to change. `helm` is named here as the chart tool
 a stack of this shape is built from — unverified against an install script that
 does not exist yet.
@@ -56,9 +56,9 @@ curl https://cafaye.com/box/install | sh
 ```
 
 `cafaye.com` is the product's domain, and it serves the install script at
-`/box/install`, statically, the way `get.once.com` does (DEPLOYMENT.md:102-104).
+`/box/install`, statically, the way `get.once.com` does (cafaye/notes/deployment.md).
 
-**What it does, step by step** (DEPLOYMENT.md:98-99):
+**What it does, step by step** (cafaye/notes/deployment.md):
 
 1. **k3s** — the single-node cluster, sqlite datastore.
 2. **cert-manager** — TLS certificate issuance.
@@ -66,13 +66,13 @@ curl https://cafaye.com/box/install | sh
 4. **Argo core** — ArgoCD, the pull-based deploy controller.
 5. **Pull secret** — a read-only secret for the private OCI registry (GHCR) the
    charts ship from; that is how closed-source charts ride a pull-based system
-   (DEPLOYMENT.md:100-101).
+   (cafaye/notes/deployment.md).
 6. **First `Application` syncs** — Argo pulls the first workloads from Git.
 
 :::caution[Unverified — no install script exists yet]
 `kit/templates/substrate/` does not exist on the branch this page was written
 against. The six steps above are the decision record's sequence
-(DEPLOYMENT.md:98-99), not a script that was read. **No flag, environment
+(cafaye/notes/deployment.md), not a script that was read. **No flag, environment
 variable or `Application` name is documented here, because none can be read.**
 When the script lands, this section is the thing to update — and a flag invented
 in the meantime is a flag a reader will type into their own box.
@@ -89,7 +89,7 @@ without `Secure`, so **real sign-in requires an HTTPS terminator in front of the
 stack.**
 
 **On this substrate the terminator is Traefik + cert-manager**
-(DEPLOYMENT.md:28). Traefik is k3s's default ingress; cert-manager issues the
+(cafaye/notes/deployment.md). Traefik is k3s's default ingress; cert-manager issues the
 certificates. This is the documentation half of launch blocker B7 — there is no
 TLS anywhere in the stack today, and the fix is configuration on the substrate,
 not a code change.
@@ -99,61 +99,61 @@ not a code change.
 | Domain | What it is |
 | --- | --- |
 | `cafaye.com` | the platform |
-| `cafaye.com/box/install` | the product's install endpoint; serves the install script statically (DEPLOYMENT.md:102-104) |
+| `cafaye.com/box/install` | the product's install endpoint; serves the install script statically (cafaye/notes/deployment.md) |
 
 **Cloudflare in front is a DNS change, never infrastructure**
-(DEPLOYMENT.md:28). Putting Cloudflare in front means changing nameservers, not
+(cafaye/notes/deployment.md). Putting Cloudflare in front means changing nameservers, not
 adding a component to the stack.
 
 ## The deploy loop
 
 **ArgoCD is pull-only: CI never holds cluster credentials, and the only thing
-that can change the cluster is a commit** (DEPLOYMENT.md:29).
+that can change the cluster is a commit** (cafaye/notes/deployment.md).
 
-So a deploy is **a values commit, then wait for sync** (DEPLOYMENT.md:45). The
+So a deploy is **a values commit, then wait for sync** (cafaye/notes/deployment.md). The
 loop:
 
 1. **Change the values** in Git — the chart values that define the workload.
 2. **Commit.** The commit is the only write path; it passes the same review and
-   gates as fleet code (DEPLOYMENT.md:76-81).
+   gates as fleet code (cafaye/notes/deployment.md).
 3. **Wait for sync.** Argo polls; push, rolling within two minutes is acceptable
-   for this buyer (DEPLOYMENT.md:56-58).
+   for this buyer (cafaye/notes/deployment.md).
 
 **A hand edit self-heals.** Argo makes the box agree with Git, so a
 `kubectl edit` by a human or an agent is reverted in minutes
-(DEPLOYMENT.md:29, 76-81). An agent that "fixes" production by kubectl-editing is
+(cafaye/notes/deployment.md). An agent that "fixes" production by kubectl-editing is
 reverted in minutes; an agent that opens a commit fixes it permanently.
 
-**Rollback is `git revert`** (DEPLOYMENT.md:29).
+**Rollback is `git revert`** (cafaye/notes/deployment.md).
 
 **`cafe deploy` is the same loop behind one command.** The seam already exists:
 `cafe/internal/cli/deploy.go` takes a `deploy.Runner`, and
 `deploy.NewKamalRunner()` is the current implementation; the k3s/Argo
 implementation lands behind that same interface, which is why nothing above the
-CLI changes (DEPLOYMENT.md:45-49).
+CLI changes (cafaye/notes/deployment.md).
 
 **There is no helm-from-CI path, and one may never be added.** A second deploy
 path beside Argo is a split brain: both paths become untrustworthy and drift
-becomes undecidable (DEPLOYMENT.md:41-43).
+becomes undecidable (cafaye/notes/deployment.md).
 
 **Polling, not webhooks, until the delay grates.** The GitHub → Argo webhook
-route is a follow-up, not a launch requirement (DEPLOYMENT.md:56-58).
+route is a follow-up, not a launch requirement (cafaye/notes/deployment.md).
 
 ## Backup and restore
 
 **Postgres is CloudNativePG, and backups and failover are configuration**
-(DEPLOYMENT.md:30) — the customer's data loss is the vendor's support ticket, so
+(cafaye/notes/deployment.md) — the customer's data loss is the vendor's support ticket, so
 the backup story is the one that matters most.
 
 **`cafe backup` is the command.** It gets the same treatment as `cafe deploy`:
 `backup.Runner` gains a CNPG implementation driving `kubectl cnpg`, replacing the
-Kamal drill (DEPLOYMENT.md:53-54). The command's own description — quoted in
+Kamal drill (cafaye/notes/deployment.md). The command's own description — quoted in
 [getting started](/getting-started/) — is *"take one real backup and prove it
 restores, into a scratch database it then drops."*
 
 :::caution[Unverified — the CNPG implementation does not exist yet]
-`backup.Runner`'s CNPG implementation has not landed; DEPLOYMENT.md:53-54 says it
-"gains" one, future tense. The driver is `kubectl cnpg` (DEPLOYMENT.md:54); the
+`backup.Runner`'s CNPG implementation has not landed; cafaye/notes/deployment.md says it
+"gains" one, future tense. The driver is `kubectl cnpg` (cafaye/notes/deployment.md); the
 specific subcommands are not documented here because the implementation that
 would name them does not exist. [Backup and
 restore](/runbooks/backup-and-restore/) is the detailed page.
@@ -161,25 +161,25 @@ restore](/runbooks/backup-and-restore/) is the detailed page.
 
 **The offsite copy is rclone, and it is deliberately not part of the backup
 story.** Observability data is the one stateful thing the box can afford to lose
-(DEPLOYMENT.md:35).
+(cafaye/notes/deployment.md).
 
 ## What is deliberately not here
 
 - **Traces.** Deferred. Services already emit OTLP (`cafe gen telemetry`); Tempo
   slots in later as one more `Application`. Nothing re-architects
-  (DEPLOYMENT.md:34).
+  (cafaye/notes/deployment.md).
 - **Hosted cafaye.** Does not exist, and Cafaye Ops does not change that: the
   customer brings their own server and runs one command; there is no hosted tier
-  and no cafaye-operated remote to deploy to (DEPLOYMENT.md:15-17). Cafaye Ops
+  and no cafaye-operated remote to deploy to (cafaye/notes/deployment.md). Cafaye Ops
   is an operated tier we run on that same box — it is who does the work, not
   where the substrate lives. If a cafaye-operated remote ever exists, it is this
-  same substrate deployed by us — not a rewrite (DEPLOYMENT.md:108-110).
-- **A second deploy path.** Never — see above (DEPLOYMENT.md:41-43).
+  same substrate deployed by us — not a rewrite (cafaye/notes/deployment.md).
+- **A second deploy path.** Never — see above (cafaye/notes/deployment.md).
 
 ## Where the old path still applies
 
 **Kamal retires at parity, not before.** The fleet's gates run on compose/Kamal
-today and keep running until this substrate exists (DEPLOYMENT.md:49-51). So the
+today and keep running until this substrate exists (cafaye/notes/deployment.md). So the
 Kamal path is still the path for the fleet's own gates; it is not the launch
 path, and no new launch work is Kamal work. [Getting started](/getting-started/)
 step 6 has the Kamal mechanics; this page is what replaces them.
@@ -187,9 +187,9 @@ step 6 has the Kamal mechanics; this page is what replaces them.
 ## What not to do
 
 - **Do not add a helm-from-CI template.** One may never be added
-  (DEPLOYMENT.md:41-43).
+  (cafaye/notes/deployment.md).
 - **Do not `kubectl edit` production to fix it.** The edit self-heals and the
-  incident repeats; open a commit (DEPLOYMENT.md:76-81).
+  incident repeats; open a commit (cafaye/notes/deployment.md).
 - **Do not invent an install flag.** The script does not exist; when it lands,
   read it (see the caution above).
 - **Do not treat a green Argo sync as a verified backup.** The backup is proven

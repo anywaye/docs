@@ -165,7 +165,7 @@ estimate.
 
 | Unit | What it would be | Today |
 | --- | --- | --- |
-| Platform | a cafaye-operated control plane, and `cafe deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `cafe deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a cafaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in `DEPLOYMENT.md` in the moon repository; Kamal is the current implementation and retires at parity. |
+| Platform | a cafaye-operated control plane, and `cafe deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `cafe deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a cafaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in `cafaye/notes/deployment.md`; Kamal is the current implementation and retires at parity. |
 | identity | your deployment, our pager | **Does not exist.** Today "hosted" means you run it in your own account and we help you get it running — which is consulting, not a product. |
 | courier | your deployment, our pager, and a configured email provider | **Does not exist.** Separately, no email provider adapter is configured in any cafaye checkout, so nothing is delivered until you set one. |
 

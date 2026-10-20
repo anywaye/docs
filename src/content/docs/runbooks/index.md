@@ -3,9 +3,9 @@ title: Runbooks
 description: The procedures that keep a cafaye deployment alive — provisioning, backup, rotation, outages, and billing webhooks.
 ---
 
-These are the runbooks. `PLAN.md` §8 names *"support burden once pilots land"* as
-a risk, and the control is that the procedure is written down before somebody
-needs it at 2am with a customer waiting.
+These are the runbooks. The risk is *"support burden once pilots land"*, and the
+control is that the procedure is written down before somebody needs it at 2am
+with a customer waiting.
 
 Each one is a procedure, not an explanation: preconditions, exact commands, the
 verification step that proves it worked, and — importantly — **what not to do**.
@@ -43,7 +43,7 @@ and environment variable in one table.
 
 **The launch deployment mechanism is the substrate — k3s + Traefik +
 cert-manager + ArgoCD + CloudNativePG — decided in
-`DEPLOYMENT.md` in the moon repository and
+`cafaye/notes/deployment.md` and
 not yet built.** [Deployment](/runbooks/deployment/) is the runbook for it: one
 box, `curl https://cafaye.com/box/install | sh`, and a deploy path that is a values
 commit and nothing else. The install script (`kit/templates/substrate/`) does not
@@ -51,7 +51,7 @@ exist yet, so that page marks its install steps unverified rather than inventing
 flags.
 
 **Kamal retires at parity, not before.** The fleet's gates run on compose/Kamal
-today and keep running until the substrate exists (DEPLOYMENT.md:49-51), so the
+today and keep running until the substrate exists (cafaye/notes/deployment.md), so the
 Kamal path is still the path for the fleet's own gates — it is not the launch
 path, and no new launch work is Kamal work. `kit/templates/kamal/` ships three
 files (`deploy.yml.erb`, `kamal-backup.yml.erb`, `drill.sh`); `identity` and
@@ -240,7 +240,7 @@ Not `billing`'s problem. Check, in order:
 
 1. **The endpoint URL** in the Stripe dashboard resolves and terminates TLS.
    The services bind plain HTTP; TLS is the edge's job. On the substrate that
-   edge is Traefik + cert-manager (DEPLOYMENT.md:28); on the retiring Kamal
+   edge is Traefik + cert-manager (cafaye/notes/deployment.md); on the retiring Kamal
    path it is `proxy.ssl: true` in `config/deploy.yml`.
 2. **The endpoint is enabled** in Stripe, and pointed at the environment you
    think it is. Staging and production endpoints are separate objects.
@@ -543,7 +543,7 @@ description: Take one Stripe Payment Link payment, confirm it is real, and grant
 
 One buyer, one payment, one entitlement. There is no billing service, no
 Stripe integration in box and no payment webhook —
-`moon/AGENTS-FIRST.md`
+`cafaye/notes/agents-first.md`
 D2 decided the mechanism and `box/docs/BOUNDARIES.md` still holds the
 line that produced it:
 
@@ -912,7 +912,7 @@ consequences of that one missing column:
 
 **This is a drift finding, recorded here rather than resolved.** The [pricing
 page](/commercial/#the-three-units) states each payment buys *"a one-year
-entitlement; renewal is a second link"*, and `moon/AGENTS-FIRST.md` D8 decides
+entitlement; renewal is a second link"*, and `cafaye/notes/agents-first.md` D8 decides
 the prices as *"annual one-time … a human confirms one payment and grants an
 entitlement with a one-year expiry"*. **Neither the one-year expiry nor the
 second grant is implemented.** The `Kit` entitlement has the same shape. The
@@ -1221,7 +1221,7 @@ company, and the account the buyer's team uses will not see it.
 The four `product` values box accepts are `kit`, `platform`, `identity`
 and `courier`. Anything else — `billing`, `darkroom`, `gateway`, `muse`, a
 bundle that is not one of the three decided prices — is **not purchasable
-today**. `moon/AGENTS-FIRST.md` D8 decided the price list and it has three
+today**. `cafaye/notes/agents-first.md` D8 decided the price list and it has three
 units on it.
 
 The honest answer is not to invent a grant. A `product` outside the list is a
@@ -1240,7 +1240,7 @@ An account id that is not a UUID is refused the same way, by
 
 **So tell them what exists, quote the price for it if they will take it, and
 log the rest.** A request for an unpackaged service is a product question for
-the manager, and `moon/AGENTS-FIRST.md` is where it gets decided — not a grant
+the manager, and `cafaye/notes/agents-first.md` is where it gets decided — not a grant
 you improvise on a busy afternoon.
 
 ## Step 9 — verify the buyer can see it
@@ -1481,7 +1481,7 @@ export TOKEN=$(python3 -c 'import json;print(json.load(open("session.json"))["to
 ```
 
 ```json
-{"token":"iV63Rk7vDTft3yAh0pFlKvCfh-lB-33Uk_Bv0AGBLig","expires_at":"2026-10-30T07:51:38.919827Z"}
+{"token":"<session token>","expires_at":"2026-10-30T07:51:38.919827Z"}
 ```
 
 `POST /v1/session` also sets a `__Host-session` cookie to the same token. For a
@@ -1578,7 +1578,7 @@ HTTP 201
 {"id":"61c58dfa-83ff-4b41-aa88-89a78e0d5c7c",
  "account_id":"8f80905d-a8d1-470f-aa01-84fc79d81e4b",
  "email":"bob@acme.example","role":"member",
- "token":"BQq4_R07yGbMkxRoc55Y6rL0vE2l9WtcnPW-BP5EGdg",
+ "token":"<invitation token>",
  "expires_at":"2026-10-07T10:51:50.606107+03:00","created_at":"…"}
 ```
 

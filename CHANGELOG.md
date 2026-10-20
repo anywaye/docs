@@ -229,7 +229,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   tests, 22 pass, 0 fail.
 
 - **`pantry` is described as closed, not MIT, on every page that named it.**
-  OPS-D10 (`CAFAYE-OPS.md`, 2026-10-10, user) moves pantry's licence from MIT
+  OPS-D10 (`cafaye/notes/ops.md`, 2026-10-10, user) moves pantry's licence from MIT
   to proprietary while the service stays publicly reachable, amending the
   `pantry` line of OPS-D2/OPS-P1: once the catalog is public and multi-tenant
   it is part of the operated product, so it takes the conductor pattern —
@@ -292,8 +292,8 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   calls it a gap rather than a route, and this packet did not invent one.
 - **`pantry` is Go, not Rust — the tooling table on the splash page kept the
   pre-rewrite word.** pantry has been Go since the Rust service was deleted
-  (`REPORT-registry-norust-03.md` in the pantry repository); its own `AGENTS.md`
-  says `Language: Go` and `DECISIONS.md` D33 records the choice. One row, one
+  (`REPORT-registry-norust-03` in the pantry repository); its own `AGENTS.md`
+  says `Language: Go` and `cafaye/notes/decisions.md` D33 records the choice. One row, one
   word, per seam-audit F7: the page every reader lands on first contradicted the
   service's own house rules.
 
@@ -362,7 +362,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   documentation half), the deploy loop (Argo pull-only; no helm-from-CI path
   and one may never be added), backup and restore (CloudNativePG, `cafe backup`,
   `kubectl cnpg`, rclone offsite), and what is deliberately not here. Every
-  claim cites `DEPLOYMENT.md` or a file:line; the install steps are marked
+  claim cites `cafaye/notes/deployment.md` or a file:line; the install steps are marked
   **unverified** because `kit/templates/substrate/` does not exist on this
   base — no flag, env var or `Application` name is invented.
 
@@ -509,7 +509,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   written** and quotes what `cafe` printed, so a `cafe` that reworded its output
   fails loudly instead of leaving this tier green over nothing.
 
-  Numbers, commands, and the machine are in `MEASUREMENTS-contracts-tier.md`.
+  Numbers, commands, and the machine are in `MEASUREMENTS-contracts-tier`.
 
 ### Added
 
