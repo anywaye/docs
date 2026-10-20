@@ -33,7 +33,7 @@
 #   content sources — this repository's pages, each fleet repository's docs/
 #   (and notes/, if the repository is private), and cafaye/notes. On a
 #   developer machine that is moon/cafaye/ beside the worktree; in CI it is
-#   the sparse fan-out .github/workflows/ci.yml performs. A source that does
+#   the sparse fan-out ci/ci.yml performs. A source that does
 #   not resolve fails the sync — this gate never covers a build whose
 #   content silently went missing. `bin/sync-content --check` is the fast
 #   answer to "do my sources resolve".

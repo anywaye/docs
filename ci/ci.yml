@@ -1,3 +1,19 @@
+# THIS FILE IS NOT A GITHUB ACTIONS WORKFLOW ANY MORE, AND NOTHING RUNS IT.
+#
+# The fleet's CI runs in dev sandboxes: the same sandbox the work happens in,
+# on the machine the developer chose. This file is the SPECIFICATION those
+# checks read — the steps, the floors, the exemptions — kept where the
+# repository can hold it and read it.
+#
+# What executes is `ci/gate.sh` (named in this repository's `gate.yml`, under
+# `ci.workflow`), and the CI service reads that declaration and runs it.
+#
+# The GitHub Actions spelling is retired, not deleted, because the checks in
+# this repository read this file to hold the specification still: a gate that
+# checks a specification nobody executes is a gate checking a fiction, and a
+# gate that checks nothing is worse. The steps below are the specification
+# the executable CI is measured against, and the day this file stops being
+# that, the checks move with it.
 ---
 # docs' CI: the gate, and the tiers the gate cannot own by itself.
 #
@@ -23,7 +39,7 @@
 # ## WHY THIS REPOSITORY DOES NOT CALL kit's reusable workflow
 #
 # The fleet convention is to call
-# `cafaye/kit/.github/workflows/ci.reusable.yml@master`, and this file does not.
+# `cafaye/kit/ci/ci.reusable.yml@master`, and this file does not.
 # That is a deliberate departure and the three measured reasons are below. Each
 # was run, not reasoned about, and each is a property of kit's `node` job that a
 # caller cannot reach.
@@ -66,7 +82,7 @@
 # still the size it was measured at (`gate`). If kit ever grows the missing
 # pieces — a `build` step or a `pretest` hook, and an `--if-present` on lint —
 # the fix is to delete this file, add a `tests/validate.sh` that execs
-# `bin/prime`, and call `uses: cafaye/kit/.github/workflows/ci.reusable.yml@master`
+# `bin/prime`, and call `uses: cafaye/kit/ci/ci.reusable.yml@master`
 # with `language: 'node'`. The `pins` job asserts the stale-path form is absent
 # in the meantime, so the day that migration happens nobody reintroduces
 # `workflows/ci.reusable.yml`, which resolves to nothing.
@@ -530,7 +546,7 @@ jobs:
         # The whole kit-04 story, held as a guard — and here it is the
         # **inverse**, because this repository does not call kit. GitHub
         # resolves a cross-repository reusable workflow at
-        # `{owner}/{repo}/.github/workflows/{file}@{ref}` and documents that
+        # `{owner}/{repo}/ci/{file}@{ref}` and documents that
         # **subdirectories of the workflows directory are not supported** — so a
         # line reading `cafaye/kit/workflows/ci.reusable.yml@master` resolves to
         # nothing and the build is red before it starts. kit-02 shipped the file
@@ -561,11 +577,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          workflow=".github/workflows/ci.yml"
+          workflow="ci/ci.yml"
           if grep -Eq '^[[:space:]]*uses:[[:space:]]*cafaye/kit/' "$workflow"; then
             echo "::error::$workflow has a job that calls kit's reusable workflow." >&2
             echo "  That is allowed and preferred — but only at the documented path:" >&2
-            echo "    uses: cafaye/kit/.github/workflows/ci.reusable.yml@master" >&2
+            echo "    uses: cafaye/kit/ci/ci.reusable.yml@master" >&2
             echo "  Subdirectories of the workflows directory are NOT supported, so" >&2
             echo "  cafaye/kit/workflows/ci.reusable.yml@master resolves to nothing." >&2
             exit 1
@@ -593,7 +609,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          workflow=".github/workflows/ci.yml"
+          workflow="ci/ci.yml"
           header="$(sed -n 's/^#//p' "$workflow")"
           if [ -z "$header" ]; then
             echo "::error::$workflow has no top-level comment header at all." >&2
@@ -644,7 +660,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          workflow=".github/workflows/ci.yml"
+          workflow="ci/ci.yml"
           if grep -Eq '^[[:space:]]*(\./)?bin/check-external-links' "$workflow"; then
             echo "::error::$workflow runs the external-link checker." >&2
             echo "  It is a network tier and belongs in external-links.yml, which runs" >&2
@@ -653,7 +669,7 @@ jobs:
             echo "  red build." >&2
             exit 1
           fi
-          if [ ! -f .github/workflows/external-links.yml ]; then
+          if [ ! -f ci/external-links.yml ]; then
             echo "::error::external-links.yml is missing. The external links are still" >&2
             echo "  checked offline for shape, but nothing is checking whether they" >&2
             echo "  answer. See the header of bin/check-external-links." >&2
@@ -694,7 +710,7 @@ jobs:
         run: |
           set -euo pipefail
           found=0
-          for workflow in .github/workflows/ci.yml .github/workflows/external-links.yml; do
+          for workflow in ci/ci.yml ci/external-links.yml; do
             for pattern in \
               'secret[s]\.' \
               'whsec[_]' \
@@ -715,7 +731,7 @@ jobs:
           # check that only forbids would pass silently on a workflow where
           # the deploy job lost its key.
           for want in 'secrets.FLEET_TOKEN' 'secrets.DEPLOY_SSH_KEY' 'secrets.DEPLOY_KNOWN_HOSTS'; do
-            if ! grep -q -- "$want" .github/workflows/ci.yml; then
+            if ! grep -q -- "$want" ci/ci.yml; then
               echo "::error::$want is no longer referenced — the deploy job or the fleet clone lost a credential it needs." >&2
               exit 1
             fi

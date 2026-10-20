@@ -5,7 +5,7 @@
 # sources, build both trees, run the gate, ship the result. A backend's only
 # job is to provide the environment this script needs and call it. Which
 # backend ran is recorded in `ci/backend`, and switching is one line —
-# `github-actions` keeps .github/workflows/ci.yml as the runner; `instabox`
+# `github-actions` keeps ci/ci.yml as the runner; `instabox`
 # provisions a sandbox and polls it (ci/instabox/).
 #
 # WHAT IT NEEDS FROM THE ENVIRONMENT

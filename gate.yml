@@ -108,7 +108,7 @@ gate:
   # file: under zsh, `${PIPESTATUS[0]}` after `bin/prime | tee log` expands to
   # the **empty string**, and under bash to the gate's real status. So the fleet
   # defect reproduces from a shell that is the macOS default, and the spelling
-  # in `.github/workflows/ci.yml` (`shell: bash` plus `${PIPESTATUS[0]}`) is not
+  # in `ci/ci.yml` (`shell: bash` plus `${PIPESTATUS[0]}`) is not
   # defensive style — it is the only reading that is a status at all.
   command: [bin/prime, --contracts]
   # The fleet's spelling. **`mise run prime` runs `bin/prime` WITHOUT
@@ -132,7 +132,7 @@ gate:
   # `gate.task-unresolvable` exists to keep them agreeing about.
   entrypoint: bin/prime
   # 1200, and it is CI's own budget rather than a measurement: both the `gate`
-  # and the `contracts` job in `.github/workflows/ci.yml` are
+  # and the `contracts` job in `ci/ci.yml` are
   # `timeout-minutes: 20`. Measured here on a warm npm cache, one full
   # two-tier run is about 75 seconds (npm ci 25s, the Astro build 21s, the
   # offline suite 5s, the contract tier 0.4s — re-measured as
@@ -405,7 +405,7 @@ external:
   # credential, no secret, no token, no database, no service, no container, and
   # no network after npm's cache is warm.** Nothing in this repository's gate
   # reads an environment variable whose name looks like a secret; the only two
-  # it reads are `CORE_PATH` and `CAF`, and both are paths. `.github/workflows/ci.yml`
+  # it reads are `CORE_PATH` and `CAF`, and both are paths. `ci/ci.yml`
   # takes `permissions: contents: read` and no `secrets:` at all, because
   # `cafaye/core` and `cafaye/cafe` are public and the default `GITHUB_TOKEN`
   # reads both — a gate that needed a credential would be the only thing in this
@@ -418,12 +418,33 @@ external:
   # so the offline suite does not make the offline gate.
 
 ci:
+  # THE FILE CI RUNS, AND WHY IT IS NOT A WORKFLOW ANY MORE.
+  #
+  # The paragraphs below describe the GitHub Actions workflow this repository
+  # used to have. That workflow is gone: the fleet's CI is no longer GitHub
+  # Actions. The gate runs in a dev sandbox — the same sandbox the work
+  # happens in — and what the runner executes is `ci/gate.sh`.
+  #
+  # The script is this repository's gate, in the repository, where it can be
+  # run by hand, by a sandbox, or by a runner. It owns the parts of the gate
+  # the runner cannot know about — a database, a browser, an audit tool —
+  # and the runner executes it as it stands.
+  #
+  # WHAT FOLLOWS IS KEPT, AND WHY. The notes below were written about the
+  # workflow this repository used to have. The claims they make about the GATE
+  # — which command it is, which flag it carries, which tier is deliberately
+  # not declared here — are still true and are still the reason this block is
+  # what it is. The claims they make about the workflow's shape (its job names,
+  # its `run:` bodies, the line numbers in a file that no longer exists) are
+  # how the workflow was, and the workflow is gone. Nothing here is a
+  # declaration about a file CI runs.
+  #
   # The workflow, and the argv it runs there. Both elements of `invokes` appear
   # in a `run:` body of `ci.yml` — `bin/prime` in the `gate` job at its
   # bin/prime step, and `bin/prime --contracts` in the `contracts` job — so
   # `gate.ci-disagrees` is satisfied, and a future edit that drops either is a
   # red rather than a quiet divergence.
-  workflow: .github/workflows/ci.yml
+  workflow: ci/gate.sh
   invokes: [bin/prime, --contracts]
   #
   # **WHAT CI ADDS THAT `bin/prime` DOES NOT, because this is the difference
@@ -450,7 +471,7 @@ ci:
   # So the honest one-line summary is: **`./bin/prime --contracts` is green on a
   # tree that CI is red on.** Delete a test and the local gate reports 16 of 15
   # and stays quiet while `BASELINE_TESTS` fails the build; edit
-  # `.github/workflows/ci.yml` to reintroduce the stale
+  # `ci/ci.yml` to reintroduce the stale
   # `cafaye/kit/workflows/ci.reusable.yml` path and every local run is still
   # green. That gap is recorded rather than closed, and closing it would mean
   # moving CI's assertions into `bin/prime`, which is a change to the gate's
