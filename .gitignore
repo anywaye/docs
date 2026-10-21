@@ -8,11 +8,11 @@ dist/
 # astro preview / dev caches
 .output/
 
-# caf dev — the compose file it generates from cafaye.yml, never committed.
+# cafe dev — the compose file it generates from cafaye.yml, never committed.
 # Its own first lines say every run rewrites it, so it is build output shaped
 # like a source file: one `git add -A` from a commit, and from there a merge
 # conflict nobody can resolve by reading it, because both sides are generated.
-# `caf dev --dry-run` refuses here today (no Dockerfile for it to build), which
+# `cafe dev --dry-run` refuses here today (no Dockerfile for it to build), which
 # is the argument for the entry now rather than after the first accidental
 # commit.
 /caf.dev.compose.yaml
