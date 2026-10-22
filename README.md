@@ -24,7 +24,7 @@ is not an API reference.
 ## The gate
 
 ```sh
-mise install          # node 22.19.0, pinned in mise.toml
+mise install          # node 22.23.4, pinned in mise.toml
 bin/prime             # npm ci && npm run build && npm test
 bin/prime --contracts # the above, plus the tier that reads core and cafe
 ```
@@ -163,7 +163,7 @@ where per-org gating arrives.
   them, and a stale page is a docs site showing the wrong status.
 - **`npm ci`, not `npm install`.** The lockfile is what keeps two machines
   building the same site.
-- **Node 22.19.0 or newer.** Astro 7's floor is 22.12.0, but a transitive
+- **Node 22.23.4 or newer.** Astro 7's floor is 22.12.0, but a transitive
   dependency (`undici`, via `unifont`) asks for 22.19.0; the pin covers both so
   `npm ci` prints no engine warnings. `engines` in `package.json` and
   `mise.toml` both say so.
@@ -193,7 +193,7 @@ measured rather than remembered.** `kit`'s `node` job has no build step, and thi
 repository's suite asserts against `dist/` — on a fresh clone, `npm ci && npm
 test` with no build is 3 pass / 4 fail. It also runs `npm run lint`
 unconditionally, and this repository has no linter. `kit`'s `none` job would run
-the gate on the runner's node rather than the pinned 22.19.0. **The cost is that
+the gate on the runner's node rather than the pinned 22.23.4. **The cost is that
 this repository receives none of `kit`'s fixes** until someone ports them, and
 the header of `ci.yml` says so in full. The `pins` job asserts the reason stays
 written down, and that any future `uses:` line is the documented
@@ -439,7 +439,7 @@ bin/check-external-links  the network tier: do the external links answer
 .github/workflows/        ci.yml (gate, contracts, pins) + external-links.yml (network)
 deploy/docs.cafaye.com.yaml the deploy manifest: nginx with the per-tree /api/ locations
 cafaye.yml                the cafaye manifest, so the org tooling finds this repo
-mise.toml                 node 22.19.0
+mise.toml                 node 22.23.4
 ```
 
 See [AGENTS.md](AGENTS.md) for the conventions, and

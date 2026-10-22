@@ -58,7 +58,7 @@ them here on the next build. They are gitignored for this reason.
 to run in the default tier.
 
 ```sh
-mise install          # node 22.19.0, pinned in mise.toml
+mise install          # node 22.23.4, pinned in mise.toml
 bin/prime             # or: mise run prime
 ```
 
@@ -279,7 +279,7 @@ bin/prime                 the gate: npm ci, build, the offline suite. --contract
 bin/check-external-links  the network tier: do the external links answer. No retries
 .github/workflows/        ci.yml (gate, contracts, pins) and external-links.yml (network)
 cafaye.yml                the cafaye manifest, so the org tooling finds this repo
-mise.toml                 node 22.19.0 — covers Astro 7's floor and every transitive engine
+mise.toml                 node 22.23.4 — covers Astro 7's floor and every transitive engine
 ```
 
 ## Style

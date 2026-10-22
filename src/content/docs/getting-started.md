@@ -762,7 +762,7 @@ logs.
 | `darkroom` | `docker build -f docker/Dockerfile -t darkroom .` | 8080 | a Go binary on the same distroless base as `identity`; **the Dockerfile is under `docker/`, not the root** |
 | `muse` | `docker build -t muse .` | 8000 | `python:3.14-slim` |
 | `gateway` | `docker build -t gateway .` | 8080 | `gcr.io/distroless/static-debian12:nonroot` |
-| `parlor` | `docker build -t parlor .` | 3000 | `node:22.22.2-slim` (pinned in every stage), `ENV PORT=3000` |
+| `parlor` | `docker build -t parlor .` | 3000 | `node:22.23.4-slim` (pinned in every stage), `ENV PORT=3000` |
 
 **Two of those build lines used to carry flags that do not exist.** `courier`'s
 Dockerfile declares no `SERVICE_NAME` build argument, and its compose file passes

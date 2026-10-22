@@ -1892,7 +1892,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   (expectations read from `astro.config.mjs`, not hardcoded), and that the
   services directory is not empty.
 - `README.md` with run and deploy instructions, `AGENTS.md` with the
-  conventions, `CHANGELOG.md`, `.gitignore`, `mise.toml` (node 22.19.0 — above
+  conventions, `CHANGELOG.md`, `.gitignore`, `mise.toml` (node 22.23.4 — above
   Astro 7's 22.12.0 floor, so `npm ci` prints no engine warnings), and a draft
   `cafaye.yml` validated against core's manifest schema.
 

@@ -6,7 +6,7 @@
 #   mise run prime      # the gate: npm ci, the build, the smoke test
 #
 # WHY THESE NUMBERS
-#   - node 22.19.0 is above Astro 7's floor (`engines.node: >=22.12.0`) and at or
+#   - node 22.23.4 is above Astro 7's floor (`engines.node: >=22.12.0`) and at or
 #     above what every transitive dependency asks for. undici@8.11.2, pulled in
 #     by astro via unifont, declares `>=22.19.0`; pinning Astro's exact floor
 #     makes `npm ci` print EBADENGINE warnings on every install, and a gate whose
@@ -19,7 +19,7 @@
 #   - This repo does NOT need npm to be the only package manager. There is no
 #     pnpm-lock.yaml, so a pnpm pin here would be an unused install.
 [tools]
-node = "22.19.0"
+node = "22.23.4"
 
 [tasks.prime]
 description = "The gate: install dependencies, build the site, run the offline suite"

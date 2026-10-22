@@ -326,7 +326,7 @@ external:
     # `undici@8.11.2` asks for `>=22.19.0`, so a runner on node 20 fails the
     # build for a reason that has nothing to do with this repository's content.
     - kind: toolchain
-      name: node 22.19.0 and the npm that ships with it, the pin in mise.toml, repeated as engines.node in package.json
+      name: node 22.23.4 and the npm that ships with it, the pin in mise.toml, repeated as engines.node in package.json
       satisfy:
         # A bare name, so this is a claim about THIS MACHINE and the checker
         # deliberately does not run it: `gate.requirement-unproven` is a warning
