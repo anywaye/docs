@@ -141,7 +141,10 @@ function repoVisibility(rootDir) {
     fail(`no anywaye.yml at ${file}. Every member of the fleet carries one; a repository root without it is not a anywaye repo and cannot be ingested.`);
   }
   const text = readFileSync(file, 'utf8');
-  const match = /^repository:\r?\n(?:[ \t]+.*\r?\n)*?[ \t]+visibility:[ \t]*(public|private)\s*$/m.exec(text);
+  let match = /^repository:\r?\n(?:[ \t]+.*\r?\n)*?[ \t]+visibility:[ \t]*(public|private)\s*$/m.exec(text);
+  if (!match) {
+    match = /^visibility:[ \t]*(public|private)\s*$/m.exec(text);
+  }
   if (!match) {
     fail(`cannot read repository.visibility from ${file}. It is the field that decides what this build is allowed to publish, so a manifest missing it fails the sync rather than defaulting.`);
   }
