@@ -111,7 +111,7 @@ test('every advisory page carries a complete advisory block', () => {
     const rel = file.slice(root.length + 1);
     const block = advisoryBlock(file);
     assert.ok(block, `${rel} has no advisory: block`);
-    assert.match(block.id || '', /^CAFAYE-ADV-\d{4}-\d{3}$/, `${rel}: ids look like CAFAYE-ADV-2026-001`);
+    assert.match(block.id || '', /^ANYWAYE-ADV-\d{4}-\d{3}$/, `${rel}: ids look like ANYWAYE-ADV-2026-001`);
     assert.ok(block.published, `${rel}: no published date`);
     assert.ok(
       !Number.isNaN(new Date(block.published).getTime()),
@@ -164,7 +164,7 @@ test('the advisory index lists every advisory, newest first, and links to it', (
   }));
   const listed = rows
     .map((row) => row.cells[0])
-    .filter((cell) => /^\[CAFAYE-ADV-\d{4}-\d{3}/.test(cell));
+    .filter((cell) => /^\[ANYWAYE-ADV-\d{4}-\d{3}/.test(cell));
 
   const pages = advisoryPages();
   const expected = pages
@@ -172,7 +172,7 @@ test('the advisory index lists every advisory, newest first, and links to it', (
     .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
 
   assert.deepEqual(
-    listed.map((cell) => cell.match(/CAFAYE-ADV-\d{4}-\d{3}/)[0]),
+    listed.map((cell) => cell.match(/ANYWAYE-ADV-\d{4}-\d{3}/)[0]),
     expected.map((e) => e.id),
     'the index does not list every advisory exactly once, in newest-first order',
   );

@@ -1,12 +1,12 @@
-# AGENTS.md — working in `cafaye/loom` (the docs engine)
+# AGENTS.md — working in `anywaye/loom` (the docs engine)
 
-Read this before changing anything here. The house rules — SSH remotes for the repositories cafaye owns, and tests first: write the test, watch it fail, then implement —
+Read this before changing anything here. The house rules — SSH remotes for the repositories anywaye owns, and tests first: write the test, watch it fail, then implement —
 apply on top of it. **Never push. Never create a remote.** Work on
 `worker/<packet-id>`; the manager merges to `master`.
 
 ## What this repository is
 
-`docs`, the cafaye documentation site — docs.cafaye.com. It is a **static
+`docs`, the anywaye documentation site — docs.anywaye.com. It is a **static
 Astro site with Starlight**: Markdown in `src/content/docs/`, HTML out of
 `dist/`. There is no runtime, no server, no database, and no request handler
 that anyone here maintains.
@@ -27,12 +27,12 @@ materializes:
 - this repository's `src/content/docs/` — the public tree (owned);
 - each fleet repository's `docs/` — into `src/content/docs/projects/<name>/`
   (borrowed; the repo stays the source of truth beside its code);
-- `cafaye/notes` (private repo) — the notes tree (the org's private register);
+- `anywaye/notes` (private repo) — the notes tree (the org's private register);
 - a **private** repository's `notes/` — the notes tree at `projects/<name>/`.
 
 **A public repository never carries private notes.** A `notes/` directory in a
-repo whose `cafaye.yml` says `visibility: public` fails the sync, names the
-repo, and tells the writer where the notes belong: `cafaye/notes/projects/<name>/`.
+repo whose `anywaye.yml` says `visibility: public` fails the sync, names the
+repo, and tells the writer where the notes belong: `anywaye/notes/projects/<name>/`.
 The same failure covers a page inside a public repo's `docs/` declaring
 `visibility: private`. The leak these rules prevent happens at `git clone`,
 not at serve time — the guard is a guard because no serve-time rule can undo
@@ -102,9 +102,9 @@ bin/prime             # or: mise run prime
 `tests/contracts.mjs`, which is the only tier that can catch an example
 contradicting something that has actually shipped:
 
-- every `cafaye.yml` example in the docs goes through the **real
+- every `anywaye.yml` example in the docs goes through the **real
   `cafe contract lint`**, against core's real manifest schema — and so does this
-  repository's own `cafaye.yml`, because `getting-started.md` tells a reader to
+  repository's own `anywaye.yml`, because `getting-started.md` tells a reader to
   trust that tool;
 - every event type a page says a service **declares or emits** has a catalog row
   in core's `event-naming.md`;
@@ -177,7 +177,7 @@ Four things about this CI that are not obvious and that the file argues in full:
   than the pinned one. The cost is that **this repository receives none of kit's
   fixes** until someone ports them. The `pins` job asserts the reason is still
   written down, and that a future `uses:` line is the documented
-  `cafaye/kit/.github/workflows/ci.reusable.yml@master` rather than the stale
+  `anywaye/kit/.github/workflows/ci.reusable.yml@master` rather than the stale
   `workflows/` form that resolves to nothing.
 - **`node --test`'s summary is parsed by name, not by field position.** The
   first version used one `read` over the whole line; the line begins with `#`, so
@@ -219,9 +219,9 @@ rules that follow:
   even when the edit is obviously right.
 
 **`core` is the source of truth; this site summarizes it.** `contracts.md`
-describes `cafaye.yml`, the event envelope, and OpenAPI. Those specs are owned
+describes `anywaye.yml`, the event envelope, and OpenAPI. Those specs are owned
 by
-[cafaye/core](https://github.com/cafaye/core/blob/master/docs/manifest-conventions.md)
+[anywaye/core](https://github.com/anywaye/core/blob/master/docs/manifest-conventions.md)
 and are manager-owned. Where this page and `core` disagree, `core` is right.
 Never invent a contract detail here — link to the schema instead.
 
@@ -246,7 +246,7 @@ is a privacy surface and a maintenance burden this project has not agreed to
 carry. If you need something measured, raise it.
 
 **`site:` in `astro.config.mjs` is the real origin.** It is
-`https://docs.cafaye.com` and every canonical URL resolves against it. Change it
+`https://docs.anywaye.com` and every canonical URL resolves against it. Change it
 in the same commit as a real domain change, never locally.
 
 ## Layout
@@ -278,7 +278,7 @@ bin/prime                 the gate: npm ci, build, the offline suite. --contract
                           the contract tier, --fast stops after the install
 bin/check-external-links  the network tier: do the external links answer. No retries
 .github/workflows/        ci.yml (gate, contracts, pins) and external-links.yml (network)
-cafaye.yml                the cafaye manifest, so the org tooling finds this repo
+anywaye.yml                the anywaye manifest, so the org tooling finds this repo
 mise.toml                 node 22.23.4 — covers Astro 7's floor and every transitive engine
 ```
 
@@ -288,7 +288,7 @@ mise.toml                 node 22.23.4 — covers Astro 7's floor and every tran
   repository hands out.
 - Comments explain **why**, not what. A comment restating the line below it is
   noise; a comment recording a decision that would otherwise be relitigated is
-  the point. The headers in `astro.config.mjs`, `cafaye.yml`, and `bin/prime`
+  the point. The headers in `astro.config.mjs`, `anywaye.yml`, and `bin/prime`
   are the model.
 - One sentence per line in Markdown body text, which keeps diffs readable.
 - Wrap Markdown at a readable width; do not reflow a file you did not otherwise

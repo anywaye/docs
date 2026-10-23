@@ -21,6 +21,6 @@ chmod 600 "$KEY_CACHE"
 
 echo "deploy-key: writing the key and the box's host key to $SANDBOX"
 cat "$KEY_CACHE" | instabox ssh "$SANDBOX" -- "install -d -m 700 ~/.ssh && cat > ~/.ssh/docs_deploy && chmod 600 ~/.ssh/docs_deploy"
-ssh-keyscan -t ed25519 "$(getent hosts docs.cafaye.com 2>/dev/null | awk '{print $1}' || echo 169.58.108.209)" 2>/dev/null | grep ed25519 \
+ssh-keyscan -t ed25519 "$(getent hosts docs.anywaye.com 2>/dev/null | awk '{print $1}' || echo 169.58.108.209)" 2>/dev/null | grep ed25519 \
   | instabox ssh "$SANDBOX" -- "cat > ~/.ssh/known_hosts && chmod 600 ~/.ssh/known_hosts"
 echo "deploy-key: done"

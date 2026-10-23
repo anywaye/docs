@@ -5,7 +5,7 @@
 //   A public repository never carries private notes. The leak that rule
 //   prevents does not happen at serve time, where a flag could hide it: it
 //   happens at `git clone`, the moment the push lands. A `notes/` directory
-//   in a repository whose cafaye.yml says `visibility: public` is public, and
+//   in a repository whose anywaye.yml says `visibility: public` is public, and
 //   no build step, no edge rule and no frontmatter can walk that back. The
 //   same applies to a page inside a public repository's docs/ declaring
 //   `visibility: private` — the declaration is prose; the push is the fact.
@@ -117,7 +117,7 @@ test('the sync wrote a manifest the tree invariants can be derived from', () => 
   for (const project of manifest.projects) {
     assert.ok(
       project.visibility === 'public' || project.visibility === 'private',
-      `${project.name} recorded without a visibility — the sync must read it from cafaye.yml`,
+      `${project.name} recorded without a visibility — the sync must read it from anywaye.yml`,
     );
   }
 });

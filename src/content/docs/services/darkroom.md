@@ -153,7 +153,7 @@ does not compile the `s3` feature at all. The database tier is separate:
 
 See [Running the gates](/getting-started/#darkroom--three-tiers-two-of-them-non-default).
 
-- **Repository:** [github.com/cafaye/darkroom](https://github.com/cafaye/darkroom)
+- **Repository:** [github.com/anywaye/darkroom](https://github.com/anywaye/darkroom)
 - **Language:** Rust
 - **Namespace / event source:** `darkroom` — publishes `darkroom.asset.ready`,
   `darkroom.asset.deleted`, `darkroom.variant.created`

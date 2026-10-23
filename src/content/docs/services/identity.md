@@ -1,6 +1,6 @@
 ---
 title: identity
-description: Auth, sessions, accounts and tenancy, and the OIDC provider — cafaye's security boundary.
+description: Auth, sessions, accounts and tenancy, and the OIDC provider — anywaye's security boundary.
 ---
 
 `identity` is the service that knows who someone is. It owns users and sessions,
@@ -195,7 +195,7 @@ started](/getting-started/#step-5--run-a-service-locally).
 `gofmt -l .` must print nothing. See [Running the
 gates](/getting-started/#identity--needs-a-database-and-migrations-applied).
 
-- **Repository:** [github.com/cafaye/identity](https://github.com/cafaye/identity)
+- **Repository:** [github.com/anywaye/identity](https://github.com/anywaye/identity)
 - **Language:** Go
 - **Namespace / event source:** `identity`
 - **Container port:** 8080 · `gcr.io/distroless/static-debian12:nonroot`

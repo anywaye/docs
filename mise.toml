@@ -26,7 +26,7 @@ description = "The gate: install dependencies, build the site, run the offline s
 run = "./bin/prime"
 
 # The tier `prime` deliberately does not run: it needs a readable checkout of
-# cafaye/core and a built `caf` binary, and a gate that needs a sibling
+# anywaye/core and a built `caf` binary, and a gate that needs a sibling
 # repository is a gate a contributor with one checkout cannot run. It is the
 # only thing here that can catch a documented example contradicting a shipped
 # contract, so it is a named command rather than an afterthought.

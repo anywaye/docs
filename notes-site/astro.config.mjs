@@ -17,7 +17,7 @@
 //     over private notes is an artifact that must be served behind the same
 //     gate as the pages. Search is a deferred decision (see the README), not
 //     an oversight — when it lands, the index is a third gated artifact.
-//   - `editLink` is absent. The notes repository (cafaye/notes) is private;
+//   - `editLink` is absent. The notes repository (anywaye/notes) is private;
 //     an edit link to it on an authenticated page is a link to a repository
 //     the reader may not be able to open, and this site does not pretend
 //     otherwise.
@@ -26,7 +26,7 @@ import starlight from '@astrojs/starlight';
 import { computedSidebar } from '../sidebar.mjs';
 
 export default defineConfig({
-  site: 'https://docs.cafaye.com',
+  site: 'https://docs.anywaye.com',
   base: '/notes',
   // The second build in one package: `--config notes-site/astro.config.mjs`
   // moves the config, not the project root, so without this the notes build
@@ -39,10 +39,10 @@ export default defineConfig({
   trailingSlash: 'ignore',
   integrations: [
     starlight({
-      title: 'cafaye notes',
+      title: 'anywaye notes',
       description:
-        'cafaye private notes — decisions, operations, debt and the notes that never belonged in a public repository.',
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/cafaye' }],
+        'anywaye private notes — decisions, operations, debt and the notes that never belonged in a public repository.',
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/anywaye' }],
       credits: true,
       // Starlight injects /notes/404 by default, which collides with its own
       // catch-all over the docs collection. This site owns /404 itself in

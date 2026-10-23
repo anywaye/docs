@@ -14,10 +14,10 @@ the failing step.**
 
 | Stack | Command | What it runs |
 |---|---|---|
-| Go services (cafaye) | `bin/prime` | `go mod download`, `go build ./...`, `go vet ./...`, `go test -count=1 ./...` (plus service-specific steps like chart render, db provisioning) |
-| Go services (cafaye, keyholder) | `bin/prime` → `bin/gate` | build + vet + lint (golangci v2.14.0) + fmt + test + chart render |
-| Rails services (cafaye + anywaye) | `bin/ci` | brakeman, bundler-audit, rubocop, tests (Rails CI harness) |
-| Rails services (cafaye) | `bin/prime` → `bin/ci` | alias for the above (added for convention parity) |
+| Go services (anywaye) | `bin/prime` | `go mod download`, `go build ./...`, `go vet ./...`, `go test -count=1 ./...` (plus service-specific steps like chart render, db provisioning) |
+| Go services (anywaye, keyholder) | `bin/prime` → `bin/gate` | build + vet + lint (golangci v2.14.0) + fmt + test + chart render |
+| Rails services (anywaye + anywaye) | `bin/ci` | brakeman, bundler-audit, rubocop, tests (Rails CI harness) |
+| Rails services (anywaye) | `bin/prime` → `bin/ci` | alias for the above (added for convention parity) |
 | Python (vox, anydocs-py) | `bin/prime` / `pytest` | `python3 -m unittest discover` / `pytest` |
 | Node/TS (anyweb, anycode) | `npm test` / `npm run build` | typecheck + tests + build |
 | Astro (anyweb, loom) | `npm run build` + `npm test` | build + smoke/links/examples |
@@ -25,7 +25,7 @@ the failing step.**
 
 ## Rules
 
-1. **One gate per repo.** `bin/prime` for cafaye services; `bin/ci` for Rails
+1. **One gate per repo.** `bin/prime` for anywaye services; `bin/ci` for Rails
    products; `npm test`/`pytest` for others. Never two competing entry points.
 2. **The gate must be runnable with no network** (offline tier). Network-dependent
    checks (contract tests, DB provisioning) are opt-in flags.

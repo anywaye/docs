@@ -203,7 +203,7 @@ or set the test DSN to a Postgres you already run. Read the variable names out o
 passes against the wrong server, and a DSN aimed at a native Postgres on 5432
 fails as `role "courier" does not exist`, which reads like a missing migration.
 
-- **Repository:** [github.com/cafaye/courier](https://github.com/cafaye/courier)
+- **Repository:** [github.com/anywaye/courier](https://github.com/anywaye/courier)
 - **Language:** Elixir
 - **Namespace / event source:** `courier`
 - **Container port:** 4000

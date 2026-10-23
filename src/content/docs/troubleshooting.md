@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: cafaye problems keyed by the symptom you can see, not by the component you suspect.
+description: anywaye problems keyed by the symptom you can see, not by the component you suspect.
 ---
 
 [A service is down](/runbooks/service-down/) is organised by which component
@@ -10,7 +10,7 @@ have guessed.
 
 The conditions below that turned out to be fleet-wide are also published as
 [advisories](/advisories/): the symptom, the cause, and the fix, written for a
-reader who does not run cafaye at all.
+reader who does not run anywaye at all.
 
 Each entry: **what to check**, **what it usually means**, **what to do**.
 
@@ -256,21 +256,21 @@ diagnosis.
 ### Check
 
 ```sh
-export PGPASSWORD=cafaye PGPORT=15500     # or whatever bin/dev printed
+export PGPASSWORD=anywaye PGPORT=15500     # or whatever bin/dev printed
 
 # 1. What the server actually said. This is the line that decides everything,
 #    and it is in the DATABASE's log, not the service's.
 docker logs <pg-container> 2>&1 | grep -iE 'permission denied for database|too many connections'
 
 # 2. Does the database exist, and does the role hold CONNECT on it?
-psql -h localhost -U cafaye -d cafaye_platform -X -c "
+psql -h localhost -U anywaye -d anywaye_platform -X -c "
 SELECT d.datname, r.rolname, r.rolconnlimit,
        has_database_privilege(r.rolname, d.datname, 'CONNECT') AS may_connect
   FROM pg_database d, pg_roles r
  WHERE d.datname = r.rolname ORDER BY d.datname;"
 
 # 3. Is the isolation boundary actually in place, cluster-wide?
-psql -h localhost -U cafaye -d cafaye_platform -X -tAc "
+psql -h localhost -U anywaye -d anywaye_platform -X -tAc "
 SELECT coalesce(string_agg(datname, ' '), 'none') FROM pg_database
  WHERE NOT datistemplate AND has_database_privilege('public', datname, 'CONNECT');"
 ```
@@ -308,8 +308,8 @@ re-apply itself to a database that did not exist when it ran. So:
 The fix is the same statement, not a service change:
 
 ```sh
-psql -h localhost -U cafaye -d cafaye_platform -X -c 'REVOKE ALL ON DATABASE <name> FROM PUBLIC;'
-psql -h localhost -U cafaye -d cafaye_platform -X -c 'GRANT CONNECT, TEMPORARY ON DATABASE <name> TO <name>;'
+psql -h localhost -U anywaye -d anywaye_platform -X -c 'REVOKE ALL ON DATABASE <name> FROM PUBLIC;'
+psql -h localhost -U anywaye -d anywaye_platform -X -c 'GRANT CONNECT, TEMPORARY ON DATABASE <name> TO <name>;'
 ```
 
 **3. The connection budget for that role is exhausted, and it looks like a
@@ -572,7 +572,7 @@ verified command table, with the two that bite called out.
 ### Check
 
 ```sh
-cd cafaye/cafe && go run ./cmd/cafe contract lint /path/to/cafaye
+cd anywaye/cafe && go run ./cmd/cafe contract lint /path/to/anywaye
 ```
 
 ### What it usually means
@@ -583,7 +583,7 @@ cd cafaye/cafe && go run ./cmd/cafe contract lint /path/to/cafaye
 | --- | --- |
 | `parlor` | `is missing required fields ["name", "language", "core", "repository", "owner"]` |
 
-`parlor`'s is the pre-`core` `apiVersion: cafaye/v0-draft` shape with no `name` at
+`parlor`'s is the pre-`core` `apiVersion: anywaye/v0-draft` shape with no `name` at
 the top level. It is documentation of intent.
 
 **This entry used to list three repositories.** `cafe`'s manifest gained its
@@ -624,11 +624,11 @@ less than it appears to:
 | `identity` | the integration tests | `TEST_DATABASE_URL` **and a `goose up` first** — without it: `relation "public.oidc_clients" does not exist`. **Its CI now runs this tier and asserts a floor on it**, so this row is about a local run, not about `identity` |
 | `darkroom` | the `#[ignore]`d database tests, and the `s3` feature entirely | `TEST_DATABASE_URL`; `cargo test` alone does not even compile the feature |
 | `muse` | the two core-parity tests | `MUSE_CORE_SCHEMAS=../core/schemas` |
-| `pantry` | all eight drift tests, and the `../cafe` contract lint | `PANTRY_CAFAYE_ROOT` pointing at a workspace |
+| `pantry` | all eight drift tests, and the `../cafe` contract lint | `PANTRY_ANYWAYE_ROOT` pointing at a workspace |
 | `courier` | nothing, but it needs a database to run at all | a Postgres it can reach — **`bin/dev` brings up kit's stack**, whose Postgres is on `KIT_POSTGRES_PORT` (default `15500`), not 5432. `docker compose up -d db` cannot work: this repository has no `db` service, and its compose file is an override that cannot start a database alone |
 | `kit` | everything, if PyYAML is missing | a virtualenv — the gate exits 1 rather than pretending |
 
-**Or CI never ran at all.** `docs` is the only cafaye repository with no
+**Or CI never ran at all.** `docs` is the only anywaye repository with no
 workflow on `master`, so a green badge on a `docs` commit is an absence of
 evidence. Everywhere else the badge may exist and still be green having skipped
 the tier above — with one exception now: `identity`'s workflow starts Postgres,

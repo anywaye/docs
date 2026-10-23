@@ -1,4 +1,4 @@
-# docs.cafaye.com — the public site at / and the private notes at /notes.
+# docs.anywaye.com — the public site at / and the private notes at /notes.
 #
 # Plain manifests, deliberately NOT an Argo application: this namespace is the
 # documentation surface, not a fleet service, and it belongs to the docs
@@ -211,16 +211,16 @@ spec:
     spec:
       containers:
         - name: gate
-          image: ghcr.io/cafaye/press-gate:latest
+          image: ghcr.io/anywaye/press-gate:latest
           ports:
             - containerPort: 8081
           env:
             - name: PRESS_GATE_ADDR
               value: ":8081"
             - name: PRESS_IDENTITY_URL
-              value: "https://auth.cafaye.com"
+              value: "https://auth.anywaye.com"
             - name: PRESS_JWKS_URL
-              value: "https://auth.cafaye.com/.well-known/jwks.json"
+              value: "https://auth.anywaye.com/.well-known/jwks.json"
             - name: PRESS_NOTES_AUDIENCE
               value: "notes"
             # The internal tenant's allowlist: the operator account that owns
@@ -254,7 +254,7 @@ metadata:
 spec:
   secretName: docs-tls
   dnsNames:
-    - docs.cafaye.com
+    - docs.anywaye.com
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
@@ -267,7 +267,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: docs.cafaye.com
+    - host: docs.anywaye.com
       http:
         paths:
           - path: /
@@ -279,5 +279,5 @@ spec:
                   number: 8080
   tls:
     - hosts:
-        - docs.cafaye.com
+        - docs.anywaye.com
       secretName: docs-tls

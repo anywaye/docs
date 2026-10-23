@@ -10,10 +10,10 @@ READMEs are authoritative; this page is the index. Variables are grouped by
 service. Required vars must be set or the service fails to boot (or fails
 closed). Optional vars have a default or "unset is a supported state."
 
-See also: `cafaye/kit/templates/compose/.env.example` for the shared `KIT_*`
+See also: `anywaye/kit/templates/compose/.env.example` for the shared `KIT_*`
 infrastructure vars (Postgres, NATS, Redis, OTEL, Grafana) that apply fleet-wide.
 
-## cafaye platform services
+## anywaye platform services
 
 ### core
 | Var | Required | Default | Notes |
@@ -30,7 +30,7 @@ infrastructure vars (Postgres, NATS, Redis, OTEL, Grafana) that apply fleet-wide
 | `LOG_LEVEL` | no | `info` | slog level |
 | `SIGNUP_SIGNING_KEY` | **yes** | — | HMAC key, 32 bytes |
 | `MFA_ENCRYPTION_KEY` | no | unset | TOTP seal key |
-| `MFA_ISSUER` | no | `cafaye identity` | authenticator label |
+| `MFA_ISSUER` | no | `anywaye identity` | authenticator label |
 | `COURIER_BASE_URL` / `COURIER_TOKEN` | no | unset | mail service |
 | `OAUTH_*_CLIENT_ID` / `_SECRET` | both-or-neither | unset | Google, GitHub OAuth |
 | `REQUIRE_EMAIL_VERIFICATION` | no | `false` | gate sign-in on verified email |
@@ -73,7 +73,7 @@ infrastructure vars (Postgres, NATS, Redis, OTEL, Grafana) that apply fleet-wide
 |---|---|---|---|
 | `MUSE_DATABASE_URL` | **yes** | — | Postgres DSN |
 | `MUSE_VAULT_KEY` | **yes** | — | vault seal key, base64 32 bytes |
-| `MUSE_IDENTITY_ISSUER` | no | `https://identity.cafaye.com` | accepted issuer |
+| `MUSE_IDENTITY_ISSUER` | no | `https://identity.anywaye.com` | accepted issuer |
 | `MUSE_IDENTITY_AUDIENCE` | no | `muse` | accepted audience |
 | `MUSE_JWKS_URL` | no | derived | key-set URL |
 | `MUSE_JWKS_TTL_SECONDS` | no | `300` | key cache TTL |
@@ -123,13 +123,13 @@ infrastructure vars (Postgres, NATS, Redis, OTEL, Grafana) that apply fleet-wide
 ### darkroom
 | Var | Required | Default | Notes |
 |---|---|---|---|
-| `DATABASE_URL` | **yes** | `postgres://darkroom:cafaye@localhost:15500/darkroom` | owner DSN (migrations) |
-| `DARKROOM_DATABASE_URL` | **yes** | `postgres://darkroom_app:cafaye@localhost:15500/darkroom` | app/login DSN |
-| `DARKROOM_JWKS_URL` | **yes** | `https://identity.cafaye.com/.well-known/jwks.json` | identity JWKS |
-| `DARKROOM_ISSUER` | **yes** | `https://identity.cafaye.com` | token issuer |
+| `DATABASE_URL` | **yes** | `postgres://darkroom:anywaye@localhost:15500/darkroom` | owner DSN (migrations) |
+| `DARKROOM_DATABASE_URL` | **yes** | `postgres://darkroom_app:anywaye@localhost:15500/darkroom` | app/login DSN |
+| `DARKROOM_JWKS_URL` | **yes** | `https://identity.anywaye.com/.well-known/jwks.json` | identity JWKS |
+| `DARKROOM_ISSUER` | **yes** | `https://identity.anywaye.com` | token issuer |
 | `DARKROOM_AUDIENCE` | **yes** | `darkroom` | token audience |
 | `KIT_POSTGRES_PORT` | no | `15500` | shared cluster host port |
-| `KIT_POSTGRES_PASSWORD` | no | `cafaye` | cluster password |
+| `KIT_POSTGRES_PASSWORD` | no | `anywaye` | cluster password |
 | `PORT` | no | `8080` | listen port |
 | `DARKROOM_BIND_ADDR` | no | `0.0.0.0` | bind address |
 | `DARKROOM_LOG_LEVEL` | no | `info` | log level |
@@ -154,7 +154,7 @@ infrastructure vars (Postgres, NATS, Redis, OTEL, Grafana) that apply fleet-wide
 | `PARLOR_TENANT_ID` | no | unset | tenant resource attr |
 | `OTEL_SERVICE_NAME` | no | `parlor` | service name |
 
-### website (cafaye.com frontend)
+### website (anywaye.com frontend)
 | Var | Required | Default | Notes |
 |---|---|---|---|
 | `IDENTITY_URL` | **yes** | — | identity service |
@@ -249,16 +249,16 @@ Additional project-specific vars:
 - **anywaye-rails**: `ANYMARK_URL/TOKEN`, `ANYWAYE_AGENT_*`, `ANYWAYE_WORKFLOW_MCP_*`, `ANYWAYE_WORKSPACE_ROOT`, `TYPESAFE_MODEL/TIMEOUT`, `AGENT_WORKER_API_KEY`, `PRIMARY_DATABASE_URL`, `ERRORS_DATABASE_URL`.
 - **anymark**: `ANYGIT_URL/TOKEN/WEBHOOK_SECRET/WEBHOOK_URL/PUBLIC_URL`, `STRIPE_SECRET_KEY/WEBHOOK_SECRET`, `EMBEDDINGS_*`, `CRAWL4AI_URL/TOKEN`, `JINA_API_KEY`, `ZOEKT_*`, `UK_COMPANIES_HOUSE_API_KEY`, `GITHUB_CLIENT_ID/SECRET`, `REGISTRY_IMPORTS_PAUSED`, `READER_RATE_LIMIT`, `SITES_DAILY_OWNER_FETCH_LIMIT`, quota/cost vars.
 
-### SDKs (cafaye-py, cafaye-rb, cafaye-ts)
-Test/release vars: `CAFAYE_LIVE_BASE_URL`, `CAFAYE_LIVE_TOKEN`, `CAFAYE_TEST_DATABASE_URL`, `CAFAYE_CORE`, `CAFAYE_BASE_URL`, `PYPI_API_TOKEN`, `NODE_AUTH_TOKEN`, `GITHUB_REF_NAME`. See each SDK's test config.
+### SDKs (anywaye-py, anywaye-rb, anywaye-ts)
+Test/release vars: `ANYWAYE_LIVE_BASE_URL`, `ANYWAYE_LIVE_TOKEN`, `ANYWAYE_TEST_DATABASE_URL`, `ANYWAYE_CORE`, `ANYWAYE_BASE_URL`, `PYPI_API_TOKEN`, `NODE_AUTH_TOKEN`, `GITHUB_REF_NAME`. See each SDK's test config.
 
 ## Shared `KIT_*` infrastructure vars
 
-Every service using kit's compose stack shares these (from `cafaye/kit/templates/compose/.env.example`). They are operator/infra-level and apply fleet-wide:
+Every service using kit's compose stack shares these (from `anywaye/kit/templates/compose/.env.example`). They are operator/infra-level and apply fleet-wide:
 
 `KIT_STACK_URL`, `KIT_STACK_OFFLINE`, `KIT_VENDOR_DIR`, `KIT_COMPOSE_DIR`, `KIT_STACK_NAME`, `KIT_GRAFANA_PORT`, `KIT_POSTGRES_PORT`, `KIT_POSTGRES_USER/PASSWORD/DB/TAG`, `KIT_POSTGRES_DATABASES`, `KIT_POSTGRES_EXTENSIONS`, `KIT_POSTGRES_ROLE_CONNECTIONS`, `KIT_POSTGRES_STATEMENT_TIMEOUT_MS`, `KIT_POSTGRES_IDLE_IN_TRANSACTION_TIMEOUT_MS`, `KIT_POSTGRES_MAX_CONNECTIONS`, `KIT_NATS_CLIENT_PORT`, `KIT_NATS_MONITOR_PORT`, `KIT_NATS_TAG`, `KIT_NATS_BOX_TAG`, `KIT_REDIS_PORT/TAG`, `KIT_OTEL_*` (collector endpoints, tags, memory, batch, redaction), `KIT_TEMPO_*`, `KIT_LOKI_*`, `KIT_GRAFANA_*`, `KIT_CLICKSTACK_*`, `KIT_PGVECTOR_TAG`.
 
-Validated by `cafaye/kit/tests/validate.sh`.
+Validated by `anywaye/kit/tests/validate.sh`.
 
 ## Conventions
 

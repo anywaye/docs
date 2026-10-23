@@ -1,6 +1,6 @@
 ---
 title: Backup and Restore
-description: What cafaye's deployment actually backs up, the data you lose when a database is destroyed, and how to restore and prove it — on the substrate, and on the Kamal path that retires at parity.
+description: What anywaye's deployment actually backs up, the data you lose when a database is destroyed, and how to restore and prove it — on the substrate, and on the Kamal path that retires at parity.
 ---
 
 **A backup nobody has restored is a file.** This page is the dump half and the
@@ -12,13 +12,13 @@ the fleet's gates run on today.
 
 **The substrate path is decided, not built.** Postgres is CloudNativePG;
 `cafe backup` drives `kubectl cnpg` and proves a restore into a scratch database
-it then drops (cafaye/notes/deployment.md). The CNPG implementation of
+it then drops (anywaye/notes/deployment.md). The CNPG implementation of
 `backup.Runner` has not landed, so the specific `kubectl cnpg` subcommands are
 **unverified** — named here as the driver, not as a procedure a reader can copy.
 
 **The Kamal path retires at parity, not before.** The fleet's gates run on
 compose/Kamal today and keep running until the substrate exists
-(cafaye/notes/deployment.md). `kamal-backup` running as a Kamal accessory — dumping
+(anywaye/notes/deployment.md). `kamal-backup` running as a Kamal accessory — dumping
 Postgres with `pg_dump`, writing through restic into an R2 bucket — is the
 mechanism those gates use. Its detailed drill instructions (`bin/drill`) are
 removed from this page: the path retires at parity, and an operator following
@@ -60,7 +60,7 @@ migrations, because the bytes go straight to the bucket by presigned `PUT`. A
 restored `darkroom` database whose bucket is empty has every asset pointing at
 nothing. **The bucket is the second thing to back up and this page cannot tell
 you how**, because how you back it up is a property of your bucket, not of
-cafaye. Note also that `DARKROOM_OBJECT_STORE` defaults to `memory`, and
+anywaye. Note also that `DARKROOM_OBJECT_STORE` defaults to `memory`, and
 `memory` means uploads are lost on restart — so if you have not set it to `s3`
 with a real `DARKROOM_S3_BUCKET`, there is nothing to back up *and* nothing to
 lose, which is a worse problem than it sounds.
@@ -126,20 +126,20 @@ credential, and it is the one most worth writing down twice.**
 
 ## The substrate path: CloudNativePG and `cafe backup`
 
-**Backups and failover are configuration** (cafaye/notes/deployment.md) — CloudNativePG's
+**Backups and failover are configuration** (anywaye/notes/deployment.md) — CloudNativePG's
 whole argument is that a Postgres backup is a declarative object, not a script.
 We sell code that runs on the customer's server, so their data loss is our
 support ticket.
 
 **`cafe backup` is the command.** It gets the same treatment as `cafe deploy`:
 `backup.Runner` gains a CNPG implementation driving `kubectl cnpg`, replacing the
-Kamal drill (cafaye/notes/deployment.md). The command's own description — quoted in
+Kamal drill (anywaye/notes/deployment.md). The command's own description — quoted in
 [getting started](/getting-started/) — is *"take one real backup and prove it
 restores, into a scratch database it then drops."*
 
 :::caution[Unverified — the CNPG implementation does not exist yet]
-`backup.Runner`'s CNPG implementation has not landed; cafaye/notes/deployment.md says it
-"gains" one, future tense. The driver is `kubectl cnpg` (cafaye/notes/deployment.md); the
+`backup.Runner`'s CNPG implementation has not landed; anywaye/notes/deployment.md says it
+"gains" one, future tense. The driver is `kubectl cnpg` (anywaye/notes/deployment.md); the
 specific subcommands are not documented here because the implementation that
 would name them does not exist. When it lands, this section is the thing to
 write — and a subcommand invented in the meantime is one a reader will type
@@ -148,7 +148,7 @@ against a cluster that does not have it.
 
 **The offsite copy is rclone, and it is deliberately not part of the backup
 story.** Observability data is the one stateful thing the box can afford to lose
-(cafaye/notes/deployment.md).
+(anywaye/notes/deployment.md).
 
 ## The retiring Kamal path
 

@@ -1,14 +1,14 @@
 ---
 title: Services
-description: One page per cafaye service — what it owns, which language it is written in, and what exists today.
+description: One page per anywaye service — what it owns, which language it is written in, and what exists today.
 ---
 
-cafaye is an organization, not a single repository. Each service below lives in
+anywaye is an organization, not a single repository. Each service below lives in
 its own repo, is versioned and installable on its own, and declares its
-contract surface in a `cafaye.yml` manifest — so you can take the one you need
+contract surface in a `anywaye.yml` manifest — so you can take the one you need
 rather than adopting the whole platform.
 
-**Read the status line on each page before you rely on it.** cafaye is in early
+**Read the status line on each page before you rely on it.** anywaye is in early
 development; a page that says a command does not ship yet is telling you the
 truth, not hedging.
 
@@ -22,12 +22,12 @@ truth, not hedging.
 | [gateway](/services/gateway/) | The public gateway — the only door in, terminating auth and rate limits in front of every service | Go | v0 — real auth, a Redis-backed browser session store, Redis-backed limits, and a **static configured route table**. **No API keys and no mounted scope check since the Go cutover** |
 | [parlor](/services/parlor/) | The web app — App Router shell, health surfaces, and the screens built against identity's and billing's live contracts | TypeScript | In progress — accounts, invitations, billing screens. **No admin surface, no e2e suite** |
 | [pantry](/services/pantry/) | The project registry — what every official project is, what it exposes, and where to reach it | Go | v0 — public tier-1 reads (name, description, language, visibility), the `{owner}/{name}` address, version lists, and mint-on-first-publish writes. **Closed source with a public endpoint** |
-| [box](/services/box/) | The operated control plane — customer installations, releases and approvals, and the short-lived capabilities a box redeems on itself | Ruby | v0 — the entitlement lifecycle, capability redeem and box enrollment, installations, email-provider connections, and the escalation queue. **Cafaye-operated, never on a customer box, and no UI of its own** |
+| [box](/services/box/) | The operated control plane — customer installations, releases and approvals, and the short-lived capabilities a box redeems on itself | Ruby | v0 — the entitlement lifecycle, capability redeem and box enrollment, installations, email-provider connections, and the escalation queue. **Anywaye-operated, never on a customer box, and no UI of its own** |
 | [keyholder](/services/keyholder/) | The registry-credential exchange — a box-bound `registry.pull` capability in, a short-lived pull-only `dockerconfigjson` out | Go | v0 — the exchange and its four refusals, redacted by construction. **Holds the fleet's only registry material; depends on box** |
 
 The last three are **platform services** rather than adoptable ones. `pantry` is
 closed source with a public endpoint — the contract is published, the
-implementation is not. `box` and `keyholder` run on Cafaye infrastructure and
+implementation is not. `box` and `keyholder` run on Anywaye infrastructure and
 are never part of a customer source bundle or install. They belong on this page
 because the platform's own front door cannot omit them; read each page before
 assuming you can self-host it.
@@ -49,7 +49,7 @@ carries `muse`'s measured detail and the commit; the [gateway page](/services/ga
 carries its own.
 
 Two **language** cells changed in this pass, and both were read against the
-manifest rather than remembered. `darkroom` read *Rust*; its `cafaye.yml` now
+manifest rather than remembered. `darkroom` read *Rust*; its `anywaye.yml` now
 says `language: go`, and the tree is a Go module (`go.mod`, `internal/`) whose
 Rust sources were deleted in the rewrite (`64f39a0`, 2026-10-04). `parlor` read
 *Next.js*; its manifest says `typescript`. **The [darkroom page](/services/darkroom/)

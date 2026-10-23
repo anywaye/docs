@@ -1,9 +1,9 @@
 ---
 title: parlor
-description: The app shell — a production-ready frontend template plus the admin surface every cafaye product inherits.
+description: The app shell — a production-ready frontend template plus the admin surface every anywaye product inherits.
 ---
 
-`parlor` is the front door of every product built on cafaye: a Next.js app shell —
+`parlor` is the front door of every product built on anywaye: a Next.js app shell —
 signup, login, accounts and tenancy, team and invitation management, and the
 billing screens — plus the admin surface they all inherit. It is **Next.js**,
 because it is the web and nothing else needs to be.
@@ -22,7 +22,7 @@ and a vitest rig are all in place.
 end-to-end suite. This is not a finished template to clone today — it is a
 working shell that is still growing.
 
-**Its `cafaye.yml` is still the pre-`core` `apiVersion: cafaye/v0-draft` shape
+**Its `anywaye.yml` is still the pre-`core` `apiVersion: anywaye/v0-draft` shape
 with no `name` at the top level, and it does not validate.** It is the only
 repository in the fleet where `cafe contract lint` fails. See the drift audit in
 [Topology](/architecture/#cross-repo-drift-audit).
@@ -33,11 +33,11 @@ repository in the fleet where `cafe contract lint` fails. See the drift audit in
 That is the design decision to understand before using it. You clone it, you read
 all of it, you change what you need and ship your fork: no license key, no
 feature gate, no call home, and no vendor who can raise your prices or pull the
-rug later. Anything cafaye adds to the shell arrives as code in your repository,
+rug later. Anything anywaye adds to the shell arrives as code in your repository,
 not as a runtime dependency, and upstream improvements come back as a merge
 rather than a migration.
 
-**The test of whether that is real:** if cafaye disappeared tomorrow, a
+**The test of whether that is real:** if anywaye disappeared tomorrow, a
 `parlor`-based product would keep shipping.
 
 ## The tenancy surface is gated by role, transcribed from identity
@@ -76,7 +76,7 @@ change rather than a rewrite.
 The Playwright suite (signup, login, MFA, invites, checkout) is born here and is
 **not written yet**.
 
-- **Repository:** [github.com/cafaye/parlor](https://github.com/cafaye/parlor)
+- **Repository:** [github.com/anywaye/parlor](https://github.com/anywaye/parlor)
 - **Language:** Next.js / TypeScript
 - **Local port:** 3000 · `bun run dev`
 - **Health:** `GET /healthz` → `{"status":"ok"}` · `GET /readyz` →

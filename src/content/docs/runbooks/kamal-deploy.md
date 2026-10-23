@@ -6,7 +6,7 @@ description: 'Kamal is the **current** deploy substrate for Rails/Phoenix servic
 # Kamal deploy path
 
 Kamal is the **current** deploy substrate for Rails/Phoenix services. It retires
-at parity with the k3s/Argo substrate described in `cafaye/notes/deployment.md`, not
+at parity with the k3s/Argo substrate described in `anywaye/notes/deployment.md`, not
 before. Until then, this is how a service ships.
 
 ## The command
@@ -24,7 +24,7 @@ pushes to the registry, pulls on the host, and runs the proxy healthcheck.
 | Var | Meaning |
 |---|---|
 | `KIT_SERVICE` | service name (e.g. `courier`) |
-| `KIT_REGISTRY_ORG` | registry org (e.g. `cafaye`) |
+| `KIT_REGISTRY_ORG` | registry org (e.g. `anywaye`) |
 | `KIT_REPO` | image repo name |
 | `KIT_WEB_HOST` | deploy host IP/hostname |
 | `KIT_APP_DOMAIN` | public domain (e.g. `courier.example.com`) |
@@ -70,4 +70,4 @@ it to `amd64` before deploying or the container fails at exec time.
 
 Kamal retires at parity with the k3s/Argo substrate. Until then, no new
 deploy path may be added beside it (no helm-from-CI). See
-`cafaye/notes/deployment.md`.
+`anywaye/notes/deployment.md`.

@@ -1,8 +1,8 @@
 ---
 title: A readiness probe that times out while the service is healthy
-description: When the database goes away under a warm pool, cafaye's courier takes about 4.4 seconds to answer /readyz — longer than most probe timeouts, so a healthy process gets restarted. The fix is the timeout, not the service.
+description: When the database goes away under a warm pool, anywaye's courier takes about 4.4 seconds to answer /readyz — longer than most probe timeouts, so a healthy process gets restarted. The fix is the timeout, not the service.
 advisory:
-  id: CAFAYE-ADV-2026-001
+  id: ANYWAYE-ADV-2026-001
   published: 2026-10-10
   severity: moderate
   affects:

@@ -432,7 +432,7 @@ in `COURIER_SMTP_PASSWORD` with a roll, confirm, then revoke the old one at the
 provider. **A changed environment variable requires a restart** (see the general
 rule above), and an SMTP server that will not authenticate the new password
 fails the boot — so a bad rotation is a deploy that does not happen, not an
-outage. There is **no cafaye-side overlap window and no double-send risk**: the
+outage. There is **no anywaye-side overlap window and no double-send risk**: the
 credential is read at startup and never cached.
 
 **A credential is never in a log line.** `courier` prints one startup line
@@ -547,7 +547,7 @@ Do not build a rotation procedure for these; there is nothing to rotate.
 - **A Stripe API key for a read-only integration.** `billing` now calls Stripe in
   three ways, so it holds a key — but it is a **restricted** key scoped to the
   Checkout, subscription and plan operations it uses, and the rotation is
-  Stripe's restricted-key rotation with no overlap window in the cafaye side.
+  Stripe's restricted-key rotation with no overlap window in the anywaye side.
 - **A session secret in `gateway`.** Sessions are a `Map` in one process and the
   session id is `identity`'s. Restarting `gateway` loses them; there is no key
   material to rotate.
@@ -556,7 +556,7 @@ Do not build a rotation procedure for these; there is nothing to rotate.
   provider's REST API key is not a `courier` secret today.
 - **A `COURIER_INBOUND_RESEND_SECRET`-shaped inbound credential.** It exists and
   is required, but it authenticates *your* error-reporting relay into `courier`,
-  not a cafaye-facing credential, so rotating it is an ops detail rather than a
+  not a anywaye-facing credential, so rotating it is an ops detail rather than a
   customer-facing one.
 
 **An email provider credential used to be on this list and is not any more.**
@@ -619,7 +619,7 @@ schedules is a rotation that does not happen:
 | LLM provider credentials | 90 days, or on provider notice | provider-side rotation, staff change |
 | Database passwords | 90 days | any suspected disclosure |
 | Object-storage credential | 90 days | any suspected disclosure |
-| `COURIER_SMTP_PASSWORD` | 90 days, or on provider notice | staff change; **not** a cafaye-side key |
+| `COURIER_SMTP_PASSWORD` | 90 days, or on provider notice | staff change; **not** a anywaye-side key |
 | Scoped API tokens (`identity`) | on the `expires_at` you issued, or on staff change | departure, a leaked CI variable, a decommissioned integration |
 | `MUSE_VAULT_KEY` | **never** | not rotatable; replace the provider keys instead |
 | `COURIER_SECRET_BOX_KEY` | **never** | not rotatable; re-sealing tooling does not exist |

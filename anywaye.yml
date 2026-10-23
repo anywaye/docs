@@ -1,7 +1,7 @@
-# cafaye.yml — the cafaye project manifest for docs.
+# anywaye.yml — the anywaye project manifest for docs.
 #
 # DRAFT, and the only structural question in it is `language`. The schema is
-# owned by cafaye/core (schemas/cafaye.manifest.schema.json) and its `language`
+# owned by anywaye/core (schemas/anywaye.manifest.schema.json) and its `language`
 # enum is go|ruby|elixir|python|typescript|rust|spec — there is no value for
 # "a static site". `typescript` is chosen because Starlight is an Astro
 # integration and the only JavaScript in this repository is its configuration
@@ -20,9 +20,9 @@
 #
 # This manifest exists so `cafe dev`, `pantry`, and the org tooling can find this
 # repository the way they find any other. It is not read by the build: nothing
-# in npm run build reads cafaye.yml, so a mistake here cannot reach a page.
+# in npm run build reads anywaye.yml, so a mistake here cannot reach a page.
 name: loom
-description: "The cafaye documentation engine — Astro/Starlight build, sync, tests, and bin/prime for docs.cafaye.com."
+description: "The anywaye documentation engine — Astro/Starlight build, sync, tests, and bin/prime for docs.anywaye.com."
 language: typescript
 core: ^0.2.0
 
@@ -37,10 +37,10 @@ core: ^0.2.0
 consumes: []
 
 repository:
-  url: git@github.com:cafaye/docs.git
+  url: git@github.com:anywaye/docs.git
   defaultBranch: master
   visibility: private
 
 owner:
   team: docs
-  contact: docs@cafaye.com
+  contact: docs@anywaye.com

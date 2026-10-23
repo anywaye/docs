@@ -57,7 +57,7 @@ thing that must be up for a box to boot.
 
 No database, no network, no cluster.
 
-- **Repository:** private — proprietary to Cafaye
+- **Repository:** private — proprietary to Anywaye
 - **Language:** Go
 - **Dependencies:** `box` (required — a registry service that cannot reach
   `box` cannot spend the capability that is the whole reason it is called)

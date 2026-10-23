@@ -1,6 +1,6 @@
 ---
 title: Pricing
-description: What a cafaye unit costs, how a payment becomes an entitlement, the monthly operated tier on top of the units, and which questions are still open — no invented numbers.
+description: What a anywaye unit costs, how a payment becomes an entitlement, the monthly operated tier on top of the units, and which questions are still open — no invented numbers.
 ---
 
 :::note[Status: we sell — via Stripe Payment Link, reconciled by hand]
@@ -10,7 +10,7 @@ Payment Link; a human confirms the payment and grants the entitlement. Access
 is not instant, and there is no receipt page, no subscription portal, and no
 webhook yet. As of **2026-10-09**, the three paid products — managed hosting,
 upgrades, support — are still not in operation. What exists today is the
-selling mechanism and the prices. On top of the units sits Cafaye Ops, the
+selling mechanism and the prices. On top of the units sits Anywaye Ops, the
 monthly operated tier, sold the same way — its ladder prices are still
 placeholders, and the section below says so rather than burying it.
 :::
@@ -76,10 +76,10 @@ The mechanism, in three steps:
   webhook.** The mechanism is deliberately thin: a Stripe link, a human, a
   grant.
 
-## Cafaye Ops, on top: the monthly operated tier
+## Anywaye Ops, on top: the monthly operated tier
 
-The units above are one product. Cafaye Ops is the other, and it is a
-different product rather than a fourth unit: cafaye operates your *running
+The units above are one product. Anywaye Ops is the other, and it is a
+different product rather than a fourth unit: anywaye operates your *running
 stack* for you. We provision and watch the box, patch it, prove your backups
 restore, hold its history, and apply upstream upgrades when they are safe to
 apply. The box stays yours — your cloud account, your root, your kubectl,
@@ -97,7 +97,7 @@ Three tiers, and their prices are **placeholders, not decisions**:
 
 | Tier | Price today | What they get |
 | --- | --- | --- |
-| **Attended** | ~$200/mo — placeholder | monthly report, proven backup restores, secret inventory and rotation, CVE surface, the cafaye failure-mode library watching your box, upgrade **recommendations** — you apply them |
+| **Attended** | ~$200/mo — placeholder | monthly report, proven backup restores, secret inventory and rotation, CVE surface, the anywaye failure-mode library watching your box, upgrade **recommendations** — you apply them |
 | **Managed** | ~$500/mo — placeholder | we patch, we apply within an approved policy, we hold the maintenance window, and we watch with our own systems and respond on the stated schedule |
 | **Managed HA / dedicated** | ~$1,200/mo — placeholder | multi-node, isolation, SLA, compliance export |
 
@@ -123,9 +123,9 @@ on buying anything from us. Four specific consequences, all checkable:
 
 | Consequence | Where to check |
 | --- | --- |
-| `go install github.com/cafaye/cafe/cmd/cafe@latest` — no account, no key, no telemetry handshake | [Getting started](/getting-started/#step-2--install-cafe) |
+| `go install github.com/anywaye/cafe/cmd/cafe@latest` — no account, no key, no telemetry handshake | [Getting started](/getting-started/#step-2--install-cafe) |
 | `git clone` of any service, then `docker build` — no licence key, no activation, no build-time callback | [Getting started](/getting-started/#step-6--deploy-to-your-own-infrastructure) |
-| No licence check, no update check, no analytics, and no request to a cafaye-operated endpoint in any service | [Hosted pilot](/getting-started/#what-leaves-your-infrastructure) |
+| No licence check, no update check, no analytics, and no request to a anywaye-operated endpoint in any service | [Hosted pilot](/getting-started/#what-leaves-your-infrastructure) |
 | No service stores or expects anything about who is running it | same as above |
 
 The licensing position — what the grant actually says, and the part of it that
@@ -140,9 +140,9 @@ plus the paid work around them.
 
 | Unit | Repositories | What it is | What you would run |
 | --- | --- | --- | --- |
-| **Platform** | [`cafe`](https://github.com/cafaye/cafe), [`kit`](https://github.com/cafaye/kit) | the CLI and the shared CI: one binary that renders and runs your local stack, one workflow every service's gate runs in | `cafe` on your machine; your own CI |
-| **identity** | [`identity`](https://github.com/cafaye/identity) | users, sessions, accounts and tenancy, roles, invitations, the OIDC provider, TOTP MFA | one Go container, one Postgres, optionally Redis |
-| **courier** | [`courier`](https://github.com/cafaye/courier) | transactional email, notification preferences, and **every outbound webhook**, signed and retried | one Elixir container, one Postgres, one database-backed outbox worker |
+| **Platform** | [`cafe`](https://github.com/anywaye/cafe), [`kit`](https://github.com/anywaye/kit) | the CLI and the shared CI: one binary that renders and runs your local stack, one workflow every service's gate runs in | `cafe` on your machine; your own CI |
+| **identity** | [`identity`](https://github.com/anywaye/identity) | users, sessions, accounts and tenancy, roles, invitations, the OIDC provider, TOTP MFA | one Go container, one Postgres, optionally Redis |
+| **courier** | [`courier`](https://github.com/anywaye/courier) | transactional email, notification preferences, and **every outbound webhook**, signed and retried | one Elixir container, one Postgres, one database-backed outbox worker |
 
 Both service units are [documented in their own words](/services/identity/ and
 [courier](/services/courier/)), including what is not built. Read the status line
@@ -165,16 +165,16 @@ estimate.
 
 | Unit | What it would be | Today |
 | --- | --- | --- |
-| Platform | a cafaye-operated control plane, and `cafe deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `cafe deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a cafaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in `cafaye/notes/deployment.md`; Kamal is the current implementation and retires at parity. |
+| Platform | a anywaye-operated control plane, and `cafe deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `cafe deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a anywaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in `anywaye/notes/deployment.md`; Kamal is the current implementation and retires at parity. |
 | identity | your deployment, our pager | **Does not exist.** Today "hosted" means you run it in your own account and we help you get it running — which is consulting, not a product. |
-| courier | your deployment, our pager, and a configured email provider | **Does not exist.** Separately, no email provider adapter is configured in any cafaye checkout, so nothing is delivered until you set one. |
+| courier | your deployment, our pager, and a configured email provider | **Does not exist.** Separately, no email provider adapter is configured in any anywaye checkout, so nothing is delivered until you set one. |
 
 **What we would be taking on:** running your containers, your Postgres, your
 bucket, your TLS terminator and your keys, with an uptime target and somebody
 paged when it breaks. **What we would not be taking on:** holding your customer
-data's keys. Nothing in the customer data plane requires a cafaye-operated
+data's keys. Nothing in the customer data plane requires a anywaye-operated
 component — the seven services run on what you run them on. The one
-cafaye-operated component in the architecture is box, the control plane
+anywaye-operated component in the architecture is box, the control plane
 `boxd` dials, and it holds no readable customer secret; [Security and
 trust](/security/#read-this-first-there-is-nothing-of-ours-to-breach) argues it
 from the code.
@@ -209,7 +209,7 @@ design decisions that affect you while they are still open. The full list is in
 **Two limits you should know before you buy any of it.** There is no support
 address published on the org — the per-repository `owner.contact` addresses are
 the only ones that exist, thirteen repositories declare one, and the two that do
-not are `kit` and `cafaye-py` because they have no `cafaye.yml` at all. And no
+not are `kit` and `anywaye-py` because they have no `anywaye.yml` at all. And no
 SLA exists: uptime, response and remedy are all things we would have to agree in
 a contract before the first day of work, because publishing them here would be a
 commitment nobody has priced.
@@ -220,7 +220,7 @@ The app shell — signup, login, accounts, billing screens — is free and alway
 will be. It is not a unit, not an upgrade path to something paid, and not a
 lead-generation front for the other two. It is a template, and its own status
 line says what is missing: no admin surface, no end-to-end suite, and a
-`cafaye.yml` that does not validate. [Its page](/services/parlor/) is honest
+`anywaye.yml` that does not validate. [Its page](/services/parlor/) is honest
 about all three.
 
 ## The services that are not units
@@ -265,10 +265,10 @@ operated tier's ladder prices are placeholders, as the section above states.
    be a warranty we have not written.
 
 **To get an answer, ask.** The channels that exist today are the
-[repositories](https://github.com/cafaye) — every service's issues and history
-— and the per-repository `owner.contact` address in its `cafaye.yml`:
-`cafe@cafaye.com` for the CLI, `identity@cafaye.com`, `courier@cafaye.com`,
-`docs@cafaye.com`. A number you get by email is a number you can hold us to;
+[repositories](https://github.com/anywaye) — every service's issues and history
+— and the per-repository `owner.contact` address in its `anywaye.yml`:
+`cafe@anywaye.com` for the CLI, `identity@anywaye.com`, `courier@anywaye.com`,
+`docs@anywaye.com`. A number you get by email is a number you can hold us to;
 one invented for a landing page is not.
 
 ## What is not ready yet
@@ -283,7 +283,7 @@ Stated here rather than left for you to infer from the tables:
   `cafe gen`, `cafe init` and `cafe new` is empty (`cafe/internal/cli/stub_test.go:25`),
   and the command table beside it is the single source of truth for what works.
   **`cafe deploy`** builds, pushes and rolls out. It deploys to infrastructure you
-  already pay for; what it does not have is a cafaye-operated remote. The launch
+  already pay for; what it does not have is a anywaye-operated remote. The launch
   path is the substrate (k3s + ArgoCD + CloudNativePG); Kamal is the current
   implementation and retires at parity.
 - **`identity`'s password reset and email verification are built but unconfigured
@@ -334,7 +334,7 @@ front of the code.
 **`pantry` moved from the open half to the closed one on 2026-10-10 (OPS-D10), and
 the reason is the catalog rather than the code.** Once the catalog is public and
 multi-tenant it is part of the operated product: the discovery surface over the
-thing OPS-D2 already closed, and a MIT catalog is a forkable cafaye SaaS. So it
+thing OPS-D2 already closed, and a MIT catalog is a forkable anywaye SaaS. So it
 takes the box pattern — closed source, a public HTTPS endpoint,
 capability- and identity-gated writes — while the contract stays open: the
 manifest format and the catalog's own API document are still published, and the
@@ -397,8 +397,8 @@ There is no clause about:
   the licence.
 - **A patent grant.** MIT has no explicit patent clause. Read the text; if that
   matters to you, ask, and get the answer in writing.
-- **Trademark.** MIT does not grant you the right to use the cafaye name or
-  marks. Do not present a fork as cafaye.
+- **Trademark.** MIT does not grant you the right to use the anywaye name or
+  marks. Do not present a fork as anywaye.
 - **Any warranty at all**, including that the code is fit for a purpose, secure,
   or free of defects. It is not, and no page on this site says it is.
 
@@ -412,14 +412,14 @@ either way.
 ## What the Business Source Licence means for you, as a buyer
 
 The seven services carry BSL 1.1, and the parameters are the same in each:
-Licensor `Cafaye`, Additional Use Grant `None`, Change Date `2030-10-10`,
+Licensor `Anywaye`, Additional Use Grant `None`, Change Date `2030-10-10`,
 Change License `Apache-2.0`.
 
 The grant, in the licence's own words: you may copy, modify, create derivative
 works, redistribute, and make **non-production use** of the service
 (`billing/LICENSE:13-16`, identical in the other six). With the Additional Use
 Grant set to `None`, production use is not granted by the file — the licence
-says you must then buy a commercial licence from cafaye or refrain from using it
+says you must then buy a commercial licence from anywaye or refrain from using it
 (`billing/LICENSE:25-28`). On the Change Date each version becomes Apache-2.0.
 
 The fleet's shorthand for the split is "free to run, free to self-host, never
@@ -435,7 +435,7 @@ where unanswered money questions live.
 
 ## What each repository declares today
 
-Measured **2026-10-10** across the fourteen public cafaye repositories, from
+Measured **2026-10-10** across the fourteen public anywaye repositories, from
 committed `master` in each. A public repository with no licence file defaults to
 "all rights reserved" on GitHub — readable is not the same as licensed — which is
 why this table is a measurement of files, not of intentions. The two closed
@@ -443,9 +443,9 @@ repositories are described above rather than measured here.
 
 | Repository | What it declares |
 | --- | --- |
-| [`cafe`](https://github.com/cafaye/cafe) · [`core`](https://github.com/cafaye/core) · [`kit`](https://github.com/cafaye/kit) | **`LICENSE`, MIT**, "Copyright (c) 2026 cafaye" |
-| `cafaye-py` · `cafaye-rb` · `cafaye-ts` · `docs` | **`LICENSE`, MIT** (`cafaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `cafaye-py`'s `pyproject.toml` points at the file, `cafaye-rb`'s gemspec names it, `cafaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
-| [`identity`](https://github.com/cafaye/identity) · [`billing`](https://github.com/cafaye/billing) · [`courier`](https://github.com/cafaye/courier) · [`darkroom`](https://github.com/cafaye/darkroom) · [`gateway`](https://github.com/cafaye/gateway) · [`muse`](https://github.com/cafaye/muse) · [`parlor`](https://github.com/cafaye/parlor) | **`LICENSE`, Business Source License 1.1** — Licensor Cafaye, Additional Use Grant None, Change Date 2030-10-10, Change License Apache-2.0. `muse`'s `pyproject.toml` points at the file, `courier`'s `mix.exs` and `parlor`'s `package.json` declare `BUSL-1.1` |
+| [`cafe`](https://github.com/anywaye/cafe) · [`core`](https://github.com/anywaye/core) · [`kit`](https://github.com/anywaye/kit) | **`LICENSE`, MIT**, "Copyright (c) 2026 anywaye" |
+| `anywaye-py` · `anywaye-rb` · `anywaye-ts` · `docs` | **`LICENSE`, MIT** (`anywaye-rb`: `LICENSE.txt`); each also declares it in a manifest — `anywaye-py`'s `pyproject.toml` points at the file, `anywaye-rb`'s gemspec names it, `anywaye-ts` and `docs` carry `"license": "MIT"` in `package.json` |
+| [`identity`](https://github.com/anywaye/identity) · [`billing`](https://github.com/anywaye/billing) · [`courier`](https://github.com/anywaye/courier) · [`darkroom`](https://github.com/anywaye/darkroom) · [`gateway`](https://github.com/anywaye/gateway) · [`muse`](https://github.com/anywaye/muse) · [`parlor`](https://github.com/anywaye/parlor) | **`LICENSE`, Business Source License 1.1** — Licensor Anywaye, Additional Use Grant None, Change Date 2030-10-10, Change License Apache-2.0. `muse`'s `pyproject.toml` points at the file, `courier`'s `mix.exs` and `parlor`'s `package.json` declare `BUSL-1.1` |
 
 `box` and `pantry` are the two repositories this page cannot measure,
 because the source of both is closed. `box` is the operated control plane
@@ -486,7 +486,7 @@ The grants have landed. What is left is the machine-readable layer, and it is
 specific:
 
 1. **A `license` field in every manifest.** Seven of the fourteen declare their
-   licence in a field the tooling reads (`cafaye-py`, `cafaye-rb`, `cafaye-ts`,
+   licence in a field the tooling reads (`anywaye-py`, `anywaye-rb`, `anywaye-ts`,
    `docs`, `courier`, `parlor`, `muse`); the other seven carry it only as a
    file. For `billing`, `cafe`, `core`, `darkroom`, `gateway`, `identity` and
    `kit` there is no package manifest in their ecosystem that could carry one,
@@ -508,7 +508,7 @@ repository rather than the files on disk, it makes no network call, and it
 covers the same fourteen public repositories the organisation publishes:
 
 ```sh
-for repo in billing cafe cafaye-py cafaye-rb cafaye-ts core courier darkroom \
+for repo in billing cafe anywaye-py anywaye-rb anywaye-ts core courier darkroom \
             docs gateway identity kit muse parlor; do
   file=none
   for name in LICENSE LICENSE.txt; do
@@ -523,7 +523,7 @@ for repo in billing cafe cafaye-py cafaye-rb cafaye-ts core courier darkroom \
   done
   field=$field$(git -C "$repo" show HEAD:mix.exs 2>/dev/null |
                   grep -oE 'licenses:[[:space:]]*\[[^]]*\]' | head -1)
-  field=$field$(git -C "$repo" show HEAD:cafaye.gemspec 2>/dev/null |
+  field=$field$(git -C "$repo" show HEAD:anywaye.gemspec 2>/dev/null |
                   grep -oE 'spec\.license[[:space:]]*=.*' | head -1)
   printf '%-12s %-12s %-32s %s\n' "$repo" "$file" "$kind" "${field:-no field}"
 done
@@ -553,5 +553,5 @@ which is the rule this repository follows everywhere, including for the
   earlier measurement.
 - [Services](/services/) — one page per service, each stating what is built and
   what is not.
-- [The cafaye organisation](https://github.com/cafaye) — the repositories
+- [The anywaye organisation](https://github.com/anywaye) — the repositories
   themselves, which are the only authority on any of this.

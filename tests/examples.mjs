@@ -20,7 +20,7 @@
 //       read from the **vendored help text in this repository's own docs**
 //
 //   MECHANICAL, needs a sibling checkout (tests/contracts.mjs, not this file):
-//     - the two `cafaye.yml` examples validate against core's real schema,
+//     - the two `anywaye.yml` examples validate against core's real schema,
 //       through the real `cafe contract lint`
 //
 //   **NOT CHECKED, and deliberately so — do not add a test that "asserts these
@@ -121,7 +121,7 @@ const PLACEHOLDERS = [
   // service being published, which is not a shell redirection.
   [/<service>/g, 'myservice'],
   // a helm chart name in the same guide — the short-form `bin/publish` defaults
-  // to `ghcr.io/cafaye/<chart-name>` when no `--image` is given.
+  // to `ghcr.io/anywaye/<chart-name>` when no `--image` is given.
   [/<chart-name>/g, 'mychart'],
   // a work-packet id in the debt register (borrowed: the private notes tree).
   // A packet id names work, not a file, so the placeholder is a name and not a
@@ -131,7 +131,7 @@ const PLACEHOLDERS = [
   // reference shelf index (borrowed: the private notes tree). The index lists
   // one row per clone with both, and the re-clone command takes them as
   // arguments — so they are names in a command line, not shell redirections.
-  [/<origin>/g, 'https://github.com/cafaye/core.git'],
+  [/<origin>/g, 'https://github.com/anywaye/core.git'],
   [/<pinned-sha>/g, '0f0797f'],
 ];
 
@@ -226,7 +226,7 @@ test(`[${target.label}] every yaml fence is a manifest this repository can actua
   // than the one already built.
   //
   // Second, and this is the part that decided it: a "does this parse" test is
-  // the wrong question. Both ```yaml fences in this site are `cafaye.yml`
+  // the wrong question. Both ```yaml fences in this site are `anywaye.yml`
   // manifests, so the question worth asking is not *is this well-formed YAML*
   // but *does the real validator accept it* — and that check exists, in
   // tests/contracts.mjs, running the real `cafe contract lint` against core's
@@ -253,7 +253,7 @@ test(`[${target.label}] every yaml fence is a manifest this repository can actua
   // same one that governs their frontmatter: projects/*/ is content from
   // another repository that predates this site's conventions, and a compose
   // file or a k3s manifest in core's docs is a legitimate example that is
-  // not a cafaye.yml. The manifest-vocabulary assertion stays on the pages
+  // not a anywaye.yml. The manifest-vocabulary assertion stays on the pages
   // THIS repository authors, where the claim "every yaml fence here is a
   // manifest" was measured and is still true.
   const owned = (where) => /^src\/content\/docs\//.test(where) && !where.includes('/projects/');
@@ -266,7 +266,7 @@ test(`[${target.label}] every yaml fence is a manifest this repository can actua
   assert.deepEqual(
     notManifests,
     [],
-    `yaml fences that are not cafaye.yml manifests: ${notManifests.join('; ')}. If a ` +
+    `yaml fences that are not anywaye.yml manifests: ${notManifests.join('; ')}. If a ` +
       'non-manifest yaml example was added, it needs its own check rather than the ' +
       'manifest one in tests/contracts.mjs.',
   );
@@ -295,7 +295,7 @@ test(`[${target.label}] every cafe invocation in a fence names a subcommand cafe
   // owned — one fleet, one vocabulary, one place it is written down.
   const publicFences = fences(buildTargets[0]);
   const helpFence = publicFences.find(
-    (f) => f.lang === '' && f.body.includes('cafe - the cafaye platform CLI'),
+    (f) => f.lang === '' && f.body.includes('cafe - the anywaye platform CLI'),
   );
   assert.ok(
     helpFence,

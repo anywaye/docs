@@ -1,6 +1,6 @@
 ---
 title: Security and trust
-description: How cafaye handles credentials and secrets — encryption at rest, redaction in logs and traces, the secret scan in CI — with every claim pointing at the file that makes it, and the gaps named.
+description: How anywaye handles credentials and secrets — encryption at rest, redaction in logs and traces, the secret scan in CI — with every claim pointing at the file that makes it, and the gaps named.
 ---
 
 **Every claim on this page points at a file.** Where a claim is a decision rather
@@ -16,13 +16,13 @@ relative to each repository's root.
 ## Read this first: there is nothing of ours to breach
 
 **You operate the deployment.** Your Postgres, your object-storage bucket, your
-TLS terminator, your keys, your cloud account. There is no cafaye-operated
-component in the customer data plane, no cafaye account, and no cafaye-operated
+TLS terminator, your keys, your cloud account. There is no anywaye-operated
+component in the customer data plane, no anywaye account, and no anywaye-operated
 endpoint any service talks to.
 
-**The one cafaye-operated component in the architecture is box**, and the
+**The one anywaye-operated component in the architecture is box**, and the
 sentence above says *data plane* because of it. `boxd` on your box dials it —
-outbound-only, mutual TLS, to `box.svc.cafaye.com` — and your services never
+outbound-only, mutual TLS, to `box.svc.anywaye.com` — and your services never
 do. It holds no readable customer secret, and each half of that is a mechanism
 rather than a promise: a capability it mints is stored only as a SHA-256
 digest, and is single-use, minutes-lived and box-bound; a provider credential
@@ -40,7 +40,7 @@ presigned upload writes to a bucket you name, LLM provider requests to providers
 whose keys you supply, Stripe calls in your Stripe account, and email delivery
 once you configure an adapter.
 
-`docs.cafaye.com` itself is static HTML with no analytics and no third-party
+`docs.anywaye.com` itself is static HTML with no analytics and no third-party
 scripts. That is a decision recorded in this repository's configuration rather
 than an oversight.
 
@@ -136,7 +136,7 @@ container's own `repr`.
 
 For telemetry the fleet specifies the **allowlist** rather than a set of things to
 remove, and that specification is
-[core's `redaction.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/redaction.schema.json).
+[core's `redaction.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/redaction.schema.json).
 `muse` is an LLM gateway, so it is where a prompt would leak if anywhere would —
 but it is **not** the only service the boundary applies to.
 `courier`, `billing` and `identity` export traces too, and the boundary is
@@ -205,11 +205,11 @@ Files: `kit/.github/workflows/ci.reusable.yml`, `kit/tests/gitleaks_gate.sh`, an
 is no inline allowlist.
 
 **Ten of the fifteen repositories run it**, being every repository that calls
-`cafaye/kit/.github/workflows/ci.reusable.yml@master`: `billing`, `cafe`, `core`,
+`anywaye/kit/.github/workflows/ci.reusable.yml@master`: `billing`, `cafe`, `core`,
 `courier`, `darkroom`, `gateway`, `identity`, `kit`, `muse`, `parlor`.
 
-**Five do not**, and saying so is the point of this section: `cafaye-py`,
-`cafaye-rb`, `cafaye-ts`, `pantry`, and **`docs`, this repository**. `docs`
+**Five do not**, and saying so is the point of this section: `anywaye-py`,
+`anywaye-rb`, `anywaye-ts`, `pantry`, and **`docs`, this repository**. `docs`
 writes its own CI for three measured reasons, documented at length in its own
 `pins` job; the cost is that it receives none of kit's fixes, and the
 consequence for this page is that a secret scan is not one of the checks you can
@@ -293,7 +293,7 @@ secrets](/runbooks/secret-rotation/).
   repository in the fleet currently audits its own workflow shape.
 - **No dependency-vulnerability scan in the shared workflow.** Three repositories
   check their own tree and nothing else does: `billing` (`bundler-audit`),
-  `cafaye-py` (`pip-audit`), `cafaye-ts` (`npm audit`). The other twelve have
+  `anywaye-py` (`pip-audit`), `anywaye-ts` (`npm audit`). The other twelve have
   none, because `kit`'s reusable workflow has no such step.
 - **Only `billing` has `dependabot.yml`,** so it is also the only repository
   receiving automated dependency update pull requests.
@@ -334,21 +334,21 @@ page carried the opposite sentence for eleven days.
 
 :::caution[There is no security contact, and that is a gap rather than a route]
 No `SECURITY.md`, no `security@` address, and no `security.txt` exist in any
-cafaye repository. Publishing an address on this page without a process behind it
+anywaye repository. Publishing an address on this page without a process behind it
 would be a trust page describing a trust programme that does not exist, so the
 honest answer is what does exist, and it is thinner than we would like.
 :::
 
 What exists now:
 
-- **The repositories.** <https://github.com/cafaye> — every service's issues and
+- **The repositories.** <https://github.com/anywaye> — every service's issues and
   history. A vulnerability in `identity` is a bug in `identity`, and the fastest
   honest route today is its issue tracker, where the maintainers actually watch.
-- **A per-repository contact address**, declared in each `cafaye.yml` under
-  `owner.contact`: `identity@cafaye.com`, `courier@cafaye.com`, `cafe@cafaye.com`,
-  `docs@cafaye.com`, and nine more. **Thirteen of the fifteen repositories
-  declare one**; the two that do not are `kit` and `cafaye-py`, because they have
-  no `cafaye.yml` at all.
+- **A per-repository contact address**, declared in each `anywaye.yml` under
+  `owner.contact`: `identity@anywaye.com`, `courier@anywaye.com`, `cafe@anywaye.com`,
+  `docs@anywaye.com`, and nine more. **Thirteen of the fifteen repositories
+  declare one**; the two that do not are `kit` and `anywaye-py`, because they have
+  no `anywaye.yml` at all.
 - **A design-partner agreement**, which is where a response window and a
   disclosure process would be written down before any work started. See [the
   design-partner flow](/getting-started/#the-design-partner-flow).

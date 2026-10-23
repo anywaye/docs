@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // tests/secrets.mjs — secrets scan over the synced content trees.
 //
-// WHY THIS EXISTS. The agent-is-courier invariant (cafaye/AGENTS-FIRST.md)
+// WHY THIS EXISTS. The agent-is-courier invariant (anywaye/AGENTS-FIRST.md)
 // says no secret value ever enters a transcript, a commit, or a published
 // page. This suite is the mechanical half of that promise for the docs
 // pipeline: it fails the build if any synced content file is a .env with

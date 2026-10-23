@@ -1,12 +1,12 @@
 ---
 title: Advisories
-description: Fleet-wide security and failure notices from the cafaye fleet, written for readers who do not run cafaye — the symptom, the cause, how to check whether you have it, and what to do.
+description: Fleet-wide security and failure notices from the anywaye fleet, written for readers who do not run anywaye — the symptom, the cause, how to check whether you have it, and what to do.
 ---
 
 A feed of conditions observed on a fleet, written down so the next operator does
 not spend a weekend rediscovering them.
 
-**You do not have to run cafaye to use this.** Every advisory below is about a
+**You do not have to run anywaye to use this.** Every advisory below is about a
 failure mode that is not specific to one service or one stack: a health probe
 that is slower than the orchestrator's patience, a healthcheck pointed at the
 wrong kind of endpoint. The services are named because the measurements came
@@ -33,11 +33,11 @@ more recent one.
 
 | Published | Advisory | About | Severity | Status |
 | --- | --- | --- | --- | --- |
-| 2026-10-10 | [CAFAYE-ADV-2026-002 — A healthcheck pointed at a boot check](/advisories/healthcheck-path-is-a-boot-check/) | kit's Kamal template sent the proxy to `/up`, Rails' boot check, which 404s from every service that serves `/readyz` — a deploy that could never go green | moderate | fixed |
-| 2026-10-10 | [CAFAYE-ADV-2026-001 — A readiness probe that times out while the service is healthy](/advisories/courier-readyz-probe-timeout/) | `/readyz` takes about 4.4s when the database has gone, so a shorter probe timeout restarts a healthy service | moderate | open |
+| 2026-10-10 | [ANYWAYE-ADV-2026-002 — A healthcheck pointed at a boot check](/advisories/healthcheck-path-is-a-boot-check/) | kit's Kamal template sent the proxy to `/up`, Rails' boot check, which 404s from every service that serves `/readyz` — a deploy that could never go green | moderate | fixed |
+| 2026-10-10 | [ANYWAYE-ADV-2026-001 — A readiness probe that times out while the service is healthy](/advisories/courier-readyz-probe-timeout/) | `/readyz` takes about 4.4s when the database has gone, so a shorter probe timeout restarts a healthy service | moderate | open |
 
 `status: open` means the condition is still true of the current source and the
-fix is something an operator does. `status: fixed` means cafaye no longer ships
+fix is something an operator does. `status: fixed` means anywaye no longer ships
 it, and the advisory stands for operators whose copy predates the fix.
 
 ## What an advisory is not
@@ -58,5 +58,5 @@ Every advisory follows the same four parts, in the same order:
 
 If an advisory is wrong, or you have a condition that belongs here, it is a
 finding against this repository like any other. The source is
-`cafaye/docs`, and the offending sentence is
+`anywaye/docs`, and the offending sentence is
 easier to fix than to argue with.

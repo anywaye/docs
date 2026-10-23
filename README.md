@@ -1,8 +1,8 @@
 # docs
 
-**Current direction (2026-10-19):** Ship is the product. The cafaye stack is internal infrastructure; we are not selling or supporting it as a standalone product as of this date. We continue to develop and improve it, treating the founder as the primary customer and keeping "build once, run everywhere" true, with the expectation that it may be offered again later.
+**Current direction (2026-10-19):** Ship is the product. The anywaye stack is internal infrastructure; we are not selling or supporting it as a standalone product as of this date. We continue to develop and improve it, treating the founder as the primary customer and keeping "build once, run everywhere" true, with the expectation that it may be offered again later.
 
-The cafaye documentation site — **docs.cafaye.com**. A static
+The anywaye documentation site — **docs.anywaye.com**. A static
 [Astro](https://astro.build) site with
 [Starlight](https://starlight.astro.build), built to a directory of HTML with no
 runtime behind it.
@@ -32,7 +32,7 @@ bin/prime --contracts # the above, plus the tier that reads core and cafe
 `bin/prime` is the offline suite; there is no separate lint or typecheck step.
 The suite no longer needs a sibling checkout for the *contract* tier only: the
 build itself reads content sources (below), so a developer machine with the
-fleet under `cafaye/` — or a CI job that checks the registry out — is a
+fleet under `anywaye/` — or a CI job that checks the registry out — is a
 prerequisite of `npm run build`, and `bin/sync-content --check` answers in one
 second whether the sources resolve and the guards pass, without building.
 The build **is** half the gate: Starlight validates every page's frontmatter,
@@ -48,7 +48,7 @@ so a page with a missing `title` or a sidebar entry pointing at nothing fails
 | `tests/advisories.mjs` | every advisory page carries its whole `advisory` block, ids are unique and well-formed, and the index lists every advisory exactly once, newest first |
 | `tests/visibility.mjs` | a public repo never carries private notes — guards executed against fixtures, and the public dist never carries a `/notes` route |
 | `tests/api-markdown.mjs` | every page has a markdown twin at `api/<slug>.md` in the right dist with the exact source, no private twin in the public dist, and `/api/` serves no HTML |
-| `tests/contracts.mjs` | **the contract tier**, run by `--contracts`: every documented `cafaye.yml` through the real `cafe contract lint`, this repository's own manifest too, every event type a page says a service declares against core's catalog, and every span name against core's span-naming schema |
+| `tests/contracts.mjs` | **the contract tier**, run by `--contracts`: every documented `anywaye.yml` through the real `cafe contract lint`, this repository's own manifest too, every event type a page says a service declares against core's catalog, and every span name against core's span-naming schema |
 
 The offline tier needs no network, no sibling checkout and nothing but node and
 bash, on purpose: a gate a contributor cannot run is a gate they stop running.
@@ -103,7 +103,7 @@ never exist on the same path as private ones at any stage: the public build
 cannot emit a `/notes` route (tests/visibility.mjs fails if it does), and the
 notes build emits only private pages. A host mounts `dist/notes` at `/notes`
 behind the identity gate — nginx's `auth_request` against
-`https://auth.cafaye.com`'s JWKS — and everything else is served from
+`https://auth.anywaye.com`'s JWKS — and everything else is served from
 `dist/docs` as-is. `dist/notes/404.html` shape-matches "no such page" for
 unauthenticated readers so a private URL's existence is not advertised.
 
@@ -121,20 +121,20 @@ decision is made. `tests/api-markdown.mjs` proves it: every page has a twin
 whose content equals the source, `dist/docs/api/notes/` does not exist, and
 `/api/` itself serves no HTML wrapper.
 
-`site:` in `astro.config.mjs` is `https://docs.cafaye.com`, and it must be the
+`site:` in `astro.config.mjs` is `https://docs.anywaye.com`, and it must be the
 real origin at deploy time: every canonical URL and the sitemap resolve against
 it.
 
 ### Deploy (Contabo, k3s)
 
-`deploy/docs.cafaye.com.yaml` is the whole deployment: the `docs` namespace,
+`deploy/docs.anywaye.com.yaml` is the whole deployment: the `docs` namespace,
 an nginx pod serving the two artifacts from a hostPath, the `press-gate` pod
-(one binary from `cafaye/press`, `cmd/press-gate`), and one traefik Ingress
+(one binary from `anywaye/press`, `cmd/press-gate`), and one traefik Ingress
 with TLS from `letsencrypt-prod`. DNS is an A record at the box with the proxy
 off (ACME HTTP-01 must reach it directly).
 
 ```sh
-kubectl apply -f deploy/docs.cafaye.com.yaml
+kubectl apply -f deploy/docs.anywaye.com.yaml
 rsync -az --delete dist/docs/ box:/srv/docs/docs/
 rsync -az --delete dist/notes/ box:/srv/docs/notes/
 kubectl rollout restart deployment/docs-nginx -n docs   # the conf is a ConfigMap
@@ -172,7 +172,7 @@ where per-org gating arrives.
 
 The gate command is `bin/prime`, and that is what CI runs. The `gate` job is
 no longer secret-free by necessity: `npm run build` runs the sync, and the
-sync reads `cafaye/notes` (private) beside the tree, so the job checks the
+sync reads `anywaye/notes` (private) beside the tree, so the job checks the
 registry out sparsely first — public repos with the default token, private
 ones with `FLEET_TOKEN` — and fails loudly if a private source cannot be
 cloned. A green badge over a pipeline that could not read its sources is the
@@ -197,7 +197,7 @@ the gate on the runner's node rather than the pinned 22.23.4. **The cost is that
 this repository receives none of `kit`'s fixes** until someone ports them, and
 the header of `ci.yml` says so in full. The `pins` job asserts the reason stays
 written down, and that any future `uses:` line is the documented
-`cafaye/kit/.github/workflows/ci.reusable.yml@master` — never the
+`anywaye/kit/.github/workflows/ci.reusable.yml@master` — never the
 `workflows/ci.reusable.yml` form, which resolves to nothing.
 
 What is still worth saying: a badge is worth only what it ran. The `contracts`
@@ -215,20 +215,20 @@ Pages are Markdown and MDX in `src/content/docs/`; the file path is the URL.
 | --- | --- | --- |
 | this repository's `src/content/docs/` | the platform pages, authored here | public tree |
 | each fleet repository's `docs/` | a project's own manual, authored beside its code | public tree at `projects/<name>/` |
-| `cafaye/notes` (private repo) | the organization's private register: decisions, ops, debt | notes tree |
+| `anywaye/notes` (private repo) | the organization's private register: decisions, ops, debt | notes tree |
 | a **private** repository's `notes/` | that repository's private pages, if it keeps any | notes tree at `projects/<name>/` |
 
 The sources are declared in `content-sources.json` and resolved beside the
-tree under `cafaye/`, or by `CAF_NOTES_PATH` / `CAF_PROJECT_<NAME>` in
+tree under `anywaye/`, or by `CAF_NOTES_PATH` / `CAF_PROJECT_<NAME>` in
 CI. A source that does not resolve **fails the sync** — a missing notes
 repository is a broken pipeline, not an empty notes site. `--check` runs every
 guard and writes nothing.
 
 **A public repository never carries private notes.** If a repository whose
-`cafaye.yml` says `visibility: public` contains a `notes/` directory, the sync
+`anywaye.yml` says `visibility: public` contains a `notes/` directory, the sync
 refuses to run and names it: the leak would happen at `git clone`, before any
 build ran, and no flag or edge rule can undo a pushed file. Its private notes
-belong in `cafaye/notes/projects/<name>/` — a page inside a public
+belong in `anywaye/notes/projects/<name>/` — a page inside a public
 repository's `docs/` declaring `visibility: private` fails the same way.
 `tests/visibility.mjs` executes both guards against fixtures.
 
@@ -244,7 +244,7 @@ honest metadata everywhere.
 | | public (`dist/docs`) | private (`dist/notes`) |
 | --- | --- | --- |
 | Mount | `/` | `/notes/*` |
-| Auth | none | identity JWT (`auth.cafaye.com` JWKS, org match) |
+| Auth | none | identity JWT (`auth.anywaye.com` JWKS, org match) |
 | Cache | `public, immutable` for `_astro/`, short for HTML | `private, no-store` |
 | API markdown | `/api/<slug>.md` (`dist/docs/api/`) — public, cacheable | `/notes/api/<slug>.md` (`dist/notes/api/`) — same gate as `/notes/` |
 | Search index | Pagefind (when enabled) | its own index, served only behind auth |
@@ -256,21 +256,21 @@ scopes each tree's internal links to its own base, and the link gate fails a
 public page that links a private one. **The markdown twins are per-tree for the
 same reason the pages are: a private twin behind the public `/api/` would leak
 at `git clone` time the way a private page in a public repo does. The nginx conf
-(`deploy/docs.cafaye.com.yaml`) is the single place the private/public decision
+(`deploy/docs.anywaye.com.yaml`) is the single place the private/public decision
 is made — `location /api/` is public, `location /notes/api/` carries the same
 `auth_request` as `location /notes/` — and `tests/api-markdown.mjs` fails the
 build if `dist/docs/api/notes/` exists.
 
 ```
 src/content/docs/
-├── index.mdx                 home — what cafaye is, plus the services table
+├── index.mdx                 home — what anywaye is, plus the services table
 ├── pilot.md                  the hosted-pilot path: nothing → running, and every gap
 ├── pricing.md                the three units, what is free, and the seven open questions
 ├── licensing.md              MIT across the fleet, and the seven repos that do not say so
 ├── security.md               credentials at rest, redaction, the CI secret scan, the gaps
 ├── getting-started.md        the six-step path: doctor → install → init → local → deploy
 ├── upgrading.md              the migration note: what breaks, and in what order
-├── contracts.md              cafaye.yml, the event envelope, OpenAPI, the five-part rule
+├── contracts.md              anywaye.yml, the event envelope, OpenAPI, the five-part rule
 ├── troubleshooting.md        keyed by symptom, not by component
 ├── architecture/
 │   ├── index.md              what each service owns, and why the boundaries
@@ -310,12 +310,12 @@ src/content/docs/
   route that collides with the catch-all over the docs collection; `disable404Route`
   turns that off so this repository owns one route with no build warning.
 - Service pages are written from PLAN.md §tree and the org README. Where they
-  describe a service, [that repository's](https://github.com/cafaye) README and
+  describe a service, [that repository's](https://github.com/anywaye) README and
   code are the source of truth — not this page. **Where a service's own README
   contradicts its code, the code is right and the contradiction goes in the
   drift audit**, because this repository does not edit another repository's prose.
 - Contract details are owned by
-  [cafaye/core](https://github.com/cafaye/core). This site summarizes and links;
+  [anywaye/core](https://github.com/anywaye/core). This site summarizes and links;
   it does not define.
 
 ## The accuracy rule, and how it is enforced
@@ -329,9 +329,9 @@ So every command, flag, endpoint, and environment variable on this site is
 written from one of these, never from a plausible guess:
 
 1. **A source file.** The `cafe` subcommands come from
-   `cafaye/cafe/internal/cli/*.go`; a flag is documented because the flag
+   `anywaye/cafe/internal/cli/*.go`; a flag is documented because the flag
    set declares it.
-2. **A machine-readable file.** `cafaye.yml`, `Dockerfile`,
+2. **A machine-readable file.** `anywaye.yml`, `Dockerfile`,
    `docker-compose.yml`, `db/schema.rb`, `openapi/v1.yaml`, `mise.toml`.
 3. **A test.** Where a behaviour is subtle, the integration test is the spec.
 
@@ -344,7 +344,7 @@ apart.
 
 ### Findings are recorded, not smoothed over
 
-Where a page describes a broken or missing thing in a cafaye repository, it says
+Where a page describes a broken or missing thing in a anywaye repository, it says
 so on the page an operator will hit, with the error they will see. The single
 audit is [Topology](/architecture/topology/#cross-repo-drift-audit), and it is
 **re-run, not recalled** — the lint table comes from executing
@@ -437,8 +437,8 @@ tests/contracts.mjs       the contract tier: core's schemas, and the real cafe v
 bin/prime                 the gate (--contracts adds the contract tier)
 bin/check-external-links  the network tier: do the external links answer
 .github/workflows/        ci.yml (gate, contracts, pins) + external-links.yml (network)
-deploy/docs.cafaye.com.yaml the deploy manifest: nginx with the per-tree /api/ locations
-cafaye.yml                the cafaye manifest, so the org tooling finds this repo
+deploy/docs.anywaye.com.yaml the deploy manifest: nginx with the per-tree /api/ locations
+anywaye.yml                the anywaye manifest, so the org tooling finds this repo
 mise.toml                 node 22.23.4
 ```
 

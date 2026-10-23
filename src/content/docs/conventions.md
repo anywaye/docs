@@ -1,20 +1,20 @@
 ---
 title: 'Conventions'
-description: '- Group by deployment target: cafaye (building block) vs anywaye (product). - Git repos moved as whole dirs; relative service refs preserved under cafaye/.…'
+description: '- Group by deployment target: anywaye (building block) vs anywaye (product). - Git repos moved as whole dirs; relative service refs preserved under anywaye/.…'
 ---
 
 # Conventions
 
 ## Directory
-- Group by deployment target: cafaye (building block) vs anywaye (product).
-- Git repos moved as whole dirs; relative service refs preserved under cafaye/.
+- Group by deployment target: anywaye (building block) vs anywaye (product).
+- Git repos moved as whole dirs; relative service refs preserved under anywaye/.
 - Scratch/legacy -> work/ or archive/, never beside canonical repos.
 
 ## Manifests
-- Every cafaye service has `cafaye.yml` validated against core schema.
+- Every anywaye service has `anywaye.yml` validated against core schema.
 - Manifests stay credential-free (additionalProperties: false) — no secret values, only names/metadata.
 - Manifests declare runtime env vars via the `env:` block (name, required, secret, default, dev_default, description).
-  This is the single source of truth; `cafaye` generates `.env.example`, boot validators, and docs from it.
+  This is the single source of truth; `anywaye` generates `.env.example`, boot validators, and docs from it.
 
 ## Gates
 - Per-commit: `bin/prime`. Full stack: `bin/e2e`.
@@ -22,14 +22,14 @@ description: '- Group by deployment target: cafaye (building block) vs anywaye (
 ## Documentation
 - Each project: `AGENTS.md` (agent-facing) + `docs/`.
 - Cross-cutting: `/docs`.
-- Governance: `cafaye/*.md`.
+- Governance: `anywaye/*.md`.
 
 ## Documentation hub (single source of truth)
-- Published/private docs site: `cafaye/loom` (engine). Runs `bin/sync-content` to ingest
+- Published/private docs site: `anywaye/loom` (engine). Runs `bin/sync-content` to ingest
   `docs/` + `notes/` from every repo listed in `content-sources.json`.
 - All anywaye products are listed there with `visibility: private`, so their docs are private.
-- To add a new project's docs: add a root `cafaye.yml` (visibility private), a `docs/` dir, symlink the
-  repo under `cafaye/`, and append its name to `cafaye/loom/content-sources.json`.
+- To add a new project's docs: add a root `anywaye.yml` (visibility private), a `docs/` dir, symlink the
+  repo under `anywaye/`, and append its name to `anywaye/loom/content-sources.json`.
 - Agent-facing guidance: per-repo `AGENTS.md` + `/AGENTS.md`. Published docs: customer/operator-facing.
 
 ## Secrets

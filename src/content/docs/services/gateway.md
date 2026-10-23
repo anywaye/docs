@@ -3,7 +3,7 @@ title: gateway
 description: The public gateway and BFF — the only door in, terminating auth and rate limits in front of every service.
 ---
 
-`gateway` is the only door into a cafaye deployment. It authenticates callers,
+`gateway` is the only door into a anywaye deployment. It authenticates callers,
 limits what they may ask for, and forwards each request to the service that
 actually owns the work. It is written in **Go** — `net/http` plus `chi`, with the
 server generated from `openapi/v1.yaml` by `oapi-codegen`, so the contract is the
@@ -28,7 +28,7 @@ a `RouteTable` is a plain object so that filling one from discovery is a
 different `runtimeOptions` rather than a rewrite.
 
 **The service was rewritten in Go and the TypeScript reference is gone.**
-`src/` was deleted at cutover (`f87c891`, 2026-10-05) and `cafaye.yml` now says
+`src/` was deleted at cutover (`f87c891`, 2026-10-05) and `anywaye.yml` now says
 `language: go`. Two things followed that a reader of older pages will not
 expect. **API keys are gone**: `src/middleware/apiKey.ts` had no Go counterpart —
 no store, no hashing, no prefix check, no gate — and with `src/` deleted there is
@@ -135,7 +135,7 @@ of caller is now un-refused rather than refused without a scope. Until the
 document changes, **a bearer JWT is the only script credential**, and revoking
 one means waiting out `IDENTITY_JWKS_TTL_MS`.
 
-- **Repository:** [github.com/cafaye/gateway](https://github.com/cafaye/gateway)
+- **Repository:** [github.com/anywaye/gateway](https://github.com/anywaye/gateway)
 - **Language:** Go (`net/http` + `chi`, server generated from `openapi/v1.yaml`)
 - **Namespace / routing prefix:** `gateway`
 - **Container port:** 8080

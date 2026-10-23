@@ -1,6 +1,6 @@
 ---
 title: Runbooks
-description: The procedures that keep a cafaye deployment alive — provisioning, backup, rotation, outages, and billing webhooks.
+description: The procedures that keep a anywaye deployment alive — provisioning, backup, rotation, outages, and billing webhooks.
 ---
 
 These are the runbooks. The risk is *"support burden once pilots land"*, and the
@@ -25,16 +25,16 @@ A runbook that does not say what not to do gets read as a menu.
 
 A seventh page sits with these and is the one to read **before** you trust a green
 badge anywhere in the fleet:- **[Running the gates](/getting-started/)** — the exact command for every
-  cafaye repository, and the tiers that do **not** run by default. A gate that
+  anywaye repository, and the tiers that do **not** run by default. A gate that
   skips is green and has proved less than it appears to, and most repositories
   have no CI at all.
 
 ## What every one of these assumes
 
-**You are running the services yourself.** There is no hosted cafaye platform
+**You are running the services yourself.** There is no hosted anywaye platform
 today — no `cafe deploy` remote and no substrate we run for you — so "the
 environment" means containers you built from each repository's Dockerfile on
-infrastructure you control. What does exist is [Cafaye Ops](/commercial/#cafaye-ops-on-top-the-monthly-operated-tier),
+infrastructure you control. What does exist is [Anywaye Ops](/commercial/#anywaye-ops-on-top-the-monthly-operated-tier),
 a monthly operated tier we run *on your box* rather than a hosted one, and it
 changes who does the work below rather than where the containers run.
 [Getting started](/getting-started/)
@@ -43,15 +43,15 @@ and environment variable in one table.
 
 **The launch deployment mechanism is the substrate — k3s + Traefik +
 cert-manager + ArgoCD + CloudNativePG — decided in
-`cafaye/notes/deployment.md` and
+`anywaye/notes/deployment.md` and
 not yet built.** [Deployment](/runbooks/deployment/) is the runbook for it: one
-box, `curl https://cafaye.com/box/install | sh`, and a deploy path that is a values
+box, `curl https://anywaye.com/box/install | sh`, and a deploy path that is a values
 commit and nothing else. The install script (`kit/templates/substrate/`) does not
 exist yet, so that page marks its install steps unverified rather than inventing
 flags.
 
 **Kamal retires at parity, not before.** The fleet's gates run on compose/Kamal
-today and keep running until the substrate exists (cafaye/notes/deployment.md), so the
+today and keep running until the substrate exists (anywaye/notes/deployment.md), so the
 Kamal path is still the path for the fleet's own gates — it is not the launch
 path, and no new launch work is Kamal work. `kit/templates/kamal/` ships three
 files (`deploy.yml.erb`, `kamal-backup.yml.erb`, `drill.sh`); `identity` and
@@ -240,7 +240,7 @@ Not `billing`'s problem. Check, in order:
 
 1. **The endpoint URL** in the Stripe dashboard resolves and terminates TLS.
    The services bind plain HTTP; TLS is the edge's job. On the substrate that
-   edge is Traefik + cert-manager (cafaye/notes/deployment.md); on the retiring Kamal
+   edge is Traefik + cert-manager (anywaye/notes/deployment.md); on the retiring Kamal
    path it is `proxy.ssl: true` in `config/deploy.yml`.
 2. **The endpoint is enabled** in Stripe, and pointed at the environment you
    think it is. Staging and production endpoints are separate objects.
@@ -475,11 +475,11 @@ event**, which is the thing a consumer is most likely to get wrong here:
 
 | Event | `subject` |
 | --- | --- |
-| `billing.subscription.started` / `.updated` / `.canceled` | **billing's own `Subscription#id`** — a cafaye id, so all three join on one key with no lookup table |
+| `billing.subscription.started` / `.updated` / `.canceled` | **billing's own `Subscription#id`** — a anywaye id, so all three join on one key with no lookup table |
 | `billing.payment.succeeded` / `.failed` | the processor's id, because an invoice references a subscription rather than being one, and the join key is the processor's subscription id in the payload |
 
 `billing` has a subscriptions table, so a subscription event's subject is a
-cafaye id and the three events correlate on it directly. The payment events keep
+anywaye id and the three events correlate on it directly. The payment events keep
 the processor's id, and the payload carries the processor's subscription id you
 need to join them.
 
@@ -492,7 +492,7 @@ either version rejects the real payload.
 
 **Prefer `GET /v1/subscriptions/{id}`**, which has a contract test and an
 OpenAPI document, over the event payload as your source of truth until core's
-schemas move. [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-cafaye-prefixed-ids)
+schemas move. [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-anywaye-prefixed-ids)
 has the full note.
 :::
 
@@ -543,7 +543,7 @@ description: Take one Stripe Payment Link payment, confirm it is real, and grant
 
 One buyer, one payment, one entitlement. There is no billing service, no
 Stripe integration in box and no payment webhook —
-`cafaye/notes/agents-first.md`
+`anywaye/notes/agents-first.md`
 D2 decided the mechanism and `box/docs/BOUNDARIES.md` still holds the
 line that produced it:
 
@@ -599,7 +599,7 @@ POST /v1/accounts/:account_id/artifact_fetches     what spends the entitlement
 
 ## Step 1 — the payment arrives on Stripe, not on us
 
-The buyer pays a Stripe Payment Link. **Nothing arrives in cafaye.** No
+The buyer pays a Stripe Payment Link. **Nothing arrives in anywaye.** No
 webhook, no `processor_webhooks` row, no event on a bus, no email. The payment
 exists in Stripe's dashboard and nowhere else, and that is deliberate rather
 than a gap in wiring.
@@ -607,7 +607,7 @@ than a gap in wiring.
 Open the Payment Link in the Stripe dashboard — Payments, or the link's own
 Payments view — and find the one you are about to grant for. What you are
 looking for is spelled out in step 2; the point of this step is only that you
-know where to look, because there is no cafaye-side view of it and there is
+know where to look, because there is no anywaye-side view of it and there is
 never going to be one under D2.
 
 :::caution[Do not go looking for a `billing`-side record]
@@ -760,7 +760,7 @@ cat grant.json
 | --- | --- | --- |
 | `account_id` | yes | the identity account UUID, as a string. `Entitlement` validates it against `UUID_RE`, so a malformed one is a `422`, not a silent miss |
 | `product` | no — defaults to `kit` | `kit`, `platform`, `identity` or `courier`. **For a paid unit it is never `kit`.** The default is a trap in this procedure: omit it and you grant the free claim entitlement |
-| `version_range` | no | a cafaye semver constraint (`^X.Y.Z`, `~X.Y.Z`, `>=X.Y.Z`, or exact); `null` means every version. A paid unit bought without a negotiated version bound is `null` |
+| `version_range` | no | a anywaye semver constraint (`^X.Y.Z`, `~X.Y.Z`, `>=X.Y.Z`, or exact); `null` means every version. A paid unit bought without a negotiated version bound is `null` |
 | `source` | no | free text. Use `reconciled_payment` — it is the value box's own test uses, and it is what makes the row findable as a reconciled sale |
 | `reference` | no | free text, external reference. **Put the Stripe payment id here** — it is the only join between an entitlement row and the money that bought it |
 
@@ -912,7 +912,7 @@ consequences of that one missing column:
 
 **This is a drift finding, recorded here rather than resolved.** The [pricing
 page](/commercial/#the-three-units) states each payment buys *"a one-year
-entitlement; renewal is a second link"*, and `cafaye/notes/agents-first.md` D8 decides
+entitlement; renewal is a second link"*, and `anywaye/notes/agents-first.md` D8 decides
 the prices as *"annual one-time … a human confirms one payment and grants an
 entitlement with a one-year expiry"*. **Neither the one-year expiry nor the
 second grant is implemented.** The `Kit` entitlement has the same shape. The
@@ -1221,7 +1221,7 @@ company, and the account the buyer's team uses will not see it.
 The four `product` values box accepts are `kit`, `platform`, `identity`
 and `courier`. Anything else — `billing`, `darkroom`, `gateway`, `muse`, a
 bundle that is not one of the three decided prices — is **not purchasable
-today**. `cafaye/notes/agents-first.md` D8 decided the price list and it has three
+today**. `anywaye/notes/agents-first.md` D8 decided the price list and it has three
 units on it.
 
 The honest answer is not to invent a grant. A `product` outside the list is a
@@ -1240,7 +1240,7 @@ An account id that is not a UUID is refused the same way, by
 
 **So tell them what exists, quote the price for it if they will take it, and
 log the rest.** A request for an unpackaged service is a product question for
-the manager, and `cafaye/notes/agents-first.md` is where it gets decided — not a grant
+the manager, and `anywaye/notes/agents-first.md` is where it gets decided — not a grant
 you improvise on a busy afternoon.
 
 ## Step 9 — verify the buyer can see it
@@ -1307,7 +1307,7 @@ token able to fetch what they paid for.
 
 | Step | Why not | What to do |
 | --- | --- | --- |
-| The payment reaching cafaye | No billing service, no Stripe code in box, no webhook — D2's whole decision | Read it off Stripe yourself (step 1) |
+| The payment reaching anywaye | No billing service, no Stripe code in box, no webhook — D2's whole decision | Read it off Stripe yourself (step 1) |
 | A receipt to the buyer | `courier` can send mail and there is no template and no caller for this | Send one yourself, out of band |
 | The buyer's account being found from their email | No user→account endpoint in identity, and the directory search returns no accounts (step 3) | Ask them, or read it off a prior grant |
 | A one-year expiry | `entitlements` has no `expires_at` column and there is no sweeper | Decide commercially whether to revoke at renewal (step 5) |

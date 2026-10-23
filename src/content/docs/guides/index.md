@@ -1,6 +1,6 @@
 ---
 title: Guides
-description: Task-oriented walkthroughs for cafaye. Placeholder — nothing published yet.
+description: Task-oriented walkthroughs for anywaye. Placeholder — nothing published yet.
 ---
 
 This section is a placeholder. Nothing is published here yet.
@@ -56,4 +56,4 @@ the real `cafe` binary and the real service repositories:
   answer to "is the stack running".
 - [Services](/services/) — one page per service, each stating plainly what is
   built and what is not.
-- [the org](https://github.com/cafaye) — for what is landing right now.
+- [the org](https://github.com/anywaye) — for what is landing right now.

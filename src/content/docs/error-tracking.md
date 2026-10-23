@@ -1,11 +1,11 @@
 ---
 title: 'Error tracking (GlitchTip + relay)'
-description: 'cafaye surfaces unhandled errors from every service through a single, redacted relay into a self-hosted GlitchTip instance. Handled/retried errors stay in…'
+description: 'anywaye surfaces unhandled errors from every service through a single, redacted relay into a self-hosted GlitchTip instance. Handled/retried errors stay in…'
 ---
 
 # Error tracking (GlitchTip + relay)
 
-cafaye surfaces unhandled errors from every service through a single, redacted
+anywaye surfaces unhandled errors from every service through a single, redacted
 relay into a self-hosted GlitchTip instance. Handled/retried errors stay in the
 OTel pipeline (Loki); unhandled crashes become issues with a lifecycle.
 
@@ -14,7 +14,7 @@ OTel pipeline (Loki); unhandled crashes become issues with a lifecycle.
 - **GlitchTip** (MIT), Sentry-protocol compatible. Self-hosted on the substrate's
   Postgres with its own database and role.
 - Local: `docker compose -f docker-compose.yml -f docker-compose.errors.yml up -d`
-  in `cafaye/courier`, then open http://localhost:8000 and create a project.
+  in `anywaye/courier`, then open http://localhost:8000 and create a project.
 
 ## Environment variables
 
@@ -69,7 +69,7 @@ the one GlitchTip project named by `COURIER_ERROR_SINK_DSN`.
 
 ## Contabo deployment (current)
 
-The store is deployed at `http://169.58.108.209:8000` (admin: `admin@cafaye.local`).
+The store is deployed at `http://169.58.108.209:8000` (admin: `admin@anywaye.local`).
 Project DSN: `http://71ef85e0-2dbf-4e22-969a-90c608a7c955@169.58.108.209:8000/3`.
 API token for the CLI/MCP: `5031e3a365ac7b8673eaab0f20b5919b8b3ce29200ea0a89a4e14922874e9d7d`.
 Set `COURIER_ERROR_SINK_DSN` to the DSN above in every service's runtime env.
@@ -81,7 +81,7 @@ Set `COURIER_ERROR_SINK_DSN` to the DSN above in every service's runtime env.
     cafe errors status <issue-id>
     cafe errors release <version>
 
-Configure with `CAFAYE_GLITCHTIP_URL`, `CAFAYE_GLITCHTIP_TOKEN`, `CAFAYE_GLITCHTIP_ORG`.
+Configure with `ANYWAYE_GLITCHTIP_URL`, `ANYWAYE_GLITCHTIP_TOKEN`, `ANYWAYE_GLITCHTIP_ORG`.
 The same data is exposed to agents over MCP as `caf_errors`, `caf_error`, `caf_error_status`.
 
 ## Verification performed
@@ -108,4 +108,4 @@ Error rates and latency by service/route:
     cafe metrics [--query PROMQL] [--tenant single-tenant]
     # MCP: caf_metrics
 
-Default endpoint: `http://localhost:15902` (override with `CAFAYE_PROMETHEUS_URL`).
+Default endpoint: `http://localhost:15902` (override with `ANYWAYE_PROMETHEUS_URL`).

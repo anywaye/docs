@@ -1,15 +1,15 @@
 ---
-title: 'Cafaye Git (Gitea) — the candidate git host'
-description: '`gitea.cafaye.com` is a second git host, deployed side by side with `git.cafaye.com` (Forgejo) so the two can be compared on the same hardware, behind the…'
+title: 'Anywaye Git (Gitea) — the candidate git host'
+description: '`gitea.anywaye.com` is a second git host, deployed side by side with `git.anywaye.com` (Forgejo) so the two can be compared on the same hardware, behind the…'
 ---
 
-# Cafaye Git (Gitea) — the candidate git host
+# Anywaye Git (Gitea) — the candidate git host
 
-`gitea.cafaye.com` is a second git host, deployed side by side with
-`git.cafaye.com` (Forgejo) so the two can be compared on the same hardware,
+`gitea.anywaye.com` is a second git host, deployed side by side with
+`git.anywaye.com` (Forgejo) so the two can be compared on the same hardware,
 behind the same edge, with the same fleet pointed at them.
 
-**The source of truth is GitHub.** `cafaye/ship` and `cafaye/cafe` are pushed to
+**The source of truth is GitHub.** `anywaye/ship` and `anywaye/cafe` are pushed to
 GitHub, and a workflow force-pushes `master` to the internal host as a mirror.
 The live state is the other way round of what `forgejo.md` says: the internal
 host is currently a *stale* mirror (23 commits behind on `ship`, 3 on `cafe`),
@@ -17,7 +17,7 @@ because the mirror workflow has not run since the Actions jobs stopped. Both
 internal copies are strict ancestors of GitHub's `master`, so the internal host
 holds nothing unique.
 
-**It is not a cafaye service.** It is not packaged, sold, or supported by the
+**It is not a anywaye service.** It is not packaged, sold, or supported by the
 stack. It is the founder's own infrastructure.
 
 **No content was mirrored into it.** The Gitea instance is a fresh host with an
@@ -29,7 +29,7 @@ empty namespace: it was deployed to be evaluated, not to duplicate Forgejo.
 |---|---|
 | Host | Contabo (`ssh contabo`), single-node k3s — the same node as Forgejo |
 | Namespace | `gitea` |
-| Ingress | Traefik → `gitea.cafaye.com` (TLS via cert-manager `gitea-tls`) |
+| Ingress | Traefik → `gitea.anywaye.com` (TLS via cert-manager `gitea-tls`) |
 | Front edge | Cloudflare proxy → the Contabo IP (proxied) |
 | Database | SQLite, file `/data/gitea/gitea.db` |
 | Storage | PVC `gitea-data` (10Gi, `local-path` provisioner) |
@@ -98,20 +98,20 @@ Configuration only — no code in ship names a git host.
 
 | Variable | Value | Where it lives |
 |---|---|---|
-| `CAFAYE_GIT_URL` | `https://gitea.cafaye.com` | `ship` deployment, plain value |
-| `CAFAYE_GIT_TOKEN` | the admin token | k8s secret `ship-git-gitea` |
-| `CAFAYE_GIT_USER` | `cafaye` (the host's admin login) | k8s secret `ship-git-gitea` |
-| `CAFAYE_GIT_PASSWORD` | the host admin's password | k8s secret `ship-git-gitea` |
-| `IDENTITY_URL` | `https://auth.cafaye.com` | `ship` deployment, plain value |
+| `ANYWAYE_GIT_URL` | `https://gitea.anywaye.com` | `ship` deployment, plain value |
+| `ANYWAYE_GIT_TOKEN` | the admin token | k8s secret `ship-git-gitea` |
+| `ANYWAYE_GIT_USER` | `anywaye` (the host's admin login) | k8s secret `ship-git-gitea` |
+| `ANYWAYE_GIT_PASSWORD` | the host admin's password | k8s secret `ship-git-gitea` |
+| `IDENTITY_URL` | `https://auth.anywaye.com` | `ship` deployment, plain value |
 
 The admin login is a secret because the host demands it: its token routes
-refuse a token. It is used for nothing else. `CAFAYE_GIT_TOKEN` remains the
+refuse a token. It is used for nothing else. `ANYWAYE_GIT_TOKEN` remains the
 credential for every ordinary route, and the password for a person is never
 held by ship — ship mints a **person's own** token, scoped
 `write:repository`, and the person pushes with that.
 
 The deployment's own token and the host admin's token are both declared in
-`cafaye/ship/cafaye.yml` under `env:`, with `secret: true`. Nothing is in the
+`anywaye/ship/anywaye.yml` under `env:`, with `secret: true`. Nothing is in the
 repository; `cafe secret set` is the way to fill them in.
 
 ### The credential a person gets
@@ -128,7 +128,7 @@ than theoretical. A person token with `write:repository`:
 | `POST /api/v1/repos/{o}/{r}/pulls` | `201` — it may write to its repositories |
 | `POST /api/v1/orgs` | `403` — creating an organization needs a different scope |
 | `GET /api/v1/user` | `403` — `token does not have at least one of required scope(s), required=[read:user]` |
-| `GET /api/v1/users/cafaye/tokens` | `401` — the host refuses token auth on that route outright |
+| `GET /api/v1/users/anywaye/tokens` | `401` — the host refuses token auth on that route outright |
 
 ## Verified end to end
 
@@ -161,7 +161,7 @@ all answer.
   read the user API, so a client that wants to "check who am I" over the token
   needs `read:user` as well.
 - **Cloudflare is in front of it**, so the host is reachable on
-  `gitea.cafaye.com` only; the in-cluster service is `gitea.gitea.svc`.
+  `gitea.anywaye.com` only; the in-cluster service is `gitea.gitea.svc`.
 
 ## Manifest
 
@@ -189,10 +189,10 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - { name: GITEA__database__DB_TYPE, value: sqlite3 }
-            - { name: GITEA__server__DOMAIN, value: gitea.cafaye.com }
-            - { name: GITEA__server__ROOT_URL, value: "https://gitea.cafaye.com/" }
+            - { name: GITEA__server__DOMAIN, value: gitea.anywaye.com }
+            - { name: GITEA__server__ROOT_URL, value: "https://gitea.anywaye.com/" }
             - { name: GITEA__server__HTTP_PORT, value: "3000" }
-            - { name: GITEA__server__SSH_DOMAIN, value: gitea.cafaye.com }
+            - { name: GITEA__server__SSH_DOMAIN, value: gitea.anywaye.com }
             - { name: GITEA__server__SSH_PORT, value: "22" }
             - { name: GITEA__server__SSH_LISTEN_PORT, value: "22" }
             - { name: GITEA__server__START_SSH_SERVER, value: "false" }
@@ -254,7 +254,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: gitea.cafaye.com
+    - host: gitea.anywaye.com
       http:
         paths:
           - path: /
@@ -264,7 +264,7 @@ spec:
                 name: gitea
                 port: { number: 3000 }
   tls:
-    - hosts: [gitea.cafaye.com]
+    - hosts: [gitea.anywaye.com]
       secretName: gitea-tls
 ---
 apiVersion: cert-manager.io/v1
@@ -273,7 +273,7 @@ metadata:
   name: gitea-tls
   namespace: gitea
 spec:
-  dnsNames: [gitea.cafaye.com]
+  dnsNames: [gitea.anywaye.com]
   issuerRef:
     group: cert-manager.io
     kind: ClusterIssuer
@@ -298,11 +298,11 @@ spec:
 
 | | |
 |---|---|
-| User | `cafaye` (admin) |
+| User | `anywaye` (admin) |
 | Repositories | none — the instance is fresh, and nothing was mirrored from Forgejo |
-| Tokens | `admin-bootstrap`, `ship-service` (both belong to `cafaye`, both `all` scope) |
+| Tokens | `admin-bootstrap`, `ship-service` (both belong to `anywaye`, both `all` scope) |
 
-`ship-service` is the token ship holds as `CAFAYE_GIT_TOKEN`. `admin-bootstrap`
+`ship-service` is the token ship holds as `ANYWAYE_GIT_TOKEN`. `admin-bootstrap`
 is the one that was used to create the instance; it can be deleted once the
 fleet is comfortable.
 

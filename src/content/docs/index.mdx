@@ -1,12 +1,12 @@
 ---
-title: cafaye
+title: anywaye
 description: The open-source, multi-language SaaS platform. One CLI, independent services, connected by typed contracts.
 template: splash
 hero:
   tagline: One CLI, independent services, each written in the language that fits its job.
 ---
 
-cafaye exists so you never start a SaaS from scratch again: authentication,
+anywaye exists so you never start a SaaS from scratch again: authentication,
 tenancy, billing, notifications, media, and AI routing — production-grade,
 self-hostable, and connected by typed contracts. It is an **organization, not a
 single repository**: every service below lives in its own repo, versioned and
@@ -62,23 +62,23 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 | Service | What it does | Language |
 | --- | --- | --- |
-| [`identity`](https://github.com/cafaye/identity) | Users, sessions, accounts & tenancy, OIDC provider | Go |
-| [`billing`](https://github.com/cafaye/billing) | Plans, subscriptions, prepaid credits, usage metering, processor webhooks in and out | Ruby |
-| [`courier`](https://github.com/cafaye/courier) | Transactional email, push, and every outbound webhook — signed and retried | Elixir |
-| [`darkroom`](https://github.com/cafaye/darkroom) | Signed media uploads, variants, S3 and Cloudflare R2 | Rust |
-| [`muse`](https://github.com/cafaye/muse) | LLM routing, credentials vault, token metering | Python |
-| [`gateway`](https://github.com/cafaye/gateway) | Public gateway / BFF — routing, JWT verification, rate limits | Go |
-| [`parlor`](https://github.com/cafaye/parlor) | The app shell: production-ready frontend template + admin | Next.js |
+| [`identity`](https://github.com/anywaye/identity) | Users, sessions, accounts & tenancy, OIDC provider | Go |
+| [`billing`](https://github.com/anywaye/billing) | Plans, subscriptions, prepaid credits, usage metering, processor webhooks in and out | Ruby |
+| [`courier`](https://github.com/anywaye/courier) | Transactional email, push, and every outbound webhook — signed and retried | Elixir |
+| [`darkroom`](https://github.com/anywaye/darkroom) | Signed media uploads, variants, S3 and Cloudflare R2 | Rust |
+| [`muse`](https://github.com/anywaye/muse) | LLM routing, credentials vault, token metering | Python |
+| [`gateway`](https://github.com/anywaye/gateway) | Public gateway / BFF — routing, JWT verification, rate limits | Go |
+| [`parlor`](https://github.com/anywaye/parlor) | The app shell: production-ready frontend template + admin | Next.js |
 
 ## The tooling
 
 | Repo | What it does | Language |
 | --- | --- | --- |
-| [`cafe`](https://github.com/cafaye/cafe) | The CLI: `cafe init · new · dev · deploy · gen · contract` | Go |
-| [`core`](https://github.com/cafaye/core) | The substrate: service manifests, OpenAPI & event specs, telemetry specs, generator engine | — |
+| [`cafe`](https://github.com/anywaye/cafe) | The CLI: `cafe init · new · dev · deploy · gen · contract` | Go |
+| [`core`](https://github.com/anywaye/core) | The substrate: service manifests, OpenAPI & event specs, telemetry specs, generator engine | — |
 | `pantry` | The registry: what a service is and how to reach it — closed source, public endpoint | Go |
-| `cafaye-rb` | The shared Ruby gem: JWKS token verification, the transactional outbox, a Rails railtie | Ruby |
-| [`kit`](https://github.com/cafaye/kit) | Shared CI workflows, lint configs, Docker bases, OTel templates for six languages | — |
+| `anywaye-rb` | The shared Ruby gem: JWKS token verification, the transactional outbox, a Rails railtie | Ruby |
+| [`kit`](https://github.com/anywaye/kit) | Shared CI workflows, lint configs, Docker bases, OTel templates for six languages | — |
 | `docs` | This site | — |
 
 ## Why one language per service?
@@ -91,13 +91,13 @@ talks to models — Python's ecosystem is unmatched. And `parlor` is the web.
 Polyglot by design, connected by typed contracts, never by shared code.
 
 :::caution[Early development]
-cafaye is **early**, and this site is written to say so rather than around it.
+anywaye is **early**, and this site is written to say so rather than around it.
 As of **2026-10-10** no `cafe` subcommand is a stub: the stub table that held
 `init`, `new` and `gen` is empty (`cafe/internal/cli/stub_test.go:25`), and the
 command table beside it is the single source of truth for which verbs work.
 There is **no broker** — no service starts an outbox publisher loop, so an event
 is a row and nothing more.
-There is also no cafaye-operated platform to deploy *to*: Cafaye Ops is a monthly
+There is also no anywaye-operated platform to deploy *to*: Anywaye Ops is a monthly
 operated tier we run on your box, not a destination `cafe deploy` can target.
 Three of the seven services
 are built past their first milestone (`darkroom` ships signed uploads and

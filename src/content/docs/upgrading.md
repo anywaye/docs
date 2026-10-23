@@ -14,7 +14,7 @@ right and this page is a bug.
 
 ## Read this first: how urgent is any of it?
 
-**No cafaye service starts an outbox publisher loop.**
+**No anywaye service starts an outbox publisher loop.**
 `identity`'s only `Publisher` implementation is a deliberate no-op, and there is
 no broker in the platform, so an event today is a row in `outbox_events` and
 nothing else.
@@ -98,19 +98,19 @@ ledger will produce two rows for one message during the window in step 3.
 `courier`:
 
 ```sh
-cd cafaye && go run ./cmd/cafe contract lint .
+cd anywaye && go run ./cmd/cafe contract lint .
 ```
 
 ---
 
-## 2. `billing.subscription.started` no longer declares cafaye-prefixed ids
+## 2. `billing.subscription.started` no longer declares anywaye-prefixed ids
 
 **This is a breaking spec change, and it was made four days after v0.2 shipped.**
 It is recorded as `D10` in
-[core's DECISIONS.md](https://github.com/cafaye/core/blob/master/DECISIONS.md),
+[core's DECISIONS.md](https://github.com/anywaye/core/blob/master/DECISIONS.md),
 with the alternatives and the cost of flipping.
 
-**What changed.** The v0.2 payload schema required three ids in cafaye's own
+**What changed.** The v0.2 payload schema required three ids in anywaye's own
 vocabulary:
 
 ```
@@ -119,7 +119,7 @@ plan_id           ^pln_[0-9A-Z]{26}$
 account_id        ^acc_[0-9A-Z]{26}$
 ```
 
-Those patterns describe a world in which `billing` holds cafaye-prefixed ids.
+Those patterns describe a world in which `billing` holds anywaye-prefixed ids.
 It does not: `billing` emitted the payment processor's ids and its own bare
 uuids. A schema that names a field no publisher sends is worse than no schema,
 because it is a contract that lies and it lies **green** — the example validates,
@@ -220,10 +220,10 @@ An event type is conformant when **all five** exist. A publisher that has done
 four is not conformant, and `cafe contract lint` will say so once it enforces the
 catalog direction:
 
-1. The type in the publisher's `cafaye.yml` `exposes.events`, in the
+1. The type in the publisher's `anywaye.yml` `exposes.events`, in the
    three-segment form.
 2. A **catalog row** in
-   [core's event naming document](https://github.com/cafaye/core/blob/master/docs/event-naming.md),
+   [core's event naming document](https://github.com/anywaye/core/blob/master/docs/event-naming.md),
    with the subject and when it is emitted.
 3. A **payload schema** at
    `schemas/events/<service>/<entity>/<action>.schema.json` — the event type
@@ -273,7 +273,7 @@ started](/getting-started/#step-5--run-a-service-locally). `cafe deploy` and
 
 ```sh
 # 1. every manifest in your tree validates
-cd cafaye && go run ./cmd/cafe contract lint .
+cd anywaye && go run ./cmd/cafe contract lint .
 
 # 2. your tree has no surviving reference to courier's old spellings
 grep -rn -E "['\"](email|notification)\.(queued|delivered|bounced|complained|suppressed)['\"]" .

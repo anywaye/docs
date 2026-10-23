@@ -1,11 +1,11 @@
 ---
 title: 'Secrets management'
-description: 'The fleet''s security invariants (from `cafaye/notes/agents-first.md`):'
+description: 'The fleet''s security invariants (from `anywaye/notes/agents-first.md`):'
 ---
 
 # Secrets management
 
-The fleet's security invariants (from `cafaye/notes/agents-first.md`):
+The fleet's security invariants (from `anywaye/notes/agents-first.md`):
 
 1. **The agent is a courier of capabilities, never a holder of secrets.** No
    secret ever enters an agent's context, a transcript, or a commit.
@@ -14,13 +14,13 @@ The fleet's security invariants (from `cafaye/notes/agents-first.md`):
 3. **Enforcement lives on the box, not in prompts.** A secret that can be read
    by an agent is a bug, regardless of instructions.
 4. **Humans approve irreversible things.** Deploys, migrations, secret rotation.
-5. **Manifests stay credential-free.** `cafaye.yml` has `additionalProperties:
+5. **Manifests stay credential-free.** `anywaye.yml` has `additionalProperties:
    false` — there is no field for a secret value (only names and metadata).
 
 ## Two tiers, different strictness
 
 **Local dev — relaxed, fast, zero friction.** Dev secrets live in the OS-level
-keyring (macOS Keychain / Linux secret-service) or, in cafaye's case, in a
+keyring (macOS Keychain / Linux secret-service) or, in anywaye's case, in a
 `FileRing` (0600 files in a 0700 directory, gitignored). No `.env` files. No
 per-access approval. Dev secrets are disposable and localhost-scoped.
 
@@ -49,8 +49,8 @@ ciphertext it cannot open). No `.env` files with values. The box daemon
 
 ## The manifest declares env vars (single source of truth)
 
-`cafaye.yml` has an `env:` block listing name, required, secret (bool),
-default, and description. From this, `cafaye` generates `.env.example`,
+`anywaye.yml` has an `env:` block listing name, required, secret (bool),
+default, and description. From this, `anywaye` generates `.env.example`,
 boot validators, and `docs/configuration.md`. Secret *values* never appear
 in the manifest — only names and metadata.
 
@@ -86,4 +86,4 @@ envelopes when available. Neither is required — solo devs use `cafe secret set
 If a secret leaks: rotate immediately (`cafe secret rotate` for box secrets,
 `cafe secret set` for dev), then audit. The box's enrolled identity can be
 re-keyed without data loss (provider creds are re-sealed). See
-`cafaye/notes/ops.md` for the runbook.
+`anywaye/notes/ops.md` for the runbook.

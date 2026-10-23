@@ -134,7 +134,7 @@ async function request(url, method, timeoutMs) {
       headers: {
         // Some hosts answer 403 to a request with no user agent, which is a
         // statement about the request and not about the link.
-        'user-agent': 'cafaye-docs-link-check/1.0 (+https://docs.cafaye.com)',
+        'user-agent': 'anywaye-docs-link-check/1.0 (+https://docs.anywaye.com)',
       },
     });
     return { status: response.status };

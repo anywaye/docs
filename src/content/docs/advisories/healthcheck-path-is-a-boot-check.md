@@ -1,8 +1,8 @@
 ---
 title: A healthcheck pointed at a boot check
-description: kit's Kamal template set proxy.healthcheck.path to /up — Rails' boot check, which 404s from every cafaye service that serves /readyz — so a deploy that was perfectly good could never go green.
+description: kit's Kamal template set proxy.healthcheck.path to /up — Rails' boot check, which 404s from every anywaye service that serves /readyz — so a deploy that was perfectly good could never go green.
 advisory:
-  id: CAFAYE-ADV-2026-002
+  id: ANYWAYE-ADV-2026-002
   published: 2026-10-10
   severity: moderate
   affects:
@@ -51,7 +51,7 @@ questions a path can be answering:
   200 while its database is unreachable is a container the deploy tool will
   happily declare healthy.
 
-cafaye's services serve the second kind. `identity`, `courier`, `gateway`,
+anywaye's services serve the second kind. `identity`, `courier`, `gateway`,
 `parlor`, `darkroom` and `muse` all expose `/healthz` (liveness) and `/readyz`
 (readiness), and none of them serves `/up`. The one service that does serve
 `/up` is `billing`, which is Rails — and even there the three sit side by side

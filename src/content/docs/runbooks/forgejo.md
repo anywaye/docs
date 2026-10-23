@@ -1,17 +1,17 @@
 ---
-title: 'Cafaye Git (Forgejo) — the internal git host'
-description: '`git.cafaye.com` is the canonical git host for the fleet. A user sees "git.cafaye.com" and never the software behind it. GitHub is a legacy mirror being…'
+title: 'Anywaye Git (Forgejo) — the internal git host'
+description: '`git.anywaye.com` is the canonical git host for the fleet. A user sees "git.anywaye.com" and never the software behind it. GitHub is a legacy mirror being…'
 ---
 
-# Cafaye Git (Forgejo) — the internal git host
+# Anywaye Git (Forgejo) — the internal git host
 
-`git.cafaye.com` is the canonical git host for the fleet. A user sees
-"git.cafaye.com" and never the software behind it. GitHub is a legacy mirror
+`git.anywaye.com` is the canonical git host for the fleet. A user sees
+"git.anywaye.com" and never the software behind it. GitHub is a legacy mirror
 being phased out.
 
-**It is not a cafaye service.** It is not packaged, sold, or supported by the
+**It is not a anywaye service.** It is not packaged, sold, or supported by the
 stack. It is the founder's own infrastructure, and it hosts the canonical
-source of `cafaye/ship` and `cafaye/cafe`.
+source of `anywaye/ship` and `anywaye/cafe`.
 
 ## Where it runs
 
@@ -19,7 +19,7 @@ source of `cafaye/ship` and `cafaye/cafe`.
 |---|---|
 | Host | Contabo (`ssh contabo`), single-node k3s |
 | Namespace | `forgejo` |
-| Ingress | Traefik → `git.cafaye.com` (TLS via cert-manager) |
+| Ingress | Traefik → `git.anywaye.com` (TLS via cert-manager) |
 | Front edge | Cloudflare proxy → the Contabo IP |
 | Database | SQLite, file `/data/gitea/gitea.db` |
 | Storage | PVC `forgejo-data` (10Gi, `local-path` provisioner) |
@@ -90,7 +90,7 @@ kubectl rollout status deploy/forgejo -n forgejo --timeout=180s
 # 5. Verify.
 kubectl logs deploy/forgejo -n forgejo --tail=60      # migrations, then "Listen:"
 kubectl exec -n forgejo deploy/forgejo -- su-exec git forgejo doctor check --all
-curl -sS https://git.cafaye.com/api/v1/version
+curl -sS https://git.anywaye.com/api/v1/version
 ```
 
 **Roll back** by setting the image back to the previous tag, but restore the
@@ -127,7 +127,7 @@ kubectl rollout status deploy/forgejo -n forgejo --timeout=180s
 - `forgejo doctor check --all` — 27 checks, all OK.
 - Clone, commit, push, PR creation, and PR merge all work end to end
   (verified against a throwaway repo, since removed).
-- `cafaye/ship` and `cafaye/cafe` HEADs are byte-identical to the pre-upgrade
+- `anywaye/ship` and `anywaye/cafe` HEADs are byte-identical to the pre-upgrade
   backup.
 - The pod restarts cleanly and the instance serves again after a restart.
 
@@ -174,8 +174,8 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - { name: FORGEJO__database__DB_TYPE, value: sqlite3 }
-            - { name: FORGEJO__server__DOMAIN, value: git.cafaye.com }
-            - { name: FORGEJO__server__ROOT_URL, value: "https://git.cafaye.com/" }
+            - { name: FORGEJO__server__DOMAIN, value: git.anywaye.com }
+            - { name: FORGEJO__server__ROOT_URL, value: "https://git.anywaye.com/" }
             - { name: FORGEJO__server__HTTP_PORT, value: "3000" }
             - { name: FORGEJO__service__DISABLE_REGISTRATION, value: "false" }
             - { name: FORGEJO__security__INSTALL_LOCK, value: "true" }
@@ -227,7 +227,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: git.cafaye.com
+    - host: git.anywaye.com
       http:
         paths:
           - path: /
@@ -237,7 +237,7 @@ spec:
                 name: forgejo
                 port: { number: 3000 }
   tls:
-    - hosts: [git.cafaye.com]
+    - hosts: [git.anywaye.com]
       secretName: forgejo-tls
 ---
 apiVersion: v1
@@ -257,9 +257,9 @@ spec:
 
 | | |
 |---|---|
-| User | `cafaye` (admin) |
-| Repositories | `cafaye/ship`, `cafaye/cafe` — both private |
-| Tokens | `cafaye-cli`, `ship-service` (both `all` scope) |
+| User | `anywaye` (admin) |
+| Repositories | `anywaye/ship`, `anywaye/cafe` — both private |
+| Tokens | `anywaye-cli`, `ship-service` (both `all` scope) |
 
 CI mirrors to this host with a token in the remote URL — see
-`cafaye/ship/.github/workflows/mirror.yml`.
+`anywaye/ship/.github/workflows/mirror.yml`.

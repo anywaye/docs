@@ -24,7 +24,7 @@ description: '> **Current direction (2026-10-21):** CI is no longer a separate s
 Every repo has a gate command (see `docs/gates.md`). Run it before pushing:
 
 ```sh
-bin/prime          # cafaye services
+bin/prime          # anywaye services
 bin/ci             # Rails products
 npm test           # Node/TS products
 ```
@@ -45,20 +45,20 @@ each repo calls. It runs the same gate command declared in `gate.yml` under
 ## Deploy
 
 - **Current:** Kamal (`kamal deploy`). See `docs/kamal-deploy.md`.
-- **Target:** k3s + ArgoCD pull-only (see `cafaye/notes/deployment.md`). CI never
+- **Target:** k3s + ArgoCD pull-only (see `anywaye/notes/deployment.md`). CI never
   holds cluster credentials; a commit is the only write path.
 
 ## Docs pipeline (separate)
 
-`cafaye/loom` has its own CI:
+`anywaye/loom` has its own CI:
 
-1. `npm run sync` — materializes content from `cafaye/docs`, `cafaye/notes`,
+1. `npm run sync` — materializes content from `anywaye/docs`, `anywaye/notes`,
    and fleet repos listed in `content-sources.json`.
 2. `npm run build` — builds public (`dist/docs`) and private (`dist/notes`)
    Starlight sites.
 3. `npm test` — smoke, links, examples, advisories, visibility, api-markdown.
 
-Published to `docs.cafaye.com` (public) and `notes.cafaye.com` (private,
+Published to `docs.anywaye.com` (public) and `notes.anywaye.com` (private,
 auth-gated).
 
 ## Release flow summary
@@ -77,5 +77,5 @@ the same command). A deploy without a green CI is forbidden.
 | `gate.yml` (per repo) | Declares entrypoint, ci.invokes, db-tier, coverage floor |
 | `.github/workflows/ci.yml` (per repo) | Calls kit's reusable workflow |
 | `config/deploy.yml` (per repo) | Kamal deploy config |
-| `cafaye/loom/content-sources.json` | Fleet doc ingestion manifest |
-| `cafaye/loom/bin/sync-content` | Content materialization |
+| `anywaye/loom/content-sources.json` | Fleet doc ingestion manifest |
+| `anywaye/loom/bin/sync-content` | Content materialization |

@@ -1,11 +1,11 @@
 ---
 title: Architecture
-description: What each cafaye service owns, how they talk, and why the boundaries are where they are.
+description: What each anywaye service owns, how they talk, and why the boundaries are where they are.
 ---
 
-cafaye is an **organization, not a repository**. Ten services, each in its own
+anywaye is an **organization, not a repository**. Ten services, each in its own
 repo, each in the language its job fits. They are connected by typed contracts —
-a versioned `cafaye.yml` manifest, OpenAPI documents, and an event envelope —
+a versioned `anywaye.yml` manifest, OpenAPI documents, and an event envelope —
 and never by shared code.
 
 This page is the map. [Topology](/architecture/) is the same thing as an
@@ -22,19 +22,19 @@ database.
 
 | Service | Owns | Language | Reached by |
 | --- | --- | --- | --- |
-| [`identity`](https://github.com/cafaye/identity) | Users, sessions, accounts and tenancy, roles, invitations, OIDC, MFA | Go | HTTP `/v1/*`; verified by `gateway` |
-| [`billing`](https://github.com/cafaye/billing) | Plans, customers, money, usage metering, payment-processor webhooks in | Ruby | HTTP `/v1/*`; a Stripe-signed webhook endpoint |
-| [`courier`](https://github.com/cafaye/courier) | Transactional email, push, notification preferences, **every outbound webhook** | Elixir | HTTP; plus events every other service publishes to it |
-| [`darkroom`](https://github.com/cafaye/darkroom) | Media: uploads, variants, object storage | Go | HTTP + presigned object-storage URLs |
-| [`muse`](https://github.com/cafaye/muse) | LLM routing, the provider-credentials vault, token metering | Python | HTTP `POST /v1/route` |
-| [`gateway`](https://github.com/cafaye/gateway) | The public edge: token verification, the browser session, rate limits, static routing | Go | HTTP — **it is the door; nothing else is public** |
-| [`parlor`](https://github.com/cafaye/parlor) | The app shell you clone, plus the admin surface | TypeScript | A browser |
+| [`identity`](https://github.com/anywaye/identity) | Users, sessions, accounts and tenancy, roles, invitations, OIDC, MFA | Go | HTTP `/v1/*`; verified by `gateway` |
+| [`billing`](https://github.com/anywaye/billing) | Plans, customers, money, usage metering, payment-processor webhooks in | Ruby | HTTP `/v1/*`; a Stripe-signed webhook endpoint |
+| [`courier`](https://github.com/anywaye/courier) | Transactional email, push, notification preferences, **every outbound webhook** | Elixir | HTTP; plus events every other service publishes to it |
+| [`darkroom`](https://github.com/anywaye/darkroom) | Media: uploads, variants, object storage | Go | HTTP + presigned object-storage URLs |
+| [`muse`](https://github.com/anywaye/muse) | LLM routing, the provider-credentials vault, token metering | Python | HTTP `POST /v1/route` |
+| [`gateway`](https://github.com/anywaye/gateway) | The public edge: token verification, the browser session, rate limits, static routing | Go | HTTP — **it is the door; nothing else is public** |
+| [`parlor`](https://github.com/anywaye/parlor) | The app shell you clone, plus the admin surface | TypeScript | A browser |
 | `pantry` | The project registry — what every official project is, what it exposes, and where to reach it | Go | Public HTTP reads at the one door; writes need an identity account |
 | `box` | The operated control plane — entitlements, installations, releases and approvals | Ruby | The `website` frontend and a box, over HTTP |
 | `keyholder` | The registry-credential exchange — a `registry.pull` capability in, a pull-only `dockerconfigjson` out | Go | `box`, over HTTP |
 
 The last three are **platform services**: `pantry` is closed source with a
-public endpoint, and `box` and `keyholder` are Cafaye-operated and never part of
+public endpoint, and `box` and `keyholder` are Anywaye-operated and never part of
 a customer install, which is why they have no public repository to link to. See
 [Services](/services/) for the row that dates each one.
 
@@ -59,10 +59,10 @@ request: register a user, mint a session, list plans, resolve a model, fetch a
 key set.
 
 Each service that serves traffic publishes an OpenAPI 3.1 document at the path
-its `cafaye.yml` `exposes.api` names, and validates its own responses against
+its `anywaye.yml` `exposes.api` names, and validates its own responses against
 it in CI. The conventions — the `application/problem+json` error envelope,
 cursor pagination, `Idempotency-Key`, `traceparent` propagation — are in
-[`core/docs/openapi-conventions.md`](https://github.com/cafaye/core/blob/master/docs/openapi-conventions.md).
+[`core/docs/openapi-conventions.md`](https://github.com/anywaye/core/blob/master/docs/openapi-conventions.md).
 `core` owns them; this site summarizes.
 
 **Never a service-to-service database read.** Each service has its own database
@@ -234,7 +234,7 @@ title: Topology
 description: The operator's view — ports, probes, environment variables, dependencies, and what is not wired yet.
 ---
 
-Every row here was read out of a service repository: its `cafaye.yml`, its
+Every row here was read out of a service repository: its `anywaye.yml`, its
 `Dockerfile`, its `docker-compose.yml`, and its source. Where a repository and
 this table disagree, the repository is right — and the fix is an edit here, not
 a workaround you invent.
@@ -460,7 +460,7 @@ error is a credential in whatever the operator pastes the error into.
 | `DARKROOM_LOG_FORMAT` · `DARKROOM_LOG_LEVEL` | — | Log shape. |
 
 `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are the AWS SDK's own chain, and
-an R2 API token has exactly those two halves — so no cafaye-specific credential
+an R2 API token has exactly those two halves — so no anywaye-specific credential
 variable exists for object storage.
 
 ### courier
@@ -471,7 +471,7 @@ where a span goes.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
-| `COURIER_OTEL_ENDPOINT` | `http://otel-collector:4318` | Where traces go. `OTEL_EXPORTER_OTLP_ENDPOINT` is the fallback, and the cafaye name wins when both are set. |
+| `COURIER_OTEL_ENDPOINT` | `http://otel-collector:4318` | Where traces go. `OTEL_EXPORTER_OTLP_ENDPOINT` is the fallback, and the anywaye name wins when both are set. |
 | `COURIER_TENANT_ID` | *unset* | Put on the **resource**, not on a measurement. It is exempt from OpenTelemetry's 2000-attribute-combination cap, which is the point: a tenant on a measurement makes every per-tenant breakdown silently undercount. |
 
 ### Telemetry, across the fleet
@@ -639,7 +639,7 @@ re-authenticate against a healthy service.
 
 ## Who talks to whom
 
-Drawn from the `dependencies` and `consumes` blocks of each `cafaye.yml`.
+Drawn from the `dependencies` and `consumes` blocks of each `anywaye.yml`.
 ```
                     browser
                        │
@@ -705,7 +705,7 @@ the reason one of the [runbooks](/runbooks/) reads the way it does.
 the workspace**, not recalled:
 
 ```sh
-cd cafaye/cafe && go run ./cmd/cafe contract lint /path/to/cafaye
+cd anywaye/cafe && go run ./cmd/cafe contract lint /path/to/anywaye
 ```
 
 On the current tree, run on 2026-09-30: **every repository valid except one.**
@@ -715,7 +715,7 @@ On the current tree, run on 2026-09-30: **every repository valid except one.**
 | --- | --- |
 | `parlor` | `is missing required fields ["name", "language", "core", "repository", "owner"]` |
 
-`parlor`'s manifest is still the pre-`core` `apiVersion: cafaye/v0-draft` shape
+`parlor`'s manifest is still the pre-`core` `apiVersion: anywaye/v0-draft` shape
 with no `name` at the top level. It is documentation of intent, and it does not
 validate.
 
@@ -724,11 +724,11 @@ manifests: 26 `OK`, 5 `INVALID`, exit 1. Only one of the five is a defect:
 
 | Invalid manifest | Is it a defect |
 | --- | --- |
-| `parlor/cafaye.yml` | **yes** — the shape above |
-| `parlor-worker-parlor-05/cafaye.yml` | the same file in a worker worktree beside it |
-| `core/harness/tests/fixtures/nonconforming/cafaye.yml` | **no — it exists to fail.** The directory is named `nonconforming` and the file breaks the name rule on purpose. |
-| `core/harness/tests/fixtures/nonconforming-conventions/cafaye.yml` | no — it declares another service's event prefix on purpose |
-| `core/harness/tests/fixtures/unsupported-yaml/cafaye.yml` | no — it declares an unknown key on purpose |
+| `parlor/anywaye.yml` | **yes** — the shape above |
+| `parlor-worker-parlor-05/anywaye.yml` | the same file in a worker worktree beside it |
+| `core/harness/tests/fixtures/nonconforming/anywaye.yml` | **no — it exists to fail.** The directory is named `nonconforming` and the file breaks the name rule on purpose. |
+| `core/harness/tests/fixtures/nonconforming-conventions/anywaye.yml` | no — it declares another service's event prefix on purpose |
+| `core/harness/tests/fixtures/unsupported-yaml/anywaye.yml` | no — it declares an unknown key on purpose |
 
 Three of the five are **negative fixtures for `core`'s own conformance tests**,
 tracked on `core`'s `master`, and the linter is correctly reporting them as what
@@ -737,7 +737,7 @@ the five permanent failures are files whose entire purpose is to be rejected,
 and the fifth disappears when a worker worktree closes. Quote *which
 repositories* fail, never *how many manifests*. Across the twelve primary
 checkouts that have a manifest — `kit` has none, and `cafe contract lint kit`
-exits 1 saying `no cafaye.yml found` — the answer is one: `parlor`.
+exits 1 saying `no anywaye.yml found` — the answer is one: `parlor`.
 
 **Two repositories that used to fail here no longer do, and this page said
 otherwise until now.** `cafe`'s manifest gained its required fields, and
@@ -757,7 +757,7 @@ service runs its database in. `kit`'s fleet gate does, and it was **run against
 the workspace** rather than recalled:
 
 ```sh
-cd cafaye/kit && .venv/bin/python tests/fleet_check.py --kit . --repos-dir ../
+cd anywaye/kit && .venv/bin/python tests/fleet_check.py --kit . --repos-dir ../
 ```
 
 On the current tree it exits 0 and names six findings across three
@@ -792,11 +792,11 @@ because a reader will hit one.
 | `core/fleet.yml` | Transcribed at the commits named on each row, and **three of those have moved since**. `identity`'s manifest now declares `identity.oidc_client.created` and `.revoked`; `courier`'s `manifestViolations` list still records the two-segment spellings `courier` has since fixed. `fleet.yml` is the file `cafe contract lint` reads for the catalog, so a stale copy is a stale catalog answer. |
 | `identity`'s emitted events | It declares **five** types — `identity.user.created`, `identity.oidc_client.created`, `identity.oidc_client.revoked`, `identity.mfa.enabled`, `identity.mfa.disabled` — and writes **ten**. `identity.account.created`, `identity.member.invited`, `identity.member.accepted`, `identity.member.role_changed` and `identity.member.removed` are written and **declared in none of them**. Of the ten, only `identity.user.created` has a payload schema in core; six more have a catalog row and no schema. |
 | `identity.member.accepted`, `identity.oidc_client.created` / `.revoked` | **No catalog row and no payload schema in core at all.** `accepted` is also not core's spelling — core's catalog row says `identity.member.joined`, and `accepted` is not in core's action vocabulary. The two OIDC types are advertised in the manifest with no published contract behind them, which is the exact gap core's catalog assertions exist to close. |
-| `billing`'s subscription and plan payloads | `billing` emits its own ids; core's schemas describe the processor's. `billing`'s own contract test lists the four missing and four unexpected fields rather than absorbing them. See [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-cafaye-prefixed-ids). |
+| `billing`'s subscription and plan payloads | `billing` emits its own ids; core's schemas describe the processor's. `billing`'s own contract test lists the four missing and four unexpected fields rather than absorbing them. See [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-anywaye-prefixed-ids). |
 | `courier`, `gateway`, `identity` | Still pin `core: ^0.1.0`, which does not admit the `0.2` spec several of them compile against. Every service has to move at the same time, so the pin is a manager's decision rather than a per-repo edit. |
 | `courier`'s README | Calls the repository "the v0 scaffold… deliberately no notification logic yet" and lists Swoosh, preferences, Oban and outbound webhooks as "not here yet". All of them landed. The manifest in the same repository is current; the prose above it is not. |
 | `identity`'s README | Opens with "**v0 is a skeleton.** There is no auth logic here yet", which stopped being true several packets ago. Its "Not built yet" list further down is current. |
-| `pantry`'s README | Says "the cafaye repositories are private, so a hosted runner cannot clone them", which contradicts the org being public. It is also the stated reason its `workspace-drift` CI job is disabled rather than merely absent. |
+| `pantry`'s README | Says "the anywaye repositories are private, so a hosted runner cannot clone them", which contradicts the org being public. It is also the stated reason its `workspace-drift` CI job is disabled rather than merely absent. |
 | `GET /v1/accounts/{id}/members` | Returns only each member's `role`; `account_id`, `user_id` and `created_at` come back empty. The membership is correct — verify with the member's own token instead. |
 | `identity`'s migrations | `goose up` is a **prerequisite** for the OIDC tests, not a nicety. Without it they fail with `relation "public.oidc_clients" does not exist` — an error naming a relation rather than the missing step. |
 
@@ -878,7 +878,7 @@ somebody has to remember to withhold. Measured on a cluster of this shape, one
 statement is the whole difference:
 
 ```sh
-psql -d cafaye_platform -U cafaye -c 'GRANT CONNECT ON DATABASE billing TO courier;'
+psql -d anywaye_platform -U anywaye -c 'GRANT CONNECT ON DATABASE billing TO courier;'
 psql -d billing -U courier -c 'select current_database(), current_user;'
 ```
 
@@ -927,8 +927,8 @@ the absence of an error, and nothing reports an absence.
 are open rather than telling you that things are fine:
 
 ```sh
-export PGPORT=15500 PGPASSWORD=cafaye     # or whatever bin/dev printed
-psql -h localhost -U cafaye -d cafaye_platform -X -c "
+export PGPORT=15500 PGPASSWORD=anywaye     # or whatever bin/dev printed
+psql -h localhost -U anywaye -d anywaye_platform -X -c "
 SELECT datname AS database,
        has_database_privilege('public', datname, 'CONNECT') AS public_may_connect
   FROM pg_database WHERE NOT datistemplate ORDER BY datname;"
@@ -940,7 +940,7 @@ A cluster with the boundary in place answers `f` on every row:
     database     | public_may_connect
 -----------------+--------------------
  billing         | f
- cafaye_platform | f
+ anywaye_platform | f
  courier         | f
  darkroom        | f
  identity        | f
@@ -949,7 +949,7 @@ A cluster with the boundary in place answers `f` on every row:
 (7 rows)
 ```
 
-`cafaye_platform` and `postgres` are in that list on purpose. `postgres` is the
+`anywaye_platform` and `postgres` are in that list on purpose. `postgres` is the
 image's own maintenance database, which the official image creates **before** any
 init script runs, and a contract that only revoked the databases it knew about
 would leave it open. Read the query as a sweep over every database rather than a
@@ -958,7 +958,7 @@ list you maintain.
 **The one-line version, for a script or a check:**
 
 ```sh
-psql -h localhost -U cafaye -d cafaye_platform -X -tAc "
+psql -h localhost -U anywaye -d anywaye_platform -X -tAc "
 SELECT coalesce(string_agg(datname, ' '), 'none') FROM pg_database
  WHERE NOT datistemplate AND has_database_privilege('public', datname, 'CONNECT');"
 ```
@@ -977,7 +977,7 @@ database in this block would be a claim about a cluster that cannot exist. Every
 other service in the listing above owns its own.
 
 ```sh
-psql -d cafaye_platform -U cafaye -c 'CREATE DATABASE billing OWNER billing;'
+psql -d anywaye_platform -U anywaye -c 'CREATE DATABASE billing OWNER billing;'
 psql -d billing -U courier -c 'select current_database(), current_user;'
 ```
 
@@ -995,7 +995,7 @@ psql -d billing -U courier -X -tAc 'select datname from pg_database order by dat
 
 ```
 billing
-cafaye_platform
+anywaye_platform
 courier
 darkroom
 identity
@@ -1012,8 +1012,8 @@ Closing it is the same statement the contract carries, and it is not optional
 bookkeeping:
 
 ```sh
-psql -d cafaye_platform -U cafaye -c 'REVOKE ALL ON DATABASE billing FROM PUBLIC;'
-psql -d cafaye_platform -U cafaye -c 'GRANT CONNECT, TEMPORARY ON DATABASE billing TO billing;'
+psql -d anywaye_platform -U anywaye -c 'REVOKE ALL ON DATABASE billing FROM PUBLIC;'
+psql -d anywaye_platform -U anywaye -c 'GRANT CONNECT, TEMPORARY ON DATABASE billing TO billing;'
 ```
 
 `courier` is then refused at the door with the same `FATAL:` as before, and the
@@ -1039,7 +1039,7 @@ to prove the restore — and any database you create while debugging.
 each service's role exists, is not a superuser, and has a connection limit:
 
 ```sh
-psql -h localhost -U cafaye -d cafaye_platform -X -c "
+psql -h localhost -U anywaye -d anywaye_platform -X -c "
 SELECT r.rolname, r.rolsuper, r.rolconnlimit,
        (SELECT count(*) FROM pg_database d WHERE d.datname = r.rolname) AS has_database
   FROM pg_roles r
@@ -1107,7 +1107,7 @@ to `KIT_POSTGRES_DATABASES`.
 role is capped:
 
 ```sh
-psql -h localhost -U cafaye -d cafaye_platform -X -c 'SHOW max_connections;'
+psql -h localhost -U anywaye -d anywaye_platform -X -c 'SHOW max_connections;'
 ```
 
 ```
@@ -1174,8 +1174,8 @@ docker logs <pg-container> 2>&1 | grep -i 'too many connections'
 ```
 
 The container is compose's, and it is named after the **compose project**, not
-after the service or the directory: the container is `cafaye-postgres-1` and the
-data volume is `cafaye_postgres-data` unless you have set `KIT_STACK_NAME`. Its
+after the service or the directory: the container is `anywaye-postgres-1` and the
+data volume is `anywaye_postgres-data` unless you have set `KIT_STACK_NAME`. Its
 image is **`kit-postgres:17`**, a locally built one, rather than the pulled
 `postgres:17` you would recognise, so `docker ps` is the fastest way to find
 both.
@@ -1185,7 +1185,7 @@ cluster it is worth more than it was.** It is the prefix on every container,
 volume and network, so two services left on the default would collide on the host
 port **and share one Postgres data directory** — which, with one cluster, means
 `identity`'s volume holding `billing`'s database too. kit's `.env.example`
-defaults it to `cafaye` and says to set it to your own name; the `.env` a service
+defaults it to `anywaye` and says to set it to your own name; the `.env` a service
 gets is written on first `bin/dev up` and no service repository carries one in
 tracked files, so **it is your `.env`, not the repository, that decides this**.
 Check it before you bring a second checkout up.
@@ -1246,7 +1246,7 @@ attributable, and on a shared cluster the whole fleet's queries appear in one
 `pg_stat_activity`:
 
 ```sh
-psql -h localhost -U cafaye -d cafaye_platform -X -c "
+psql -h localhost -U anywaye -d anywaye_platform -X -c "
 SELECT application_name, usename, datname, state, left(query, 40) AS query
   FROM pg_stat_activity WHERE state = 'active' ORDER BY application_name;"
 ```
@@ -1330,7 +1330,7 @@ cluster it is every service's. If disk is growing and nothing is wrong, look for
 a session in `idle in transaction`:
 
 ```sh
-psql -h localhost -U cafaye -d cafaye_platform -X -c "
+psql -h localhost -U anywaye -d anywaye_platform -X -c "
 SELECT pid, usename, datname, state, now() - state_change AS for
   FROM pg_stat_activity
  WHERE state = 'idle in transaction' ORDER BY state_change;"

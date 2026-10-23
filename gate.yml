@@ -1,6 +1,6 @@
 # gate.yml — how docs is gated, declared rather than guessed.
 #
-# WHY THIS FILE IS HERE. `cafaye/core` owns the format
+# WHY THIS FILE IS HERE. `anywaye/core` owns the format
 # (`schemas/gate.schema.json`), the checker (`harness/gate_check.py`) and the
 # reasoning (`docs/gate.md`). Six repositories declared their gate and this is
 # the seventh. The consequence is not cosmetic: `bin/prime` exists in thirteen
@@ -84,12 +84,12 @@
 #      is the packet's premise verbatim: "a checker replaced by a function that
 #      unconditionally exits 0 would leave this repository green."
 #      It nearly did. All 22 tests passed — 16 offline, 6 contract, 0 failed, 0
-#      skipped, exit 0 — including `ok 3 - every cafaye.yml example in the docs
+#      skipped, exit 0 — including `ok 3 - every anywaye.yml example in the docs
 #      passes the real cafe validator`, and the tier went on printing
 #      `manifests validated by cafe contract lint: 2`. The count-based proof was
 #      satisfied by the stub, because that `console.log` lives in the test and
 #      not in `cafe`. The one thing that changed in the whole log is that
-#      `cafe contract lint`'s own stdout line, `# OK …/cafaye.yml`, stopped being
+#      `cafe contract lint`'s own stdout line, `# OK …/anywaye.yml`, stopped being
 #      printed — so the declaration reported exactly one failure,
 #      `gate.proof-missing: proof 'cafe-lint-output' never appeared`, and named
 #      the proof that had been defeated.
@@ -263,7 +263,7 @@ gate:
     #    tool is worth more than one that would survive the real tool being
     #    replaced.
     - id: cafe-lint-output
-      match: '^#.*\\# OK \S+/cafaye\.yml$'
+      match: '^#.*\\# OK \S+/anywaye\.yml$'
     #
     # 7. The prose's event-type claims were checked against **core's real
     #    catalog**, not a list written beside it. 9 claims against the 32 types
@@ -367,11 +367,11 @@ external:
     #
     # It is a `toolchain` rather than a `filesystem` requirement because it is a
     # built binary from another repository, not a checkout; CI builds it from
-    # source (`git clone cafaye/cafe && go build ./cmd/cafe`) rather than
+    # source (`git clone anywaye/cafe && go build ./cmd/cafe`) rather than
     # downloading a release, so it cannot break because a published artifact
     # disappeared.
     - kind: toolchain
-      name: the cafe binary, built from a checkout of cafaye/cafe — `go build ./cmd/cafe` — on PATH or at $CAF
+      name: the cafe binary, built from a checkout of anywaye/cafe — `go build ./cmd/cafe` — on PATH or at $CAF
       satisfy:
         # A bare name, and therefore a claim about this machine that the checker
         # reports as unproven rather than settling. `cafe version` is the command
@@ -392,7 +392,7 @@ external:
     # `CORE_PATH`, or a **sibling** checkout, so a contributor who cloned core
     # next to this worktree satisfies it with no environment variable at all.
     - kind: filesystem
-      name: a readable cafaye/core checkout — $CORE_PATH, or a core directory beside this repository, holding schemas/ and docs/event-naming.md
+      name: a readable anywaye/core checkout — $CORE_PATH, or a core directory beside this repository, holding schemas/ and docs/event-naming.md
       satisfy:
         # Repository-relative and checked on disk. This is the argv that
         # actually reaches core: `bin/prime` without the flag never reads it.
@@ -407,7 +407,7 @@ external:
   # reads an environment variable whose name looks like a secret; the only two
   # it reads are `CORE_PATH` and `CAF`, and both are paths. `ci/ci.yml`
   # takes `permissions: contents: read` and no `secrets:` at all, because
-  # `cafaye/core` and `cafaye/cafe` are public and the default `GITHUB_TOKEN`
+  # `anywaye/core` and `anywaye/cafe` are public and the default `GITHUB_TOKEN`
   # reads both — a gate that needed a credential would be the only thing in this
   # repository that did, and its own `pins` job fails the build if one appears.
   #
@@ -472,7 +472,7 @@ ci:
   # tree that CI is red on.** Delete a test and the local gate reports 16 of 15
   # and stays quiet while `BASELINE_TESTS` fails the build; edit
   # `ci/ci.yml` to reintroduce the stale
-  # `cafaye/kit/workflows/ci.reusable.yml` path and every local run is still
+  # `anywaye/kit/workflows/ci.reusable.yml` path and every local run is still
   # green. That gap is recorded rather than closed, and closing it would mean
   # moving CI's assertions into `bin/prime`, which is a change to the gate's
   # behaviour and not this packet's to make.

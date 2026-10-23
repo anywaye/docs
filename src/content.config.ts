@@ -59,8 +59,8 @@ export const collections = {
             id: z
               .string()
               .regex(
-                /^CAFAYE-ADV-\d{4}-\d{3}$/,
-                'advisory ids look like CAFAYE-ADV-2026-001 — the year of publication and a three-digit sequence',
+                /^ANYWAYE-ADV-\d{4}-\d{3}$/,
+                'advisory ids look like ANYWAYE-ADV-2026-001 — the year of publication and a three-digit sequence',
               ),
             published: z.coerce.date(),
             severity: z.enum(['low', 'moderate', 'high', 'critical']),
@@ -73,9 +73,9 @@ export const collections = {
             // re-derived, and the rule here is that a condition the fleet has
             // not observed is not published.
             source: z.string().min(1),
-            // `open` — still true of the current cafaye source; the fix is
+            // `open` — still true of the current anywaye source; the fix is
             //        something an operator does.
-            // `fixed` — cafaye no longer ships the condition, and the advisory
+            // `fixed` — anywaye no longer ships the condition, and the advisory
             //           stands for operators whose copy predates the fix.
             status: z.enum(['open', 'fixed']),
           })

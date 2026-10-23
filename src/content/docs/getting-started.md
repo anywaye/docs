@@ -11,7 +11,7 @@ output is quoted where it matters.
 
 ## Status, first
 
-**cafaye is in early development.** Of the thirteen `cafe` subcommands, **eleven** do
+**anywaye is in early development.** Of the thirteen `cafe` subcommands, **eleven** do
 real work today — `backup`, `contract lint`/`contract resolve`, `deploy`, `dev`,
 `doctor`, `env`, `gen telemetry`, `lock`, `mcp`, `reclaim`, `version`. The
 remaining two (`init`, `new`) parse their flags, check their argument count,
@@ -32,7 +32,7 @@ own infrastructure.
 **The launch deploy path is the substrate, not Kamal.** The customer-facing
 deployment substrate — k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
 Redis + Alloy/Loki/Grafana + Prometheus — is decided in
-`cafaye/notes/deployment.md` (recorded publicly in
+`anywaye/notes/deployment.md` (recorded publicly in
 [Deployment](/runbooks/deployment/)) and
 is what the launch stack ships on. `cafe deploy` drives Kamal today; the k3s/Argo
 implementation lands behind the same `deploy.Runner` interface, so the command
@@ -47,7 +47,7 @@ binaries on `PATH` and never executes them: no subprocess, no container, no
 network.
 
 ```sh
-go install github.com/cafaye/cafe/cmd/cafe@latest
+go install github.com/anywaye/cafe/cmd/cafe@latest
 cafe doctor
 ```
 
@@ -82,7 +82,7 @@ prints — with a `plan` row that fails:
 ```
 project .
 check  state  detail  fix
-plan   fail   could not be planned: no manifest: no cafaye.yml in .; a project declares its service in one (run "cafe init" to create it, or pass the project directory as the argument)  cafe contract lint .
+plan   fail   could not be planned: no manifest: no anywaye.yml in .; a project declares its service in one (run "cafe init" to create it, or pass the project directory as the argument)  cafe contract lint .
 ```
 
 That **is** a failure — `doctor` exits 1. Point it at a project directory to get
@@ -128,7 +128,7 @@ There is no tagged release, so `@latest` resolves to a pseudo-version built
 from `master`. That works today:
 
 ```sh
-go install github.com/cafaye/cafe/cmd/cafe@latest
+go install github.com/anywaye/cafe/cmd/cafe@latest
 cafe version
 ```
 
@@ -145,7 +145,7 @@ To build from a clone instead — which is what you want if you are going to rea
 the source:
 
 ```sh
-git clone git@github.com:cafaye/cafe.git
+git clone git@github.com:anywaye/cafe.git
 cd cafe
 go build ./cmd/cafe
 ```
@@ -154,11 +154,11 @@ go build ./cmd/cafe
 The main package is at `cmd/cafe`. The repository root holds no Go files, so
 `go build -o cafe .` from the root fails with `no Go files in <path>` and exit 1.
 `go build ./cmd/cafe` writes `./cafe` in the current directory. `go install
-github.com/cafaye/cafe/cmd/cafe@latest` writes to `$GOBIN` instead.
+github.com/anywaye/cafe/cmd/cafe@latest` writes to `$GOBIN` instead.
 :::
 
 There is no Homebrew tap and no `cafe install` command. `brew install
-cafaye/tap/cafe` and `cafe install` are both
+anywaye/tap/cafe` and `cafe install` are both
 <span class="badge caution">Coming soon</span>; neither exists today, and neither
 has a workaround beyond the two commands above.
 
@@ -169,7 +169,7 @@ cafe help
 ```
 
 ```
-cafe - the cafaye platform CLI
+cafe - the anywaye platform CLI
 
 Usage:
   cafe <command> [flags] [arguments]
@@ -177,16 +177,16 @@ Usage:
 
 Commands:
   backup    take one real backup and prove it restores, into a scratch database it then drops
-  contract  validate cafaye manifests and resolve core version constraints
+  contract  validate anywaye manifests and resolve core version constraints
   deploy    deploy a service with Kamal: build, push, roll out behind kamal-proxy
   dev       run the local development stack for a project
-  doctor    report which cafaye toolchains this machine has, and whether it can run this project
+  doctor    report which anywaye toolchains this machine has, and whether it can run this project
   env       provision the local stack for a command, and reclaim it when the command is done
-  gen       generate code and config from cafaye contracts
-  init      create a cafaye.yml manifest for the current project
+  gen       generate code and config from anywaye contracts
+  init      create a anywaye.yml manifest for the current project
   lock      pin this tree's specs, vendored schemas and generated clients, and check the pins
-  mcp       serve the cafaye tools over the Model Context Protocol
-  new       scaffold a new cafaye service or app
+  mcp       serve the anywaye tools over the Model Context Protocol
+  new       scaffold a new anywaye service or app
   reclaim   reclaim what a cafe session left behind: containers first, then volumes
   version   print the cafe version
   help      show help for a command
@@ -271,7 +271,7 @@ $ echo $?
 1
 ```
 
-`cafe init` is the command that will create a `cafaye.yml` for the current
+`cafe init` is the command that will create a `anywaye.yml` for the current
 project. It takes `-dir` (default `.`) and `-force`, and nothing else:
 
 ```sh
@@ -279,7 +279,7 @@ cafe help init
 ```
 
 ```
-cafe init - create a cafaye.yml manifest for the current project
+cafe init - create a anywaye.yml manifest for the current project
 
 Usage:
   cafe init [flags]
@@ -288,23 +288,23 @@ Flags:
   -dir string
         directory to initialize (default ".")
   -force
-        overwrite an existing cafaye.yml
+        overwrite an existing anywaye.yml
 ```
 
 **Until it ships, write the manifest by hand.** Copy the shape from
 [Contracts](/getting-started/), then prove it with the one validator that does work.
-`docs/cafaye.yml` is a complete, schema-valid example you can read in the
+`docs/anywaye.yml` is a complete, schema-valid example you can read in the
 repository.
 
 ```sh
-cafe contract lint ./cafaye.yml
+cafe contract lint ./anywaye.yml
 ```
 
 ```
-OK ./cafaye.yml
+OK ./anywaye.yml
 ```
 
-Point it at a directory and it walks the tree, checking every `cafaye.yml` it
+Point it at a directory and it walks the tree, checking every `anywaye.yml` it
 finds and skipping `.git`, `node_modules`, `deps`, `_build`, and `target`:
 
 ```sh
@@ -312,8 +312,8 @@ cafe contract lint /path/to/checkouts
 ```
 
 ```
-OK /path/to/checkouts/billing/cafaye.yml
-INVALID /path/to/checkouts/parlor/cafaye.yml: is missing required fields ["name", "language", "core", "repository", "owner"]
+OK /path/to/checkouts/billing/anywaye.yml
+INVALID /path/to/checkouts/parlor/anywaye.yml: is missing required fields ["name", "language", "core", "repository", "owner"]
 ```
 
 It prints one line per manifest and nothing else, so the output is greppable
@@ -322,7 +322,7 @@ holds no manifest at all** — a tree that validated nothing is not a pass:
 
 ```
 $ cafe contract lint /tmp/empty-dir
-cafe: cafe contract lint: no cafaye.yml found under /tmp/empty-dir
+cafe: cafe contract lint: no anywaye.yml found under /tmp/empty-dir
 ```
 
 Validation is two things: the core JSON Schema, vendored into the `cafe` binary
@@ -363,7 +363,7 @@ ranges, no `||`, no `x`-ranges. Note the pre-1.0 caret: on a `0.x` service
 
 ## Step 5 — run a service locally
 
-`cafe dev` **works.** It reads a project's `cafaye.yml`, validates it against the
+`cafe dev` **works.** It reads a project's `anywaye.yml`, validates it against the
 same rules `cafe contract lint` applies, renders a compose file from it, **writes
 that file and prints it in full**, brings the stack up, waits for it, and reports
 what came up and what did not.
@@ -396,7 +396,7 @@ and the observability backends all come from `kit`, at the commit named in the
 service's `kit.ref`. Run alone, each one stops before starting anything:
 
 ```sh
-git clone git@github.com:cafaye/identity.git
+git clone git@github.com:anywaye/identity.git
 cd identity
 docker compose up -d
 ```
@@ -550,7 +550,7 @@ Do not describe it as bringing up the launch tier: it runs `pantry` and
 `oauth-stub`, which the launch stack does not contain, and it does not run
 `courier`, `parlor`, NATS, Redis, or mailpit in the launch shape.
 
-**`curl https://cafaye.com/box/install | sh` (kit) is the production path.**
+**`curl https://anywaye.com/box/install | sh` (kit) is the production path.**
 It installs the substrate — k3s + Traefik + cert-manager + ArgoCD +
 CloudNativePG + Redis + Alloy/Loki/Grafana + Prometheus — on one box.
 [Deployment](/runbooks/deployment/) is the runbook for it.
@@ -648,15 +648,15 @@ has the loop that was run, and why it does not record a goose version.
 `cafe deploy` works. It drives Kamal: it installs Docker on the host if the host
 lacks it, boots the accessories, builds and pushes the image, and rolls the
 release out behind `kamal-proxy` only once the new container answers its
-healthcheck. What it does not have is a cafaye-operated remote, so it deploys
+healthcheck. What it does not have is a anywaye-operated remote, so it deploys
 to infrastructure you already pay for.
 
 :::caution[This is the retiring path. The launch path is the substrate]
 The Kamal mechanics below are real and they are what runs today — but Kamal
 retires at parity, not before, and the launch stack does not ship on it. The
 customer-facing substrate (k3s + ArgoCD + CloudNativePG, installed by
-`curl https://cafaye.com/box/install | sh`) is decided in
-`cafaye/notes/deployment.md` and
+`curl https://anywaye.com/box/install | sh`) is decided in
+`anywaye/notes/deployment.md` and
 is documented in [Deployment](/runbooks/deployment/). The k3s/Argo
 implementation of `cafe deploy` lands behind the same `deploy.Runner` interface
 (`cafe/internal/cli/deploy.go`), so the command you type does not change — the
@@ -673,7 +673,7 @@ directory without one, the real answer is:
 
 ```text
 cafe: cafe deploy: /tmp/cafdry has no config/deploy.yml, so there is nothing to deploy.
-  Copy it from cafaye/kit at the ref your kit.ref names: kit/templates/kamal/deploy.yml.erb -> config/deploy.yml
+  Copy it from anywaye/kit at the ref your kit.ref names: kit/templates/kamal/deploy.yml.erb -> config/deploy.yml
 ```
 
 It takes `-env`, `-version`, `-dry-run` and `-yes`, and its usage line is
@@ -685,7 +685,7 @@ rather than to a named stage. `-dry-run` prints every command it would run and
 changes nothing. Without `-yes` it asks first, and a machine with nobody to
 answer is told to pass it rather than left to guess.
 
-:::caution[`cafe` does not deploy a cafaye service. `kamal` does, and `kit` ships the configuration — three files, copied per service]
+:::caution[`cafe` does not deploy a anywaye service. `kamal` does, and `kit` ships the configuration — three files, copied per service]
 
 `kit/templates/kamal/` holds the three files a Kamal deployment is made of:
 
@@ -727,7 +727,7 @@ all three are counter-intuitive:
   a service image never needs Ruby, whatever its language — and not the server.
   The `backup` accessory ships its own Ruby inside the container. Only the
   operator's machine carries the requirement, and it comes from Kamal rather than
-  from cafaye.
+  from anywaye.
 - **`kit`'s deploy tooling is not remote.** `templates/bin/deploy.sh` runs a
   production-*shaped* deployment — health gates, rollback, credential injection —
   against a **local Docker daemon**. Pointed at your own machine it is a local
@@ -740,7 +740,7 @@ yourself.** Every service ships a multi-stage, non-root Dockerfile, and they are
 not interchangeable — each pins its own base image and runtime:
 
 ```sh
-git clone git@github.com:cafaye/identity.git
+git clone git@github.com:anywaye/identity.git
 cd identity
 docker build -t identity .
 docker run --rm -p 8080:8080 \
@@ -816,9 +816,9 @@ its own, and it proves the auth chain without forwarding anything.
 `config/deploy.yml.erb` sets `proxy.healthcheck.path: /up` with a 2-second
 interval and a 5-second timeout, and `kamal deploy` **gates the rollout on it**.
 The comment immediately above that line calls it *"A READINESS endpoint, not a
-liveness one"*, and for every cafaye service that comment is wrong:
+liveness one"*, and for every anywaye service that comment is wrong:
 
-- **`/up` is not a cafaye path at all.** `identity`, `courier`, `muse`,
+- **`/up` is not a anywaye path at all.** `identity`, `courier`, `muse`,
   `darkroom`, `gateway` and `parlor` serve `/healthz` and `/readyz`, so a proxy
   pointed at `/up` gets a 404 and the rollout never goes green. `identity` and
   `courier` are the two that carry kit's template, and **both changed the path
@@ -860,7 +860,7 @@ all if you did not.
 sentences.** `core` ships seven telemetry schemas and enforces the contract;
 `courier`, `billing`, `identity` and `muse` each wire an OTel SDK and export
 traces to whatever `<SERVICE>_OTEL_ENDPOINT` names, defaulting to the collector
-that ships with the stack. **No collector is deployed anywhere in a cafaye
+that ships with the stack. **No collector is deployed anywhere in a anywaye
 environment**, so a service started from its own `docker-compose.yml` is
 exporting to a host that is not there.
 
@@ -885,7 +885,7 @@ and says what the gap costs you.
 - [Topology](/architecture/) — the operator's table: ports, probes,
   environment variables, the HTTP surface of each service, and the cross-repo
   drift audit.
-- [Contracts](/getting-started/) — `cafaye.yml`, the event envelope, OpenAPI. The one
+- [Contracts](/getting-started/) — `anywaye.yml`, the event envelope, OpenAPI. The one
   thing worth understanding before anything else.
 - [Observability](/observability/) — the telemetry contract, and the gap between
   it and a running stack.
@@ -903,27 +903,27 @@ and says what the gap costs you.
 
 ---
 title: Contracts
-description: cafaye.yml, OpenAPI documents, and the event envelope — how the services find each other.
+description: anywaye.yml, OpenAPI documents, and the event envelope — how the services find each other.
 ---
 
 **The authoritative spec lives in
-[github.com/cafaye/core](https://github.com/cafaye/core), not on this site.**
+[github.com/anywaye/core](https://github.com/anywaye/core), not on this site.**
 This page is the summary; `core` is the source of truth, and where the two
 disagree, `core` is right. Specs are manager-owned — a worker proposes, the
 manager decides — so nothing here should be treated as settled until it appears
 in `core`.
 
-## `cafaye.yml` — the service manifest
+## `anywaye.yml` — the service manifest
 
-Every cafaye repository carries one file, `cafaye.yml`, validated against
+Every anywaye repository carries one file, `anywaye.yml`, validated against
 `core`'s
-[manifest schema](https://github.com/cafaye/core/blob/master/schemas/cafaye.manifest.schema.json).
+[manifest schema](https://github.com/anywaye/core/blob/master/schemas/anywaye.manifest.schema.json).
 It is the one place that declares what a service is and what it speaks, so that
 `cafe init`, `cafe dev`, `cafe gen`, `pantry`, and `gateway` all read the same six
 facts instead of six bespoke config files.
 
 ```yaml
-name: billing                      # the cafaye namespace name, also the event source
+name: billing                      # the anywaye namespace name, also the event source
 description: …                     # one sentence, shown by `cafe new` and pantry
 language: ruby                     # go|ruby|elixir|python|typescript|rust|spec
 core: ^0.2.0                       # the core spec range this service compiles against
@@ -933,19 +933,19 @@ exposes:                           # omit entirely for libraries and spec-only r
   events: [billing.subscription.started]   # event types this service publishes
 
 consumes: [identity.user.created]  # event types this service subscribes to
-dependencies:                      # other cafaye services, not packages
+dependencies:                      # other anywaye services, not packages
   - name: identity
     version: ^0.1.0
     required: true
 
 repository:
-  url: git@github.com:cafaye/billing.git   # SSH only
+  url: git@github.com:anywaye/billing.git   # SSH only
   defaultBranch: master
   visibility: public
 
 owner:
   team: billing
-  contact: billing@cafaye.com
+  contact: billing@anywaye.com
 ```
 
 The schema is `additionalProperties: false` at every level, so a key `core` does
@@ -999,7 +999,7 @@ HTTP surfaces are contract-first: each service that serves traffic publishes an
 OpenAPI 3.1 document at the path `exposes.api` points to, and validates its own
 responses against it in CI. The conventions — error envelopes, pagination,
 idempotency keys, `traceparent` propagation — are written down in
-[`core/docs/openapi-conventions.md`](https://github.com/cafaye/core/blob/master/docs/openapi-conventions.md).
+[`core/docs/openapi-conventions.md`](https://github.com/anywaye/core/blob/master/docs/openapi-conventions.md).
 
 ## What this means for you
 
@@ -1019,7 +1019,7 @@ idempotency keys, `traceparent` propagation — are written down in
 
 ---
 title: Running the Gates
-description: The exact command for every cafaye repository, and the second tiers that do not run by default.
+description: The exact command for every anywaye repository, and the second tiers that do not run by default.
 ---
 
 **A gate that skips proves nothing, and a runbook that tells you to run the gate
@@ -1038,14 +1038,14 @@ page disagree, the repository is right.
 for several packets that the reusable CI path did not exist. It has moved to
 **`.github/workflows/ci.reusable.yml`**, which is the path GitHub requires, and
 eight repositories now call it as
-`uses: cafaye/kit/.github/workflows/ci.reusable.yml@master`: `cafe`, `core`,
+`uses: anywaye/kit/.github/workflows/ci.reusable.yml@master`: `cafe`, `core`,
 `courier`, `darkroom`, `gateway`, `identity`, `muse` and `parlor`.
 
 What exists on `master` today, counted with `git ls-files .github/workflows`:
 
 | Has a CI workflow | Does not |
 | --- | --- |
-| `billing`, `cafe`, `cafaye-rb`, `core`, `courier`, `darkroom`, `docs`, `gateway`, `identity`, `kit`, `muse`, `pantry`, `parlor` | — |
+| `billing`, `cafe`, `anywaye-rb`, `core`, `courier`, `darkroom`, `docs`, `gateway`, `identity`, `kit`, `muse`, `pantry`, `parlor` | — |
 
 `docs` was on the right until **docs-05**, which added
 `.github/workflows/ci.yml` (`gate`, `contracts`, `pins`) and
@@ -1053,7 +1053,7 @@ What exists on `master` today, counted with `git ls-files .github/workflows`:
 is green" for this repository really did mean *a person ran the suite by hand,
 that day, on that machine*, and this page used to say so.
 
-`cafaye-py` is on neither side.
+`anywaye-py` is on neither side.
 That gap predates docs-05 and this repository's suite cannot reach it, so this
 page does not claim anything about it: a row here is only correct if it was read
 out of the repository it names.
@@ -1088,7 +1088,7 @@ workflow file existing does not make the rest of the fleet honest.
 | `gateway` | `bin/prime` | `bun` — `bun install && bun test` |
 | `parlor` | `bin/prime` | `npm ci && npm test` (vitest) |
 | `pantry` | `./bin/prime` | `cargo` — **the drift tests skip without a workspace** |
-| `cafaye-rb` | `bin/prime` | `mise install` — `rake db:prepare`, rubocop, bundler-audit, `rake test` |
+| `anywaye-rb` | `bin/prime` | `mise install` — `rake db:prepare`, rubocop, bundler-audit, `rake test` |
 | `kit` | `bash tests/validate.sh` | **needs a virtualenv** — see below |
 | `docs` | `./bin/prime` and `./bin/prime --contracts` | `mise install` — the second needs a readable `core` and a `cafe` binary, and **fails** rather than skipping without them |
 
@@ -1186,7 +1186,7 @@ MUSE_CORE_SCHEMAS=../core/schemas uv run pytest
 
 Two tests skip without that variable, and they are the two that assert `muse`'s
 copied event patterns are **byte-identical** to core's schemas and that its
-`cafaye.yml` validates against core's manifest schema. A copy is a drift risk,
+`anywaye.yml` validates against core's manifest schema. A copy is a drift risk,
 and this is the check that catches it — so a run without it has verified that
 `muse` still agrees with the copy `muse` made of core.
 
@@ -1196,12 +1196,12 @@ checkout. It is not `MUSE_CORE_SCHEMAS=core/schemas`.
 ### `pantry` — the drift tests need the whole fleet
 
 ```sh
-PANTRY_CAFAYE_ROOT=/Users/kaka/Code/any/cafaye ./bin/prime
+PANTRY_ANYWAYE_ROOT=/Users/kaka/Code/any/anywaye ./bin/prime
 ```
 
 `pantry`'s gate is green on a clone of `pantry` alone. The eight drift tests
-look for a cafaye workspace — a directory holding `core/`, `identity/` and the
-rest — next to the checkout or at `PANTRY_CAFAYE_ROOT`, and **without one each
+look for a anywaye workspace — a directory holding `core/`, `identity/` and the
+rest — next to the checkout or at `PANTRY_ANYWAYE_ROOT`, and **without one each
 prints `SKIP …` on stderr naming the directory that would make it run**, then
 returns. A skip is reported, never hidden, and it is still a skip.
 
@@ -1273,11 +1273,11 @@ with `bin/dev stack` rather than assuming a port, because a DSN aimed at a nativ
 Postgres on 5432 fails as `role "courier" does not exist` and reads like a missing
 migration.
 
-### `billing` and `cafaye-rb` — database in the gate, not outside it
+### `billing` and `anywaye-rb` — database in the gate, not outside it
 
 Both `bin/prime` scripts run `db:prepare` themselves, so there is no tier to
-miss — but they do need a reachable Postgres. `cafaye-rb` reads its test DSN
-from **`CAFAYE_TEST_DATABASE_URL`**, which is a different variable name from the
+miss — but they do need a reachable Postgres. `anywaye-rb` reads its test DSN
+from **`ANYWAYE_TEST_DATABASE_URL`**, which is a different variable name from the
 `TEST_DATABASE_URL` that `identity` and `darkroom` use. Copying one repository's
 `.env` into another is how you get a green gate that tested nothing.
 
@@ -1307,7 +1307,7 @@ stale. **These are not promises**; run the gate.
 | `muse` | 765 passed, 0 skipped, 100% coverage |
 | `darkroom` | 77 unit + 41 database, 0 failures |
 | `billing` | 759 runs, 2087 assertions, 0 failures, 0 skips |
-| `cafaye-rb` | 228 runs, 652 assertions, 0 skips |
+| `anywaye-rb` | 228 runs, 652 assertions, 0 skips |
 | `kit` | `validate.sh` green, 11 / 11 self-test mutations red |
 
 ## The rule behind all of it
@@ -1357,7 +1357,7 @@ ones that matter are the ones you can re-run.
 
 ## Read this before anything else
 
-**There are two ways to run cafaye, and one of them is ours.** They are not the
+**There are two ways to run anywaye, and one of them is ours.** They are not the
 same product and they are priced differently.
 
 **Self-hosted** is the first. You run the stack in your own infrastructure, on
@@ -1366,7 +1366,7 @@ your TLS terminator and your keys stay yours. It is free and complete, and
 nothing about it requires an account with us. What exists here is public
 repositories and a CLI.
 
-**Cafaye Ops** is the second, and it is the one we operate. We provision and
+**Anywaye Ops** is the second, and it is the one we operate. We provision and
 watch the box, patch it, prove your backups restore, hold its history, and apply
 upstream upgrades when they are safe to apply. It is a flat monthly price banded
 on countable things — applications deployed, accounts created, services enabled
@@ -1377,20 +1377,20 @@ stated schedule during business hours, and the tier we sell says so.
 
 Two things that have *not* changed. `cafe deploy` itself is implemented — it
 builds the image, pushes it and rolls it out — but it still has no
-cafaye-operated remote to target automatically, so it deploys to infrastructure
-you already pay for. And Cafaye Ops is a service rather than a remote: the box
+anywaye-operated remote to target automatically, so it deploys to infrastructure
+you already pay for. And Anywaye Ops is a service rather than a remote: the box
 lives on your cloud account, and what you buy is the operation of it, not a
 destination for the command. The launch deploy path is the substrate (k3s +
 ArgoCD + CloudNativePG), decided in
-`cafaye/notes/deployment.md`;
+`anywaye/notes/deployment.md`;
 Kamal is the current implementation and retires at parity, not before.
 [Deployment](/runbooks/deployment/) is its runbook.
 
 So "pilot" means one of two things, and you should decide which before you spend
 an afternoon on it: *we run it with you* — we help you get it running and keep
-it running, and you own the machine — or *we run it for you*, which is Cafaye Ops
+it running, and you own the machine — or *we run it for you*, which is Anywaye Ops
 and is billed monthly. If what you wanted was a vendor-operated platform with an
-SLA behind it, that is not what Cafaye Ops is yet, and we would rather say so now
+SLA behind it, that is not what Anywaye Ops is yet, and we would rather say so now
 than in month two.
 
 Read the [what is not ready](#what-is-not-production-ready-yet) section before
@@ -1405,13 +1405,13 @@ one you need rather than the whole platform.
 
 | Service | What it owns | Language | The gap you will hit |
 | --- | --- | --- | --- |
-| [`identity`](https://github.com/cafaye/identity) | Users, sessions, accounts, roles, invitations, OIDC provider, MFA | Go | Password reset and email verification are built and published, but answer **503** until courier's mailer and a link template are configured. No refresh tokens, no admin API |
-| [`billing`](https://github.com/cafaye/billing) | Plans, customers, subscriptions, prepaid credit, Stripe in and out | Ruby | No customer portal, no refunds, no usage-events API |
-| [`courier`](https://github.com/cafaye/courier) | Transactional email, preferences, **every outbound webhook** | Elixir | **No email provider adapter configured** — nothing is delivered until you set one |
-| [`darkroom`](https://github.com/cafaye/darkroom) | Signed uploads, tenant-scoped assets, variants, S3 and R2 | Rust | No transcoding, no CDN, no malware scanning |
-| [`muse`](https://github.com/cafaye/muse) | LLM routing, encrypted credentials vault, token metering | Python | **Auth was a stub until 2026-10-01.** Since `muse` `e3f53b0` it verifies the bearer against `identity`'s JWKS. Two claim names for one scope are still an open ruling |
-| [`gateway`](https://github.com/cafaye/gateway) | The public edge: JWT verification, rate limits, static routing | Go | **No API keys and no mounted scope check.** The TypeScript implementation that had both was deleted at the Go cutover. It serves `/v1/me`, `/auth/*` and whatever `ROUTE_TABLE` names; unset, it forwards nothing |
-| [`parlor`](https://github.com/cafaye/parlor) | Next.js app shell: signup, login, accounts, billing screens | Next.js | No admin surface, no e2e suite, and its `cafaye.yml` does not validate |
+| [`identity`](https://github.com/anywaye/identity) | Users, sessions, accounts, roles, invitations, OIDC provider, MFA | Go | Password reset and email verification are built and published, but answer **503** until courier's mailer and a link template are configured. No refresh tokens, no admin API |
+| [`billing`](https://github.com/anywaye/billing) | Plans, customers, subscriptions, prepaid credit, Stripe in and out | Ruby | No customer portal, no refunds, no usage-events API |
+| [`courier`](https://github.com/anywaye/courier) | Transactional email, preferences, **every outbound webhook** | Elixir | **No email provider adapter configured** — nothing is delivered until you set one |
+| [`darkroom`](https://github.com/anywaye/darkroom) | Signed uploads, tenant-scoped assets, variants, S3 and R2 | Rust | No transcoding, no CDN, no malware scanning |
+| [`muse`](https://github.com/anywaye/muse) | LLM routing, encrypted credentials vault, token metering | Python | **Auth was a stub until 2026-10-01.** Since `muse` `e3f53b0` it verifies the bearer against `identity`'s JWKS. Two claim names for one scope are still an open ruling |
+| [`gateway`](https://github.com/anywaye/gateway) | The public edge: JWT verification, rate limits, static routing | Go | **No API keys and no mounted scope check.** The TypeScript implementation that had both was deleted at the Go cutover. It serves `/v1/me`, `/auth/*` and whatever `ROUTE_TABLE` names; unset, it forwards nothing |
+| [`parlor`](https://github.com/anywaye/parlor) | Next.js app shell: signup, login, accounts, billing screens | Next.js | No admin surface, no e2e suite, and its `anywaye.yml` does not validate |
 
 Each has a page here that states what is built and what is not in its own words:
 [Services](/services/). Read the status line before you rely on the row above —
@@ -1460,14 +1460,14 @@ rights reserved" — not MIT, and not what we are offering.
 
 | Repository | What it declared on 2026-09-30 |
 | --- | --- |
-| `cafaye-rb` | **`LICENSE.txt`, MIT**, "Copyright (c) 2026 cafaye" — the only repository with a licence file |
+| `anywaye-rb` | **`LICENSE.txt`, MIT**, "Copyright (c) 2026 anywaye" — the only repository with a licence file |
 | `darkroom`, `pantry` | `license = "MIT"` in `Cargo.toml`. No licence file. |
 | `gateway`, `docs` | `"license": "MIT"` in `package.json`. No licence file. |
 | **`muse`** | **`license = { text = "AGPL-3.0-only" }` in `pyproject.toml`, and a README that says the same** |
 | `identity`, `billing`, `courier`, `parlor`, `core`, `cafe`, `kit` | **nothing.** No licence file, no field in any manifest. |
 
 :::caution[What "open source" means on the org page]
-[github.com/cafaye](https://github.com/cafaye) is a public organization and the
+[github.com/anywaye](https://github.com/anywaye) is a public organization and the
 repositories are public. Public is not the same as licensed, and that was the
 state of the fleet when this snapshot was taken: the code was readable and the
 grant was not written down. Both halves have since changed, and the page that
@@ -1496,9 +1496,9 @@ one.** Here is what the code actually asserts, and it is all of it:
   `cafe dev` on `identity` renders `identity` plus `postgres:16-alpine` plus
   `redis:7-alpine`.
 
-There is a managed option — **Cafaye Ops** — priced as a flat monthly band on
+There is a managed option — **Anywaye Ops** — priced as a flat monthly band on
 countable things rather than per seat, per box or by usage. The ladder's prices
-are still placeholders, and [pricing](/commercial/#cafaye-ops-on-top-the-monthly-operated-tier)
+are still placeholders, and [pricing](/commercial/#anywaye-ops-on-top-the-monthly-operated-tier)
 is where that is stated rather than smoothed over. Self-hosting is free and
 complete. If you would rather not own the machine, see the section above; you
 still keep root, kubectl, ArgoCD, Grafana and the git repository, and what you
@@ -1507,8 +1507,8 @@ pay for is the operation rather than a licence.
 ### What leaves your infrastructure
 
 By default, **nothing**. No telemetry is exported unless you configure it, no
-service dials a cafaye-operated endpoint, and there is no licence check, no
-update check, and no analytics in any of them. (`docs.cafaye.com` itself has no
+service dials a anywaye-operated endpoint, and there is no licence check, no
+update check, and no analytics in any of them. (`docs.anywaye.com` itself has no
 analytics and no third-party scripts either — that is a decision recorded in
 this repository, not an oversight.)
 
@@ -1526,7 +1526,7 @@ Four things will leave, and only if you turn them on:
 This is a check you can run, not a sentence to interpret.
 
 ```sh
-go install github.com/cafaye/cafe/cmd/cafe@latest
+go install github.com/anywaye/cafe/cmd/cafe@latest
 cafe doctor
 ```
 
@@ -1597,11 +1597,11 @@ table:
   here is a *service* port.
 
 :::caution[Running it with no project at all]
-`cafe doctor` in a directory with no `cafaye.yml` prints the tool table and then
+`cafe doctor` in a directory with no `anywaye.yml` prints the tool table and then
 one line:
 
 ```
-project .: no manifest: no cafaye.yml in .; a project declares its service in one
+project .: no manifest: no anywaye.yml in .; a project declares its service in one
 (run "cafe init" to create it, or pass the project directory as the argument)
 ```
 
@@ -1614,7 +1614,7 @@ it again from step 2 and it will answer the real question.
 ### Step 1 — install the CLI
 
 ```sh
-go install github.com/cafaye/cafe/cmd/cafe@latest
+go install github.com/anywaye/cafe/cmd/cafe@latest
 cafe version
 ```
 
@@ -1640,16 +1640,16 @@ export PATH="$(go env GOBIN):$PATH"
 ```
 
 Do not assume `$HOME/go/bin`. On that machine it exists, it is not on `PATH`,
-and it holds a `cafaye-cli` from months earlier that is not this program.
+and it holds a `anywaye-cli` from months earlier that is not this program.
 
 ### Step 2 — get the source
 
 ```sh
-git clone git@github.com:cafaye/identity.git
+git clone git@github.com:anywaye/identity.git
 cd identity
 ```
 
-**Why `identity` first.** It declares no dependency on another cafaye service,
+**Why `identity` first.** It declares no dependency on another anywaye service,
 which means the whole stack is one service plus its database plus a cache.
 `darkroom` is the other one in that position, and `courier` and `billing` declare
 empty lists; `muse` and `gateway` reach `identity`. Get this one working, then add
@@ -1657,8 +1657,8 @@ the others.
 
 **If the clone fails on SSH**, you do not have a key registered on GitHub. Use
 HTTPS for a read-only clone if you have to — `git clone
-https://github.com/cafaye/identity.git` — but keep SSH for anything you push.
-SSH is the rule for repositories cafaye owns.
+https://github.com/anywaye/identity.git` — but keep SSH for anything you push.
+SSH is the rule for repositories anywaye owns.
 
 If you are adding **your own** service rather than running ours, `cafe new` and
 `cafe init` are stubs — they parse their flags and return `not implemented in
@@ -1694,11 +1694,11 @@ placeholders.
 ### Step 3 — prove the manifest
 
 ```sh
-cafe contract lint ./cafaye.yml
+cafe contract lint ./anywaye.yml
 ```
 
 ```
-OK ./cafaye.yml
+OK ./anywaye.yml
 ```
 
 One line per manifest and nothing else, so it is greppable and diffable. **Exit 1
@@ -1712,7 +1712,7 @@ the keys from step 2 rather than trying to work out which one is missing.
 Point it at a directory and it walks the tree, skipping `.git`, `node_modules`,
 `deps`, `_build` and `target`. On a whole checkout of the platform it prints one
 line per **manifest**, not per repository — `pantry` alone contributes ten,
-because its registry ships a copy of every service's `cafaye.yml`. On the
+because its registry ships a copy of every service's `anywaye.yml`. On the
 workspace this page was written against that was **31 manifests, 26 `OK`, 5
 `INVALID`, exit 1**, and only one of the five is a defect: `parlor`'s. Three of
 the other four are `core`'s own negative test fixtures, which exist to be
@@ -1721,7 +1721,7 @@ table — and re-run it, because that number moves with every packet and the
 answer underneath it does not:
 
 ```sh
-cafe contract lint /path/to/cafaye
+cafe contract lint /path/to/anywaye
 ```
 
 ### Step 4 — bring the stack up
@@ -1766,7 +1766,7 @@ your data survives. Add `-v` when you want the database gone as well.
   builds your service from the project directory; there is no registry entry for
   a repository it has never seen.
 - **`skipped legacy: optional dependency, and the local registry does not know
-  how to run it`.** Your manifest declares a dependency on another cafaye
+  how to run it`.** Your manifest declares a dependency on another anywaye
   service. `cafe dev` resolves dependencies through a catalog and the default
   catalog is empty — `pantry` serves the official one over HTTP, but `cafe dev
   -registry` reads a **local JSON file**, and no catalog file is published yet.
@@ -1788,7 +1788,7 @@ empty. The first request fails like this:
 
 ```
 HTTP 500
-{"type":"https://docs.cafaye.com/errors/internal","title":"Internal server error",
+{"type":"https://docs.anywaye.com/errors/internal","title":"Internal server error",
  "status":500,"detail":"the request could not be completed. Quote the trace id
  when reporting this.","instance":"/v1/users","code":"internal",
  "trace_id":"7d45460a-1d11-4628-a658-7da100eee6f3"}
@@ -2048,14 +2048,14 @@ HTTP requests `courier` makes itself, with the Standard Webhooks signature
 headers, a retry budget and a circuit breaker — not events on a bus.
 
 **"Self-hosted" means what it says.** Your Postgres, your bucket, your keys,
-your TLS terminator. Your backups, on your schedule. There is no cafaye-operated
+your TLS terminator. Your backups, on your schedule. There is no anywaye-operated
 component in the data plane and no telemetry leaves unless you configure it;
-the one cafaye-operated component in the architecture is box, and it
+the one anywaye-operated component in the architecture is box, and it
 holds no readable customer secret — [Security and trust](/security/#read-this-first-there-is-nothing-of-ours-to-breach)
-argues it from the code. If you want us to run it for you, that is Cafaye Ops,
+argues it from the code. If you want us to run it for you, that is Anywaye Ops,
 the monthly operated tier: billed monthly, ladder prices still placeholders,
 sold by Stripe Payment Link and a human, like everything else on this site.
-[pricing](/commercial/#cafaye-ops-on-top-the-monthly-operated-tier) is the page.
+[pricing](/commercial/#anywaye-ops-on-top-the-monthly-operated-tier) is the page.
 
 ## What is not production-ready yet
 
@@ -2070,7 +2070,7 @@ because it will get shorter and this page will be updated when it does.
 | **`gateway` needs `REDIS_URL` for the browser surface.** | The session store is Redis and the four `/auth` routes are built only when `IDENTITY_URL` **and** `REDIS_URL` are both set, so a gateway without it serves no browser surface at all rather than a degraded one. | `browserSurfaceFromEnv` in `gateway`'s `internal/httpapi/runtime.go` |
 | **`muse`'s auth was a stub until 2026-10-01, and is not one now.** | This row said *do not put `muse` behind anything you care about*. `muse` `e3f53b0` verifies the bearer against `identity`'s JWKS with RS256 pinned at the decoder, requires `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and `account_id`, checks the operation's capability separately from the signature, and refuses unauthenticated traffic when `identity` is down. What is still true: `muse` accepts either of two authorisation claim names and refuses a token where they disagree, and that ruling is core's to make. | [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over); `src/muse/auth.py`; `tests/test_auth.py` |
 | **`cafe` has no stub commands as of 2026-10-10.** | The three that used to parse their flags and return `not implemented in v0` — `gen`, `init`, `new` — are in the working table now, and the stub table is empty. `cafe deploy` works (Kamal) and `cafe mcp` serves the tools, so you can scaffold a manifest rather than writing one by hand. | `cafe/internal/cli/stub_test.go`, whose `stubCommands` table is the single source of truth |
-| **Telemetry is instrumented; no collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing in a cafaye environment receives them. `kit` ships the stack and `bin/dev` runs it, so a pilot gets traces rather than a promise. | You will not have a fleet-wide trace view until you run the stack, and you should budget for wiring `<SERVICE>_OTEL_ENDPOINT` at whatever backend you already pay for. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. | [Observability](/observability/) |
+| **Telemetry is instrumented; no collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing in a anywaye environment receives them. `kit` ships the stack and `bin/dev` runs it, so a pilot gets traces rather than a promise. | You will not have a fleet-wide trace view until you run the stack, and you should budget for wiring `<SERVICE>_OTEL_ENDPOINT` at whatever backend you already pay for. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. | [Observability](/observability/) |
 | **Password reset is built but unconfigured by default.** | `POST /v1/password-resets` and `/confirm` are served and published, and `site` ships the flow — but the recovery surface is mounted only with a mailer behind it, so without `COURIER_BASE_URL`, `COURIER_TOKEN` and `PASSWORD_RESET_LINK_TEMPLATE` it answers **503**, not 404. Set those, and **still plan a support channel.** | `cmd/identity/main.go`, `buildRecovery`; `identity/openapi/v1.yaml` |
 | **`identity` OIDC has no refresh tokens.** | Access tokens live fifteen minutes and cannot be renewed. | the discovery document, where the absent features are absent rather than stubbed |
 | **No vault key rotation.** | `MUSE_VAULT_KEY` cannot be rotated in place. | `key_version` is always 1 |
@@ -2079,7 +2079,7 @@ because it will get shorter and this page will be updated when it does.
 | **The licence is a file in seven of the fourteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those seven, so the `LICENSE` file is the only declaration — and for `billing`, `cafe`, `core`, `darkroom`, `gateway`, `identity` and `kit` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `cafe contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/commercial/#what-each-repository-declares-today) and its `re-derive it yourself` command |
 
 One more that decides whether you can put anything in front of a customer:
-**`docs` is the only cafaye repository with no CI workflow at all.** The other
+**`docs` is the only anywaye repository with no CI workflow at all.** The other
 twelve each have a `.github/workflows/ci.yml` on `master`. So a green badge
 somewhere in the fleet may still have skipped its hard half — and there is no
 badge to read at all on a `docs` commit, which is worth knowing when you ask us
@@ -2135,15 +2135,15 @@ customers' data, or a reference call you have not prepared for.
 
 What exists today, honestly:
 
-- **The repositories.** <https://github.com/cafaye> — every service, its issues,
+- **The repositories.** <https://github.com/anywaye> — every service, its issues,
   and its history. This is the channel we actually watch.
-- **A per-service contact address**, declared in each repository's `cafaye.yml`
-  under `owner.contact`: `identity@cafaye.com`, `billing@cafaye.com`,
-  `courier@cafaye.com`, `darkroom@cafaye.com`, `gateway@cafaye.com`,
-  `muse@cafaye.com`, `pantry@cafaye.com`, `cafe@cafaye.com`, `core@cafaye.com`,
-  `cafaye@cafaye.com`, `docs@cafaye.com`, `parlor@cafaye.com`,
-  `site@cafaye.com`. One repository declares none: **`kit`, which has no
-  `cafaye.yml` at all**, so there is no address to write to for it.
+- **A per-service contact address**, declared in each repository's `anywaye.yml`
+  under `owner.contact`: `identity@anywaye.com`, `billing@anywaye.com`,
+  `courier@anywaye.com`, `darkroom@anywaye.com`, `gateway@anywaye.com`,
+  `muse@anywaye.com`, `pantry@anywaye.com`, `cafe@anywaye.com`, `core@anywaye.com`,
+  `anywaye@anywaye.com`, `docs@anywaye.com`, `parlor@anywaye.com`,
+  `site@anywaye.com`. One repository declares none: **`kit`, which has no
+  `anywaye.yml` at all**, so there is no address to write to for it.
 - **This site.** Every command on it was run, and every gap on it was measured.
 
 What does **not** exist yet, and we would rather say so than have you discover
@@ -2158,7 +2158,7 @@ Stated here rather than left for you to guess:
 - **Nothing on macOS with Docker Desktop was run on Linux.** No step was run on
   a Kubernetes cluster, on ARM outside this machine, or against a managed
   Postgres. Steps 1–6 are one machine, one platform, one day.
-- **`cafe dev` bringing up a project that depends on another cafaye service was
+- **`cafe dev` bringing up a project that depends on another anywaye service was
   not run**, because no published catalog file exists for `-registry` to read.
   Step 4 states the error message the code produces for it; the message was read
   from `internal/dev/registry.go`, not captured from a run.

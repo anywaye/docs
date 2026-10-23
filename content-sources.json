@@ -4,9 +4,9 @@
     "anywaye",
     "billing",
     "box",
-    "cafaye-py",
-    "cafaye-rb",
-    "cafaye-ts",
+    "anywaye-py",
+    "anywaye-rb",
+    "anywaye-ts",
     "cafe",
     "core",
     "courier",
@@ -20,6 +20,6 @@
     "parlor",
     "website"
   ],
-  "$comment": "The fleet repos whose docs/ and notes/ trees the build ingests. A repo without a cafaye.yml is not a fleet member (oauth-stub is a scratch repo) and stays out.",
+  "$comment": "The fleet repos whose docs/ and notes/ trees the build ingests. A repo without a anywaye.yml is not a fleet member (oauth-stub is a scratch repo) and stays out.",
   "publicCentral": "docs"
 }

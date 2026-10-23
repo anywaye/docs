@@ -31,8 +31,8 @@
 #   Since the two-build pipeline, the OFFLINE tier needs one more thing and
 #   it is worth being exact: the build runs bin/sync-content, which reads the
 #   content sources — this repository's pages, each fleet repository's docs/
-#   (and notes/, if the repository is private), and cafaye/notes. On a
-#   developer machine that is moon/cafaye/ beside the worktree; in CI it is
+#   (and notes/, if the repository is private), and anywaye/notes. On a
+#   developer machine that is moon/anywaye/ beside the worktree; in CI it is
 #   the sparse fan-out ci/ci.yml performs. A source that does
 #   not resolve fails the sync — this gate never covers a build whose
 #   content silently went missing. `bin/sync-content --check` is the fast
@@ -40,7 +40,7 @@
 #
 #   `--contracts` adds the **contract tier** (tests/contracts.mjs), which is
 #   the only tier that can catch an example contradicting a *shipped* contract:
-#   the `cafaye.yml` examples run through the real `cafe contract lint` against
+#   the `anywaye.yml` examples run through the real `cafe contract lint` against
 #   core's real schema, and the event types and span names the prose asserts
 #   are checked against core's catalog and core's span-naming schema. It needs a
 #   readable `core` (CORE_PATH, or a sibling checkout) and a `cafe` binary.

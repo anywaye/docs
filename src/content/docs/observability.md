@@ -18,7 +18,7 @@ export traces from their own code**, to whatever endpoint you point
 `<SERVICE>_OTEL_ENDPOINT` at. The endpoint defaults to the collector that ships
 with the stack, so it is on by default rather than opt-in.
 
-**No collector is deployed in any cafaye environment.** That is the true
+**No collector is deployed in any anywaye environment.** That is the true
 negative, and on its own it is the least useful sentence on this page. The
 stack is not a design in progress: `kit` ships it as templates — the collector
 config, the Tempo/Loki/Mimir configs, the Grafana provisioning, and two
@@ -44,7 +44,7 @@ its own leaves the service exporting to a host that is not there. **`identity`,
 copying it is the whole fix:
 
 ```sh
-# KIT is a checkout of cafaye/kit somewhere on this machine
+# KIT is a checkout of anywaye/kit somewhere on this machine
 cp "$KIT/templates/bin/dev.sh" ./bin/dev && chmod +x bin/dev
 ```
 
@@ -59,18 +59,18 @@ changes under you.
 | --- | --- | --- |
 | **Spec'd** | `core` owns the contract and a rule exists, enforced by a test | every service, and the collector |
 | **Instrumented** | the service wires an SDK and emits the signal from its own code, to an endpoint you supply | `courier`, `billing`, `identity`, `muse` (traces) |
-| **Deployed** | a collector is running and spans are landing somewhere you can read | **nobody.** Not in any cafaye-operated environment |
+| **Deployed** | a collector is running and spans are landing somewhere you can read | **nobody.** Not in any anywaye-operated environment |
 
 These are not three ways of saying "less done".
 A service can be fully instrumented with nothing to export to — which is the
-normal state of a self-hoster's first day, and the state of every cafaye
+normal state of a self-hoster's first day, and the state of every anywaye
 environment today — and the work to close the gap is one variable and, for the
 stack itself, one command.
 
 ## Per service
 
 Read `core`'s
-[`fleet.yml`](https://github.com/cafaye/core/blob/master/fleet.yml) for the
+[`fleet.yml`](https://github.com/anywaye/core/blob/master/fleet.yml) for the
 machine-readable version of this table, and
 [Running the gates](/getting-started/) for the tier that checks this page
 against it.
@@ -111,7 +111,7 @@ They owe the probe contract — `/healthz` and `/readyz` — and that is the who
 of their telemetry surface.
 
 **The decision that is settled: on by default, and exercised in development.**
-A developer working on cafaye sees real traces, real metrics and a real error
+A developer working on anywaye sees real traces, real metrics and a real error
 view with nothing switched on, because the default endpoint points at the
 collector that ships with the local stack. Two escape hatches are first-class
 rather than an afterthought:
@@ -128,30 +128,30 @@ rather than an afterthought:
   four languages.
 
 The specs live in
-[cafaye/core](https://github.com/cafaye/core/blob/master/docs/observability.md)
+[anywaye/core](https://github.com/anywaye/core/blob/master/docs/observability.md)
 and are manager-owned. This page summarizes and links; it does not define.
 
 ## The seven schemas
 
-A rule that is not in `schemas/` is not a cafaye rule. Every rule below is a
+A rule that is not in `schemas/` is not a anywaye rule. Every rule below is a
 JSON Schema constraint, and each has an invalid example under
 `examples/invalid/` naming the exact keyword it exists to reject.
 
 | Schema | What it decides |
 | --- | --- |
-| [`span-naming.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/span-naming.schema.json) | one span-name scheme, low-cardinality by construction |
-| [`traces.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/traces.schema.json) | the trace attribute allowlist |
-| [`metrics.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/metrics.schema.json) | the measurement allowlist, and the ban on unbounded identifiers |
-| [`logs.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/logs.schema.json) | the log attribute allowlist |
-| [`redaction.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/redaction.schema.json) | the redaction boundary, and where it is enforced |
-| [`otel-endpoint.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/otel-endpoint.schema.json) | the `<SERVICE>_OTEL_ENDPOINT` contract and the no-op path |
-| [`probes.schema.json`](https://github.com/cafaye/core/blob/master/schemas/telemetry/probes.schema.json) | `/healthz` unconditional, `/readyz` really checking |
+| [`span-naming.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/span-naming.schema.json) | one span-name scheme, low-cardinality by construction |
+| [`traces.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/traces.schema.json) | the trace attribute allowlist |
+| [`metrics.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/metrics.schema.json) | the measurement allowlist, and the ban on unbounded identifiers |
+| [`logs.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/logs.schema.json) | the log attribute allowlist |
+| [`redaction.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/redaction.schema.json) | the redaction boundary, and where it is enforced |
+| [`otel-endpoint.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/otel-endpoint.schema.json) | the `<SERVICE>_OTEL_ENDPOINT` contract and the no-op path |
+| [`probes.schema.json`](https://github.com/anywaye/core/blob/master/schemas/telemetry/probes.schema.json) | `/healthz` unconditional, `/readyz` really checking |
 
 ## Span names
 
 ```
 span-name := <service> "." <operation> [ "." <target> [ "." <qualifier] ] ]
-service   := cafaye namespace name — kebab-case, may contain a dash
+service   := anywaye namespace name — kebab-case, may contain a dash
 operation := lowercase word, optional internal underscore, at most 15 characters
 ```
 
@@ -166,7 +166,7 @@ rule as an event type's `<service>.<entity>.<action>`. The form is deliberately
 the *same shape*, so the fleet has one dotted-lowercase grammar rather than two.
 
 **The 15-character segment bound is what does the work.** A name that
-interpolates a value is rejected not because the grammar knows about cafaye id
+interpolates a value is rejected not because the grammar knows about anywaye id
 formats but because no legal segment is twenty-six characters long. A trace
 backend is a search engine, and the index becomes unusable long before anyone
 notices.
@@ -299,7 +299,7 @@ failure directions are machine-checked:
 
 `cafe contract lint` reads these seven schemas alongside the event schemas, so a
 service's telemetry declaration is checked against `core` the same way its
-`cafaye.yml` is.
+`anywaye.yml` is.
 
 **`kit` carries the stack, and it is complete rather than a sketch.** Its compose
 templates are Postgres, NATS+JetStream, Redis, the OpenTelemetry Collector, and
@@ -339,12 +339,12 @@ Stated so a reader can tell the difference between "not built yet" and "not
 planned":
 
 - **No collector is deployed in any environment.** The stack is generatable and
-  `kit` has a test that runs it, but nothing in a cafaye-operated deployment
+  `kit` has a test that runs it, but nothing in a anywaye-operated deployment
   receives a span. This is the one line on this page that has no code behind it,
   and it is the whole of what "not deployed" means.
 - **The shipped dashboards are provisioned, not curated, and they are new.** `kit`
-  ships two: *cafaye — every error in the fleet* (twelve panels, grouped on span
-  status rather than `error.type`) and *cafaye — local stack*. They come up on
+  ships two: *anywaye — every error in the fleet* (twelve panels, grouped on span
+  status rather than `error.type`) and *anywaye — local stack*. They come up on
   first load with no configuration, and they are the reason a cross-service error
   view is possible today rather than a thing you would have to write. What does
   not exist is a dashboard maintained against a real incident.

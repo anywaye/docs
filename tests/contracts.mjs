@@ -3,7 +3,7 @@
 // WHAT MAKES THIS TIER DIFFERENT FROM tests/examples.mjs
 //   Everything in examples.mjs is a property of the text: does this parse, does
 //   this name a command. This file checks the text against **something outside
-//   this repository** — the `cafaye.yml` examples against core's real manifest
+//   this repository** — the `anywaye.yml` examples against core's real manifest
 //   schema, through the real `cafe` binary. That is the check the packet calls
 //   the strongest argument for the packet, because it is the only one that
 //   catches the failure a self-hoster actually hits: an example that is
@@ -12,7 +12,7 @@
 // WHY IT IS A SEPARATE FILE AND A SEPARATE TIER
 //   It needs two things the unit tier must not have:
 //
-//     1. **A checkout of `cafaye/core`.** The schema is core's; this repository
+//     1. **A checkout of `anywaye/core`.** The schema is core's; this repository
 //        does not vendor it and must not — a vendored copy is a fourth
 //        description of the manifest format that nobody updates.
 //     2. **A built `cafe` binary.** `cafe contract lint` is the house validator.
@@ -82,7 +82,7 @@
 //        that could look like a loosened assertion, and it is a corrected call
 //        convention rather than a suppressed finding.
 //
-//   This repository's own `cafaye.yml` is copied to the root of that same
+//   This repository's own `anywaye.yml` is copied to the root of that same
 //   scratch tree, byte for byte (asserted), so it keeps being linted as a
 //   repository's own manifest and one invocation still answers for it.
 import { strict as assert } from 'node:assert';
@@ -112,9 +112,9 @@ const CAF = process.env.CAF ?? 'cafe';
  *
  * OWNED PAGES ONLY — `projects/` is excluded, and the same owned/borrowed
  * split tests/examples.mjs's yaml check makes. The contract tier asserts
- * claims THIS repository authors: a cafaye.yml example this site typed, an
+ * claims THIS repository authors: a anywaye.yml example this site typed, an
  * event type this site says a service declares, a span name this site
- * prescribes. A page synced from cafaye/core's own docs/ is core's claim
+ * prescribes. A page synced from anywaye/core's own docs/ is core's claim
  * about core, written before this site's conventions existed, and the fleet
  * validates it where it is authored — `cafe contract lint` over the workspace
  * is the workspace's gate, not the docs site's. Including borrowed pages here
@@ -160,9 +160,9 @@ function manifestFences() {
  * document**, which is what lets a single invocation still answer per manifest.
  *
  * The layout is not decoration. cafe's walk (`internal/contract/lint.go`) only
- * picks up files named exactly `cafaye.yml`, so each documented example gets
+ * picks up files named exactly `anywaye.yml`, so each documented example gets
  * its own directory; and it treats the manifest at the root of the tree as that
- * repository's own, so this repository's own `cafaye.yml` goes at the root and
+ * repository's own, so this repository's own `anywaye.yml` goes at the root and
  * keeps the adjacency rule it has always had. See the header for why a fence is
  * not linted as a repository.
  *
@@ -190,7 +190,7 @@ function lintEveryManifest() {
     const expected = new Map();
     for (const [index, fence] of manifests.entries()) {
       const example = join(dir, `example-${index}`);
-      const manifest = join(example, 'cafaye.yml');
+      const manifest = join(example, 'anywaye.yml');
       mkdirSync(example);
       writeFileSync(manifest, fence.body);
       expected.set(dirname(manifest), fence.where);
@@ -201,14 +201,14 @@ function lintEveryManifest() {
     // separately named file. The copy is compared rather than assumed: a
     // drifted copy would mean this tier validates something other than the file
     // in the repository, which is the one thing it exists not to do.
-    const own = readFileSync(join(root, 'cafaye.yml'));
-    writeFileSync(join(dir, 'cafaye.yml'), own);
+    const own = readFileSync(join(root, 'anywaye.yml'));
+    writeFileSync(join(dir, 'anywaye.yml'), own);
     assert.deepEqual(
-      readFileSync(join(dir, 'cafaye.yml')),
+      readFileSync(join(dir, 'anywaye.yml')),
       own,
-      'the scratch copy of this repository\'s cafaye.yml is not byte-identical to the file',
+      'the scratch copy of this repository\'s anywaye.yml is not byte-identical to the file',
     );
-    expected.set(dir, 'cafaye.yml (this repository\'s own manifest)');
+    expected.set(dir, 'anywaye.yml (this repository\'s own manifest)');
 
     cachedReport = { dir, expected, ...runCafLint(CAF, dir) };
     return cachedReport;
@@ -224,7 +224,7 @@ function lintEveryManifest() {
  *
  * Keyed by **directory**, which is unique per manifest by the layout above and
  * needs no guesswork about colons in paths or messages. A line that is not a
- * verdict is kept rather than dropped: cafe's own error text (`no cafaye.yml
+ * verdict is kept rather than dropped: cafe's own error text (`no anywaye.yml
  * found under …`) is how a broken invocation explains itself, and the tests
  * below put it in the failure message.
  */
@@ -254,7 +254,7 @@ function runCafLint(cafBinary, dir) {
     }
     const ok = match[1] === 'OK';
     // `INVALID <path>: <the first error>` — the first `": "` after the verdict
-    // separates path from reason. A cafaye temp path cannot contain one, and
+    // separates path from reason. A anywaye temp path cannot contain one, and
     // the reason is allowed to.
     const cut = ok ? -1 : match[2].indexOf(': ');
     const path = ok ? match[2] : cut === -1 ? match[2] : match[2].slice(0, cut);
@@ -299,7 +299,7 @@ test('core is on disk, so this tier can actually run', () => {
   // with no sibling checkout gets a message that says exactly what to do, and
   // the build is red rather than green.
   assert.ok(
-    existsSync(join(CORE_PATH, 'schemas', 'cafaye.manifest.schema.json')),
+    existsSync(join(CORE_PATH, 'schemas', 'anywaye.manifest.schema.json')),
     `core is not readable at ${CORE_PATH}. This tier reads core's real manifest ` +
       'schema and cannot run without it. Set CORE_PATH, or put core next to this ' +
       'worktree. **This is deliberately a failure and not a skip** — a contract ' +
@@ -324,12 +324,12 @@ test('cafe is on PATH, so the manifest examples can be validated for real', () =
     ok,
     `the cafe binary (${CAF}) could not be run: ${message}\n` +
       'This tier validates manifest examples with the real `cafe contract lint` rather ' +
-      'than a second implementation of it. Build it from a checkout of cafaye/cafe ' +
+      'than a second implementation of it. Build it from a checkout of anywaye/cafe ' +
       '(`go build ./cmd/cafe`) and put it on PATH, or set CAF to its path.',
   );
 });
 
-test('every cafaye.yml example in the docs passes the real cafe validator', () => {
+test('every anywaye.yml example in the docs passes the real cafe validator', () => {
   const report = lintEveryManifest();
   try {
     const verdicts = assertOneVerdictPerManifest(report);
@@ -355,29 +355,29 @@ test('every cafaye.yml example in the docs passes the real cafe validator', () =
   }
 });
 
-test("this repository's own cafaye.yml passes the real cafe validator", () => {
+test("this repository's own anywaye.yml passes the real cafe validator", () => {
   // The manifest in this repository, held to the same validator as the ones in
   // the prose. `getting-started.md` tells a reader to run `cafe contract lint`
   // against a manifest and quotes the output; if this repository's own manifest
   // did not lint clean, the page would be telling a reader to trust a tool on a
   // file that fails it.
-  assert.ok(existsSync(join(root, 'cafaye.yml')), 'cafaye.yml is missing from this repository');
+  assert.ok(existsSync(join(root, 'anywaye.yml')), 'anywaye.yml is missing from this repository');
 
   const report = lintEveryManifest();
   try {
     assertOneVerdictPerManifest(report);
     // cafe's own line, verbatim — `gate.yml`'s `cafe-lint-output` proof is
     // anchored on it and exists precisely because nothing else but the real
-    // binary can print `OK <path>/cafaye.yml`.
+    // binary can print `OK <path>/anywaye.yml`.
     const verdict = report.verdicts.get(report.dir);
     assert.ok(
       verdict.ok,
-      `this repository's own cafaye.yml does not validate: ${verdict.message || `cafe exited ${report.status}`}`,
+      `this repository's own anywaye.yml does not validate: ${verdict.message || `cafe exited ${report.status}`}`,
     );
     console.log(`    # ${verdict.raw}`);
     // cafe printed a path under a temporary directory, which is a name no reader
     // can act on. Restated as the file in the repository it was copied from.
-    console.log(`    #   ^ cafaye.yml in this repository, linted as the tree's own manifest`);
+    console.log(`    #   ^ anywaye.yml in this repository, linted as the tree's own manifest`);
   } finally {
     rmSync(report.dir, { recursive: true, force: true });
   }
@@ -451,7 +451,7 @@ test('every event type the docs declare as published has a catalog row in core',
       if (inDrift || !CLAIM.test(text)) continue;
       for (const m of text.matchAll(/`([a-z][a-z0-9]*\.[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*)`/g)) {
         const type = m[1];
-        // Not a cafaye service at all: a filename or a hostname that happened
+        // Not a anywaye service at all: a filename or a hostname that happened
         // to match the three-segment shape.
         if (!services.has(type.split('.')[0])) continue;
         if (!claims.has(type)) claims.set(type, `${rel}:${index + 1}`);
@@ -709,7 +709,7 @@ test('the per-service telemetry table agrees with core fleet.yml', () => {
     unrecorded,
     [],
     `the per-service table claims these services are DEPLOYED: ${unrecorded.join(', ')}. ` +
-      'No collector is running in any cafaye environment, and nothing in this ' +
+      'No collector is running in any anywaye environment, and nothing in this ' +
       'repository can make that true — so this is a table asserting something no ' +
       'evidence supports.',
   );
@@ -729,7 +729,7 @@ test('the per-service telemetry table agrees with core fleet.yml', () => {
   const exporting = [...exported.keys()].filter((name) => exported.get(name).includes('traces'));
   const EXCLUSIVITY = new RegExp(
     [
-      String.raw`\bonly\s+(?:one\s+|other\s+)?(?:cafaye\s+)?service\b`,
+      String.raw`\bonly\s+(?:one\s+|other\s+)?(?:anywaye\s+)?service\b`,
       String.raw`\bno\s+other\s+service\b`,
       String.raw`\bexactly\s+one\s+service\b`,
       String.raw`\bsole\s+exporter\b`,
@@ -773,7 +773,7 @@ test('the per-service telemetry table agrees with core fleet.yml', () => {
 
 test('the /errors/<code> page tree matches the contracts that generate it', () => {
   // PLAN §3 L3: the docs site serves the page tree behind the frozen
-  // `docs.cafaye.com/errors/<code>` base, generated from the contracts rather
+  // `docs.anywaye.com/errors/<code>` base, generated from the contracts rather
   // than hand-written. `bin/generate-error-pages` is the generator and this is
   // the guard that keeps it honest: drift between the contracts and the
   // committed tree is a red build, the same philosophy as every other test in
@@ -802,7 +802,7 @@ test('the /errors/<code> page tree matches the contracts that generate it', () =
       .filter((f) => existsSync(f));
     if (docs.length === 0) {
       fleetReason = `no <service>/openapi/v1.yaml under ${fleet}`;
-    } else if (!existsSync(join(CORE_PATH, 'harness', 'cafaye_contract.py'))) {
+    } else if (!existsSync(join(CORE_PATH, 'harness', 'anywaye_contract.py'))) {
       fleetReason = `core's harness reader is not at ${join(CORE_PATH, 'harness')}`;
     } else {
       execFileSync('python3', ['--version'], { stdio: 'pipe' });

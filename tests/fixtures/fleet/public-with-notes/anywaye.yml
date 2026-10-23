@@ -3,6 +3,6 @@ description: fixture — a public repository that wrongly carries notes
 language: spec
 core: ^0.2.0
 repository:
-  url: git@github.com:cafaye/core.git
+  url: git@github.com:anywaye/core.git
   defaultBranch: master
   visibility: public

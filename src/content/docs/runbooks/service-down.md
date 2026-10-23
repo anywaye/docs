@@ -472,7 +472,7 @@ failed to initialize logging driver: dial tcp: lookup otel-collector on
 0.250.250.200:53: no such host
 ```
 
-It is not a cafaye configuration problem, and it does not need cafaye to
+It is not a anywaye configuration problem, and it does not need anywaye to
 reproduce:
 
 ```sh
@@ -525,9 +525,9 @@ psql "$DATABASE_URL" -c "select now(), pg_is_in_recovery();"
 
 **`$SERVICE` is not the container name**, and that is a quiet trap rather than a
 loud one. Compose names a container `<project>-<service>-1`, and the project is
-not the repository: `kit`'s stack sets `name: ${KIT_STACK_NAME:-cafaye}`, so
-`identity` run through `bin/dev` gives you **`cafaye-identity-1`** and its
-database is **`cafaye-postgres-1`**. `docker logs identity` says `No such
+not the repository: `kit`'s stack sets `name: ${KIT_STACK_NAME:-anywaye}`, so
+`identity` run through `bin/dev` gives you **`anywaye-identity-1`** and its
+database is **`anywaye-postgres-1`**. `docker logs identity` says `No such
 container`, which reads like "it is not running" rather than "you named it
 wrong". Resolve it first:
 

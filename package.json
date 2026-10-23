@@ -1,8 +1,8 @@
 {
-  "name": "cafaye-docs",
+  "name": "anywaye-docs",
   "version": "0.0.0",
   "private": true,
-  "description": "The cafaye documentation site \u2014 docs.cafaye.com. Astro + Starlight, static.",
+  "description": "The anywaye documentation site \u2014 docs.anywaye.com. Astro + Starlight, static.",
   "license": "MIT",
   "type": "module",
   "engines": {

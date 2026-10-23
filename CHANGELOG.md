@@ -23,11 +23,11 @@ paths 404, every `/notes/*` path 401 unauthenticated.
 
 # Changelog
 
-## 2026-10-15 (latest) — docs.cafaye.com is live
+## 2026-10-15 (latest) — docs.anywaye.com is live
 
 **Deployed to the Contabo k3s cluster** behind traefik with a real Let's
 Encrypt certificate: the public site at `/` and the private notes at
-`/notes/*`, both from one Ingress. `deploy/docs.cafaye.com.yaml` is the whole
+`/notes/*`, both from one Ingress. `deploy/docs.anywaye.com.yaml` is the whole
 deployment — the namespace, the nginx pod, the press-gate pod, the TLS.
 
 **The private gate is nginx `auth_request`, learned the hard way.** The first
@@ -50,7 +50,7 @@ as for another org's, so the door is not an account-existence oracle.
 **`bin/sync-content --source <dir>` builds the way press builds for a tenant.**
 It takes one content directory — `<dir>/docs/**` public, `<dir>/notes/**`
 private — materializes it into the same two trees the fleet build writes, and
-exits. No registry, no sibling checkouts, no per-repo cafaye.yml: the
+exits. No registry, no sibling checkouts, no per-repo anywaye.yml: the
 anti-leak checking happened where the content was ingested, and the tenant
 build is the same build with one tenant's content rather than a weaker build.
 
@@ -88,16 +88,16 @@ every guard and writes nothing.
 **Per-repo docs/ is live; per-repo notes/ is forbidden in public repos.** Each
 fleet repository's `docs/` materializes into the public site at
 `projects/<name>/` — its manual stays beside its code. A `notes/` directory in
-a repository whose `cafaye.yml` says `visibility: public` **fails the sync and
+a repository whose `anywaye.yml` says `visibility: public` **fails the sync and
 names the repository**: the leak would happen at `git clone`, not at serve
-time. Those notes belong in `cafaye/notes/projects/<name>/`, the new private
+time. Those notes belong in `anywaye/notes/projects/<name>/`, the new private
 repository that holds the organization's register (decisions, ops, debt —
 graduated out of the `moon/` workspace layer, which was a workspace and not an archive).
 
 **The gate found real drift and the drift was fixed, not absorbed.** Four
 broken examples in the fleet's own docs (two shell fences in
-`cafaye/kit/docs/customer-upstream.md` that were shell redirections in
-disguise, two invalid-JSON fences in `cafaye/core/docs`) were caught the
+`anywaye/kit/docs/customer-upstream.md` that were shell redirections in
+disguise, two invalid-JSON fences in `anywaye/core/docs`) were caught the
 first time the borrowed pages were compiled; both repositories are fixed on
 master. Borrowed pages that arrive without frontmatter get it derived — title
 from the first heading, description from the first paragraph — and every
@@ -114,13 +114,13 @@ assertions cover pages this repository authors; a borrowed page is the source
 repository's claim, validated where it is authored.
 
 CI's `gate` job checks the registry out sparsely beside the tree — public
-repos with the default token, `cafaye/notes` and private repos with
+repos with the default token, `anywaye/notes` and private repos with
 `FLEET_TOKEN` — because a pipeline that cannot read its sources is not a
 gate. `BASELINE_TESTS` is held by equality at 44.
 
 # Changelog
 
-All notable changes to the cafaye documentation site are recorded here. The
+All notable changes to the anywaye documentation site are recorded here. The
 format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The site is
@@ -134,18 +134,18 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
   `bin/emit-markdown` walks the materialized content trees (`src/content/docs/` and `notes-site/src/content/docs/`, already populated by `bin/sync-content`) and writes each page's raw markdown to `<dist>/api/<slug>.md` in **both** dists (`dist/docs/api/…` and `dist/notes/api/…`). `slug` is the page's URL path the way Starlight/Astro actually build it — each segment sluggified (lowercased) the way `github-slugger` does, so `projects/box/BOUNDARIES.md` becomes `api/projects/box/boundaries.md` on a case-sensitive filesystem — and the file is exactly what the author wrote. The step runs as the last leg of `npm run build` (after both Astro builds), so a page without its twin is a build failure, not a runtime surprise.
 
-  The twins are **per-tree, not per-host**, because the auth decision is per-tree: `dist/docs/api/…` is public and cacheable (served at `/api/…` with no auth, `public, max-age=3600`, `text/markdown`), `dist/notes/api/…` sits behind the **same** `auth_request` as `/notes/` (served at `/notes/api/…`, `private, no-store`), and the nginx conf in `deploy/docs.cafaye.com.yaml` is the single place that decision is made — one gate, two paths. `location /api/` and `location /notes/api/` are explicit prefix locations with `try_files $uri =404` and `default_type text/markdown`; an agent hitting `/api/` itself gets a 404, never a human page. `tests/api-markdown.mjs` proves it: for every page, the twin exists and its content equals the source; `dist/docs/api/notes` does not exist; no `api/index.html` wrapper is emitted.
+  The twins are **per-tree, not per-host**, because the auth decision is per-tree: `dist/docs/api/…` is public and cacheable (served at `/api/…` with no auth, `public, max-age=3600`, `text/markdown`), `dist/notes/api/…` sits behind the **same** `auth_request` as `/notes/` (served at `/notes/api/…`, `private, no-store`), and the nginx conf in `deploy/docs.anywaye.com.yaml` is the single place that decision is made — one gate, two paths. `location /api/` and `location /notes/api/` are explicit prefix locations with `try_files $uri =404` and `default_type text/markdown`; an agent hitting `/api/` itself gets a 404, never a human page. `tests/api-markdown.mjs` proves it: for every page, the twin exists and its content equals the source; `dist/docs/api/notes` does not exist; no `api/index.html` wrapper is emitted.
 
 - **`services/box.md`, `services/pantry.md`, `services/keyholder.md` — the
   three services the index omitted.** The [services page](/services/) listed
   seven services and named neither `box` (the operated control plane),
   `keyholder` (the registry-credential exchange) nor `pantry` (the project
-  registry). Each new page is grounded in that repository's `cafaye.yml`,
+  registry). Each new page is grounded in that repository's `anywaye.yml`,
   README and boundaries rather than invented; each new index row's Owns
   sentence is the service's own manifest `description`.
 
 - **`/errors/<code>` — the error-contract page tree, generated from the
-  contracts.** PLAN §3 L3 makes `docs.cafaye.com/errors/<code>` the RFC 9457
+  contracts.** PLAN §3 L3 makes `docs.anywaye.com/errors/<code>` the RFC 9457
   `type` base, and this site now serves it: one page per envelope code (22 at
   generation time) under `src/content/docs/errors/`, each carrying the code,
   its fixed HTTP status, an example body, and the canonical-stability note
@@ -182,7 +182,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 - **The services page was verified row by row against each service's own
   manifest.** Every Owns sentence on `services/index.md` now tracks the
-  `description:` in that service's `cafaye.yml`, and two Language cells were
+  `description:` in that service's `anywaye.yml`, and two Language cells were
   read against the manifest rather than remembered: `darkroom` is
   `language: go` (the Go rewrite, `64f39a0`, 2026-10-04) and `parlor` is
   `typescript`. **`services/darkroom.md` still describes the Rust tree** and is
@@ -199,7 +199,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   control plane service, and this site is the living-docs surface that named
   it: `security.md`, `pilot.md`, `pricing.md`, `licensing.md`, `index.mdx` and
   `runbooks/entitlement-reconciliation.md` now say `box`, dial
-  `box.svc.cafaye.com`, and read the boundary from `box`'s `docs/BOUNDARIES.md`.
+  `box.svc.anywaye.com`, and read the boundary from `box`'s `docs/BOUNDARIES.md`.
   Historical records (`REPORT-*`, `HANDOFF-*`, past CHANGELOG entries) are
   byte-identical — they describe the past. One verbatim source quote in the
   runbook still reads `CONDUCTOR_IDENTITY_URL`: it quotes
@@ -215,11 +215,11 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   printed the old name: 297 standalone `caf` occurrences across 25 content
   files and `README.md`, covering CLI invocations, the quoted `caf help` output,
   shell transcripts and their prompt output, the install/clone/build path
-  (`github.com/cafaye/cafe/cmd/cafe@latest`, `cafaye/cafe.git`, `./cmd/cafe`,
-  `cafaye/tap/cafe`), the `cafe/internal/cli/*.go` source paths, and the
-  `<repo>@cafaye.com` contact pattern. All now print the post-rename shape; the
+  (`github.com/anywaye/cafe/cmd/cafe@latest`, `anywaye/cafe.git`, `./cmd/cafe`,
+  `anywaye/tap/cafe`), the `cafe/internal/cli/*.go` source paths, and the
+  `<repo>@anywaye.com` contact pattern. All now print the post-rename shape; the
   physical repository rename lands at integration, so `../caf` sibling-path
-  mentions travel with it. `cafaye` is untouched — 397 occurrences before and
+  mentions travel with it. `anywaye` is untouched — 397 occurrences before and
   after, because the sweep matched word boundaries only — and `conductor` naming
   belongs to a later packet. `tests/examples.mjs` follows the rename rather than
   losing the check: its subcommand vocabulary is still read out of the help
@@ -229,7 +229,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   tests, 22 pass, 0 fail.
 
 - **`pantry` is described as closed, not MIT, on every page that named it.**
-  OPS-D10 (`cafaye/notes/ops.md`, 2026-10-10, user) moves pantry's licence from MIT
+  OPS-D10 (`anywaye/notes/ops.md`, 2026-10-10, user) moves pantry's licence from MIT
   to proprietary while the service stays publicly reachable, amending the
   `pantry` line of OPS-D2/OPS-P1: once the catalog is public and multi-tenant
   it is part of the operated product, so it takes the conductor pattern —
@@ -244,7 +244,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     fourteen public repositories rather than fifteen — with the counts that
     followed from fifteen following from fourteen (seven with a manifest
     field, seven without).
-  - `index.mdx` no longer links `github.com/cafaye/pantry` as the source of an
+  - `index.mdx` no longer links `github.com/anywaye/pantry` as the source of an
     open implementation; a closed repository's URL is a dead promise.
   - `pilot.md`'s licence section and its licence risk row drop pantry from the
     MIT set and from the fifteen. The 2026-09-30 snapshot on `pilot.md` stays
@@ -260,7 +260,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   named rather than dropped: no service registry, no discovery, no health check
   and no dynamic registration, and no Go route carries a scope check.
 - **`gateway` is Go, not TypeScript, and that is a regression the docs hid.**
-  `src/` was deleted at cutover (`f87c891`, 2026-10-05) and `cafaye.yml` says
+  `src/` was deleted at cutover (`f87c891`, 2026-10-05) and `anywaye.yml` says
   `language: go`; five pages still called it TypeScript (Bun). Two capabilities
   left with `src/` and are now recorded as gaps rather than features: **API keys**
   (`src/middleware/apiKey.ts` had no Go counterpart at any depth, and
@@ -293,12 +293,12 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **`pantry` is Go, not Rust — the tooling table on the splash page kept the
   pre-rewrite word.** pantry has been Go since the Rust service was deleted
   (`REPORT-registry-norust-03` in the pantry repository); its own `AGENTS.md`
-  says `Language: Go` and `cafaye/notes/decisions.md` D33 records the choice. One row, one
+  says `Language: Go` and `anywaye/notes/decisions.md` D33 records the choice. One row, one
   word, per seam-audit F7: the page every reader lands on first contradicted the
   service's own house rules.
 
 - **The `contracts` job's `core` checkout no longer trips actions/checkout's own
-  path guard.** The step checked `cafaye/core` out to `${{ runner.temp }}/core`,
+  path guard.** The step checked `anywaye/core` out to `${{ runner.temp }}/core`,
   and `actions/checkout` throws `Repository path
   '/home/runner/work/_temp/core' is not under '/home/runner/work/docs/docs'`
   before any step of the job runs — run `38399580509`, job `contracts`, step
@@ -310,7 +310,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 ### Added
 
 - **The public advisory feed — `advisories/` (OPS-P14).** Fleet-wide,
-  anonymised failure notices written for a reader who does not run cafaye: the
+  anonymised failure notices written for a reader who does not run anywaye: the
   symptom, the cause, how to check whether you have it, what to do. The
   directory is autogenerated into the sidebar like `services/`, so a new file
   appears in the nav without a second edit, and each advisory carries an
@@ -318,11 +318,11 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   onto the docs schema in `src/content.config.ts` — a second content collection
   was considered and rejected, because Starlight's sidebar and
   `tests/smoke.mjs` both only see the docs collection. Seeded with two
-  conditions from the failure-mode library: **CAFAYE-ADV-2026-001**, courier's
+  conditions from the failure-mode library: **ANYWAYE-ADV-2026-001**, courier's
   `/readyz` taking about 4.4s to answer when the database has gone underneath a
   warm pool, so a shorter probe timeout restarts a healthy service (still
   `open` — the fix is the operator's timeout, not the service); and
-  **CAFAYE-ADV-2026-002**, kit's Kamal template pointing the proxy healthcheck
+  **ANYWAYE-ADV-2026-002**, kit's Kamal template pointing the proxy healthcheck
   at `/up`, Rails' boot check, which 404s from every service that serves
   `/readyz` (`fixed` on 2026-10-07). Every claim in both is derived from the
   service sources — `courier/lib/courier/health.ex`,
@@ -351,7 +351,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   `scripts/walk-the-loop.sh` named as the loop walk.
   `install.sh`/`bin/up` (site) is the e2e tier (pantry, oauth-stub,
   `16000-16099`), stated as not-the-launch-stack.
-  `curl https://kit.cafaye.com | sh` (kit) is the production path, cross-linked
+  `curl https://kit.anywaye.com | sh` (kit) is the production path, cross-linked
   to the Deployment runbook rather than redescribed.
 
 - **`runbooks/deployment.md` — the operator runbook for the substrate.** The
@@ -362,7 +362,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   documentation half), the deploy loop (Argo pull-only; no helm-from-CI path
   and one may never be added), backup and restore (CloudNativePG, `cafe backup`,
   `kubectl cnpg`, rclone offsite), and what is deliberately not here. Every
-  claim cites `cafaye/notes/deployment.md` or a file:line; the install steps are marked
+  claim cites `anywaye/notes/deployment.md` or a file:line; the install steps are marked
   **unverified** because `kit/templates/substrate/` does not exist on this
   base — no flag, env var or `Application` name is invented.
 
@@ -413,7 +413,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **`guard` is `gateway`, everywhere on this site that meant the service.** The
   gateway repository's rename merged into `master` at `15cf59b`, and this site
   described a service that no longer exists under that name: **155 occurrences**
-  removed across 22 pages and `cafaye.yml`, counted by diff against `master`
+  removed across 22 pages and `anywaye.yml`, counted by diff against `master`
   rather than by hand. Every one was classified before any was changed, because
   `guard` in this repository means two things and only one of them is a service —
   the other is a tripwire, the way "test" is used, and in a blind sweep it is the
@@ -427,7 +427,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     sidebar is autogenerated from the directory, so leaving the filename would
     have made the site's own navigation the one place still asserting the old
     name. **No redirect was added, and that is a measured decision:**
-    `docs.cafaye.com` does not resolve and no workflow here deploys the site, so
+    `docs.anywaye.com` does not resolve and no workflow here deploys the site, so
     `/services/guard/` has never been served; and a redirect is not free in this
     repository, because Astro writes an HTML stub for a static redirect's
     *source* into `dist/` and `tests/links.mjs` asserts that no redirect's
@@ -444,7 +444,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     `gateway-auth-{register,login,logout}` and `gateway-api-keys`, and the page
     never mentioned `api-keys` — so a reader budgeting a key-minting client had
     no number for it. This is a fix that arrived with the rename, not a rename.
-  - `guard@cafaye.com` → `gateway@cafaye.com`, measured against the gateway
+  - `guard@anywaye.com` → `gateway@anywaye.com`, measured against the gateway
     manifest's own `owner.contact`.
   - `docker ps | grep -c guard`, `8080:guard` and `docker build -t guard .` —
     commands a reader types, now matching the compose service name `gateway`.
@@ -459,7 +459,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   sentences that still name `guard`** are in the entry below.
 
 - **`muse` still declares a dependency named `guard`, and two pages now say so.**
-  `muse/cafaye.yml` carries `dependencies[].name: guard`, so `cafe dev` and
+  `muse/anywaye.yml` carries `dependencies[].name: guard`, so `cafe dev` and
   `pantry` read a service name the rename removed. `architecture/topology.md`
   and `runbooks/service-down.md` both claim that dependency, and both now state
   the fleet's meaning (`gateway`) and the drift, rather than claiming agreement
@@ -622,8 +622,8 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   the 503 configuration dependency.
 
 - **`pilot.md` said two repositories declare no `owner.contact`.** `kit` does
-  not — it has no `cafaye.yml` at all — but `parlor` declares
-  `parlor@cafaye.com`, and `site` declares `site@cafaye.com`. Verified by
+  not — it has no `anywaye.yml` at all — but `parlor` declares
+  `parlor@anywaye.com`, and `site` declares `site@anywaye.com`. Verified by
   reading every repository's `owner:` block rather than trusting the sentence;
   the two new addresses are now in the list.
 
@@ -1034,7 +1034,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   0.250.250.200:53: no such host
   ```
 
-  with nothing about the database in it. It reproduces with no cafaye involved
+  with nothing about the database in it. It reproduces with no anywaye involved
   at all: `docker run --rm --log-driver syslog --log-opt
   syslog-address=tcp://otel-collector:15514 alpine:3 echo hi`.
 
@@ -1047,8 +1047,8 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **A container name is not a service name.** `service-down` told a reader to
   `docker logs --since 30m "$SERVICE"`. Compose names a container
   `<project>-<service>-1` and the project here is **not** the repository —
-  `kit`'s stack sets `name: ${KIT_STACK_NAME:-cafaye}`, so `identity` is
-  `cafaye-identity-1` and its database is `cafaye-postgres-1`. `docker logs
+  `kit`'s stack sets `name: ${KIT_STACK_NAME:-anywaye}`, so `identity` is
+  `anywaye-identity-1` and its database is `anywaye-postgres-1`. `docker logs
   identity` says `No such container`, which reads like "it is not running" rather
   than "you named it wrong".
 
@@ -1199,7 +1199,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   own"* is wrong: kit's collector fans out to Tempo, Mimir and Loki, and
   `tests/stack_live_test.sh` brings the fetched stack up, sends real OTLP and
   reads a trace back out of Tempo. And *"There is no shared error dashboard"* is
-  wrong: kit provisions *cafaye — every error in the fleet*, twelve panels,
+  wrong: kit provisions *anywaye — every error in the fleet*, twelve panels,
   grouped on span status. What does not exist is a dashboard maintained against
   a real incident, and that is what the page now says.
 
@@ -1214,7 +1214,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   OTLP span existing.
 
   **One adjacent false claim found while verifying, in the same family.** `pilot.md`
-  said `identity` *"is the only service with no dependency on another cafaye
+  said `identity` *"is the only service with no dependency on another anywaye
   service"*. `darkroom` declares no dependencies either, and `courier` and
   `billing` declare empty lists, so the sentence was false in the way this packet
   is about: a uniqueness claim on one service that the fleet record contradicts.
@@ -1268,7 +1268,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     is purchasable today, and there is no price on the page.** All three paid
     products are given a table per unit, and each row's `today` column is a
     measured fact rather than an estimate. The seven undecided numbers are
-    [listed on the page](https://docs.cafaye.com/pricing/) as questions for us
+    [listed on the page](https://docs.anywaye.com/pricing/) as questions for us
     rather than guessed, because a fabricated price is worse than a blank one.
   - **`licensing.md`** states the decision — MIT across the fleet, including
     every purchasable unit — and then the measured state, which is not the same
@@ -1316,7 +1316,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **The licensing summary on the home page was wrong in three numbers.** It said
   one repository has a licence file, four declare one, and eight call kit's
   workflow. Re-derived on 2026-10-01: **three** carry an MIT licence file
-  (`cafaye-py`, `cafaye-rb`, `cafaye-ts`), four declare MIT in a manifest, `muse`
+  (`anywaye-py`, `anywaye-rb`, `anywaye-ts`), four declare MIT in a manifest, `muse`
   is AGPL, **seven state nothing**, and **ten** repositories call
   `ci.reusable.yml@master`. It also now says the decision — MIT across the fleet —
   alongside the gap, which is the pairing a buyer needs and the one the old
@@ -1393,7 +1393,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   this repository's own prose rather than from a list written beside it.
 - **`tests/contracts.mjs`, and `bin/prime --contracts`** — the only tier that can
   catch an example contradicting something that has actually shipped. Every
-  documented `cafaye.yml` goes through the real `cafe contract lint` against
+  documented `anywaye.yml` goes through the real `cafe contract lint` against
   core's real schema, as does this repository's own manifest; every event type a
   page says a service declares is checked against core's catalog; and every span
   name in `observability.md` is checked against core's `span-naming.schema.json`.
@@ -1445,14 +1445,14 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   exports any signal, no service has been migrated to the bounded `error.type`
   vocabulary, and there is no shared error dashboard.
 - **Running the gates** (`src/content/docs/running-the-gates.md`) — the exact
-  command for every cafaye repository, and the tiers that do **not** run by
+  command for every anywaye repository, and the tiers that do **not** run by
   default. `identity` needs `TEST_DATABASE_URL` **and a `goose up` first**
   (without it: `relation "public.oidc_clients" does not exist`, an error naming
   a relation rather than the missing step); `darkroom` has a `--db` tier plus a
   third tier (`--features s3`) that `cargo test` never compiles at all; `muse`
   needs `MUSE_CORE_SCHEMAS=../core/schemas` for its two core-parity tests;
   `pantry`'s eight drift tests skip without a workspace and need
-  `PANTRY_CAFAYE_ROOT`; `kit` needs a virtualenv with PyYAML. It opens by
+  `PANTRY_ANYWAYE_ROOT`; `kit` needs a virtualenv with PyYAML. It opens by
   saying CI is **not** fleet-wide and that `kit`'s reusable workflow is
   currently uncallable, with the five repositories that do have a workflow.
 - `tests/smoke.mjs` — a fifth assertion, and the direction that was missing:
@@ -1508,8 +1508,8 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - `index.mdx` — *"Of the ten `cafe` subcommands, four do real work… and
   `darkroom` is an empty repository"* is gone: **`cafe dev` now works**, and
   `darkroom` is three milestones past that sentence. The tooling table no longer
-  advertises `cafaye-py` and `cafaye-ts`, which **do not exist as repositories**;
-  `cafaye-rb` is described as what it is — **the shared Ruby gem** (JWKS
+  advertises `anywaye-py` and `anywaye-ts`, which **do not exist as repositories**;
+  `anywaye-rb` is described as what it is — **the shared Ruby gem** (JWKS
   verification, transactional outbox, Rails railtie), not a generated SDK — and
   `pantry` as Rust rather than Go.
 
@@ -1663,7 +1663,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **Getting Started** (`getting-started.md`) — rewritten as a six-step path that
   works: `cafe doctor` → install → read the command table → `cafe init` a project
   → run a service locally → deploy to your own infrastructure. Every command was
-  run against a binary built from `moon/cafaye/cafe`, and the output is quoted.
+  run against a binary built from `moon/anywaye/cafe`, and the output is quoted.
   The per-service local stacks, the migration commands (goose, Rails, plain
   SQL), the per-service Dockerfile table, and the liveness/readiness contract are
   all there, because those are what actually exist.
@@ -1708,7 +1708,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   with Postgres, and the muse vault key generator was run to confirm its output
   length and all three of its refusal modes. That is why the pages quote real
   output rather than describing it.
-- **Four findings about the cafaye repos are recorded rather than papered
+- **Four findings about the anywaye repos are recorded rather than papered
   over**, documented where an operator will hit them (Topology and
   Troubleshooting) rather than only in the packet report:
   1. `goose` **panics** on `identity`'s current migrations —
@@ -1724,7 +1724,7 @@ Three claims the site made that are not true, all verified against the real CLI:
      `courier` failure is a genuine spec disagreement (two-segment versus
      three-segment event types), not a typo, and specs are manager-owned.
 - No page claims a command, flag, endpoint, or environment variable that was not
-  read out of a source file, a `cafaye.yml`, a `Dockerfile`, a
+  read out of a source file, a `anywaye.yml`, a `Dockerfile`, a
   `docker-compose.yml`, or a test.
 - Nothing under `moon/refs/` (now `reference/`) or in jumpstart-pro was read or used.
 - The navigation gained sections and nothing else. `pagefind: false` is
@@ -1740,7 +1740,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   here**, because it is read at a different moment by a different person.
 
   It opens by saying the thing that decides the deal before anything else:
-  **there is no hosted cafaye.** `cafe deploy` is a stub, so "hosted pilot" means
+  **there is no hosted anywaye.** `cafe deploy` is a stub, so "hosted pilot" means
   you run it in your own infrastructure. Then, in order: what you get (seven
   services, what each owns, what each one will fail you on), **the licence
   position across all thirteen repositories** — ten state no licence at all,
@@ -1755,7 +1755,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   on a path holding none.
 
   The path itself is eight steps — install, clone `identity` (the only service
-  with no cafaye dependency), lint the manifest, `cafe dev --dry-run` then
+  with no anywaye dependency), lint the manifest, `cafe dev --dry-run` then
   `cafe dev`, apply migrations, first request, the two things a default stack
   does not mount, then tenant provisioning — and **every step carries the failure
   branch beside it**, because a step that cannot fail is not a step a stuck
@@ -1794,7 +1794,7 @@ Three claims the site made that are not true, all verified against the real CLI:
     a raw manifest count is worthless as a health signal.
   - **`cafe contract lint` prints one line per manifest, not per repository.**
     `pantry` alone contributes ten, because its registry ships a copy of every
-    service's `cafaye.yml`. The page said "one line per repository" and was
+    service's `anywaye.yml`. The page said "one line per repository" and was
     wrong.
   - **`guard` proxies nothing; it does not "route nothing".** It serves
     `/v1/me` and `/auth/*`. `services/guard.md` already had this right; the
@@ -1820,8 +1820,8 @@ Three claims the site made that are not true, all verified against the real CLI:
   (`cafe`, `core`, `courier`, `darkroom`, `guard`, `identity`, `muse`, `parlor`)
   and **one** repository with no workflow at all: `docs`.
 
-- **The contact list on `pilot.md` was missing `guard@cafaye.com` and
-  `cafaye@cafaye.com`,** while claiming to enumerate what each repository
+- **The contact list on `pilot.md` was missing `guard@anywaye.com` and
+  `anywaye@anywaye.com`,** while claiming to enumerate what each repository
   declares. It now does, and it names the two repositories — `kit` and
   `parlor` — that declare no contact at all.
 
@@ -1869,8 +1869,8 @@ Three claims the site made that are not true, all verified against the real CLI:
 ### Added
 
 - Initial scaffold of the docs site: Astro 7.3.5 + Starlight 0.42.4, static
-  output, no adapter, `site: https://docs.cafaye.com`.
-- **Home** (`src/content/docs/index.mdx`) — what cafaye is in one paragraph,
+  output, no adapter, `site: https://docs.anywaye.com`.
+- **Home** (`src/content/docs/index.mdx`) — what anywaye is in one paragraph,
   then the services and tooling tables mirroring the org README, with cards for
   the three entry points.
 - **Getting Started** — installing `cafe`, `cafe init`, `cafe dev`. Every command
@@ -1879,8 +1879,8 @@ Three claims the site made that are not true, all verified against the real CLI:
   `courier`, `darkroom`, `muse`, `guard`, and `parlor`. Each page states the
   language, the role, and a status line saying what is built and what is not,
   sourced from PLAN.md §tree and each service's own README.
-- **Contracts** — the `cafaye.yml` manifest format, the event envelope, and
-  OpenAPI, summarized with links to `cafaye/core`, which is named as the source
+- **Contracts** — the `anywaye.yml` manifest format, the event envelope, and
+  OpenAPI, summarized with links to `anywaye/core`, which is named as the source
   of truth.
 - **Guides** — a placeholder that says so, and explains why no guide is written
   against commands that do not run yet.
@@ -1894,7 +1894,7 @@ Three claims the site made that are not true, all verified against the real CLI:
 - `README.md` with run and deploy instructions, `AGENTS.md` with the
   conventions, `CHANGELOG.md`, `.gitignore`, `mise.toml` (node 22.23.4 — above
   Astro 7's 22.12.0 floor, so `npm ci` prints no engine warnings), and a draft
-  `cafaye.yml` validated against core's manifest schema.
+  `anywaye.yml` validated against core's manifest schema.
 
 ### Notes
 
@@ -1902,6 +1902,6 @@ Three claims the site made that are not true, all verified against the real CLI:
   Starlight ships `@astrojs/sitemap`, so the build emits `sitemap-index.xml`;
   that was not treated as "search indexing" to remove.
 - No blog, no CI workflow, no lint or typecheck step. The build is the gate.
-- `cafaye.yml` records one open decision for the manager:
+- `anywaye.yml` records one open decision for the manager:
   `language: typescript` for a static site, because core's `language` enum has
   no value for it.

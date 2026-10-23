@@ -85,6 +85,6 @@ that `muse`'s copied event patterns are still byte-identical to core's schemas â
 which is the one check that catches drift between the two repositories. See
 [Running the gates](/getting-started/#muse--the-core-parity-tests).
 
-- **Repository:** [github.com/cafaye/muse](https://github.com/cafaye/muse)
+- **Repository:** [github.com/anywaye/muse](https://github.com/anywaye/muse)
 - **Language:** Python
 - **Namespace / event source:** `muse`

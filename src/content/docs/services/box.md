@@ -1,20 +1,20 @@
 ---
 title: box
-description: Cafaye's operated control plane — customer installations, releases and approvals, and the short-lived capabilities a box redeems on itself.
+description: Anywaye's operated control plane — customer installations, releases and approvals, and the short-lived capabilities a box redeems on itself.
 ---
 
-`box` is Cafaye's operated control plane. It coordinates the Cafaye side of a
+`box` is Anywaye's operated control plane. It coordinates the Anywaye side of a
 customer's deployment — entitlements, installations, releases and approvals —
 and mints the short-lived, single-use capabilities a customer's **box** (the
 machine `cafe box setup` installs onto) redeems on itself. It is written in
 **Ruby** as an API-only Rails service.
 
-**`box` is Cafaye-operated and is never installed on a customer box.** It runs
-on Cafaye infrastructure, is not part of a customer source bundle or the `kit`
+**`box` is Anywaye-operated and is never installed on a customer box.** It runs
+on Anywaye infrastructure, is not part of a customer source bundle or the `kit`
 deployment substrate, and has **no user interface of its own** — the frontend
 is `website` (see `box/docs/BOUNDARIES.md`). The one noun to keep straight:
-**Cafaye Box** is the product a customer runs; **`box`** is the control plane
-Cafaye runs, and it is the service on this page.
+**Anywaye Box** is the product a customer runs; **`box`** is the control plane
+Anywaye runs, and it is the service on this page.
 
 :::caution[Status: v0 — the entitlement lifecycle, enrollment, and the escalation queue]
 The entitlement surface (member reads, staff grant and revoke, each mutation
@@ -55,7 +55,7 @@ On macOS the suite runs serially (`PARALLEL_WORKERS=1`) because the parallel
 workers fork with the `pg` gem connected and segfault the Ruby VM; Linux CI opts
 into parallelism on purpose.
 
-- **Repository:** private — proprietary to Cafaye (OPS-D2)
+- **Repository:** private — proprietary to Anywaye (OPS-D2)
 - **Language:** Ruby (Rails, API-only)
 - **Dependencies:** `identity` (required)
 - **Events:** none — `box` publishes no event types and subscribes to none

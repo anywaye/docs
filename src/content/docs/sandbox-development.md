@@ -1,20 +1,20 @@
 ---
 title: 'Sandbox Development Workflow'
-description: '**Current direction (2026-10-19):** Ship is the product. The cafaye stack that the dev boxes run on is internal infrastructure; we are not selling or…'
+description: '**Current direction (2026-10-19):** Ship is the product. The anywaye stack that the dev boxes run on is internal infrastructure; we are not selling or…'
 ---
 
 # Sandbox Development Workflow
 
-**Current direction (2026-10-19):** Ship is the product. The cafaye stack that the dev boxes run on is internal infrastructure; we are not selling or supporting it as a standalone product as of this date. We continue to develop and improve it, treating the founder as the primary customer and keeping "build once, run everywhere" true, with the expectation that it may be offered again later.
-> Develop on cafaye without cloning anything to your laptop. Dev compute lives on
-> instabox (ephemeral, auto-suspend, pay-when-in-use). Prod lives on your Cafaye
+**Current direction (2026-10-19):** Ship is the product. The anywaye stack that the dev boxes run on is internal infrastructure; we are not selling or supporting it as a standalone product as of this date. We continue to develop and improve it, treating the founder as the primary customer and keeping "build once, run everywhere" true, with the expectation that it may be offered again later.
+> Develop on anywaye without cloning anything to your laptop. Dev compute lives on
+> instabox (ephemeral, auto-suspend, pay-when-in-use). Prod lives on your Anywaye
 > box (Contabo or self-hosted). The ship service orchestrates everything.
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  cafaye.com (website) — dashboard, approvals, billing   │
+│  anywaye.com (website) — dashboard, approvals, billing   │
 │  ship service (Contabo) — orchestration brain (Go)       │
 │  ├── project lifecycle (create, list, status, archive)   │
 │  ├── dev box orchestration (instabox adapter)           │
@@ -24,7 +24,7 @@ description: '**Current direction (2026-10-19):** Ship is the product. The cafay
 │  └── observability aggregation (per-project errors)      │
 ├─────────────────────────────────────────────────────────┤
 │  Dev boxes (instabox) — one per project                 │
-│  ├── Cafaye substrate (k3s + services)                  │
+│  ├── Anywaye substrate (k3s + services)                  │
 │  ├── Repo cloned into /data/workspace/<project>          │
 │  ├── Dev DB (Postgres on the box, auto-suspend safe)    │
 │  └── Auto-suspend after idle (near-zero cost)           │
@@ -41,7 +41,7 @@ description: '**Current direction (2026-10-19):** Ship is the product. The cafay
 ### 1. Create a project
 
 ```bash
-export SHIP_URL=https://ship.cafaye.com  # or http://localhost:8091 for local
+export SHIP_URL=https://ship.anywaye.com  # or http://localhost:8091 for local
 export SHIP_OWNER_ID=<your-identity-account-id>
 
 cafe ship project create --name my-saas --owner $SHIP_OWNER_ID
@@ -72,10 +72,10 @@ instabox ssh my-saas -- 'git clone https://github.com/you/my-saas.git /data/work
 # Follow the instabox-move-repo skill
 ```
 
-### 4. Add cafaye services (hosted)
+### 4. Add anywaye services (hosted)
 
 ```bash
-# From cafaye.com or via API:
+# From anywaye.com or via API:
 # Add identity (hosted) → creates tenant, injects env vars into dev box
 curl -s -X POST $SHIP_URL/v1/projects/<project-id>/services \
   -H "Content-Type: application/json" \
@@ -134,17 +134,17 @@ Repeat from step 1. Each project gets its own dev box, services, and deploy targ
 
 | Service | URL | Status |
 |---------|-----|--------|
-| ship (orchestration) | https://ship.cafaye.com | Running (Contabo) |
+| ship (orchestration) | https://ship.anywaye.com | Running (Contabo) |
 | ship (instabox test) | https://8090-agqvfeorv7vedzwhtbo6eigitm.instabox.tech | Running |
-| identity | https://auth.cafaye.com | Running (Contabo) |
-| gateway | https://api.cafaye.com | Running (Contabo) |
+| identity | https://auth.anywaye.com | Running (Contabo) |
+| gateway | https://api.anywaye.com | Running (Contabo) |
 | courier | (internal) | Running (Contabo) |
 | billing | (internal) | Running (Contabo) |
 | darkroom | (internal) | Running (Contabo) |
 
 ## API reference (ship service)
 
-Base URL: `https://ship.cafaye.com` (or `http://localhost:8091` for local dev)
+Base URL: `https://ship.anywaye.com` (or `http://localhost:8091` for local dev)
 
 ### Projects
 
@@ -202,7 +202,7 @@ All backends share one CNPG cluster on Contabo (`postgres-rw.data:5432`). Each s
 - ✅ HTTP integration tests (full CRUD flow + hosted services + flags + devdb)
 - ✅ Unit tests (projects service, repo host providers)
 - ✅ Hosted service provisioning endpoint (add identity/courier/darkroom, returns env vars)
-- ✅ Forgejo instance deployed on Contabo (git.cafaye.com, 1/1 ready)
+- ✅ Forgejo instance deployed on Contabo (git.anywaye.com, 1/1 ready)
 - ✅ Preview environments manifest (ArgoCD ApplicationSet, per-PR ephemeral deploy)
 - ✅ Website dashboard route (/ship) with project list + create
 - ✅ Website ship client library (list, get, create, add service, update status)

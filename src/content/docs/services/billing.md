@@ -104,7 +104,7 @@ reader from today for those five types.**
 **Practical consequence:** if you consume `billing.subscription.*`, read `data` as
 **unvalidated** until core's schemas move, and prefer `GET /v1/subscriptions/{id}`
 — which has a contract test and a document — over the event payload as your source
-of truth. [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-cafaye-prefixed-ids)
+of truth. [Upgrading](/upgrading/#2-billingsubscriptionstarted-no-longer-declares-anywaye-prefixed-ids)
 has the full note.
 :::
 
@@ -144,9 +144,9 @@ mise run security   # gem audit and Brakeman
 
 `bin/prime` prepares the test database itself, so there is no second tier to
 miss — but it does need a reachable Postgres. [Running the
-gates](/getting-started/#billing-and-cafaye-rb--database-in-the-gate-not-outside-it).
+gates](/getting-started/#billing-and-anywaye-rb--database-in-the-gate-not-outside-it).
 
-- **Repository:** [github.com/cafaye/billing](https://github.com/cafaye/billing)
+- **Repository:** [github.com/anywaye/billing](https://github.com/anywaye/billing)
 - **Language:** Ruby
 - **Namespace / event source:** `billing` — publishes eight event types
 - **Container port:** 80 (3000 in development)

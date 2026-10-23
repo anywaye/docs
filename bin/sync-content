@@ -4,7 +4,7 @@
 // WHY THIS EXISTS AT ALL
 //   The fleet's documentation lives in three places, by design: the public site
 //   (this repository's src/content/docs/), the private notes repository
-//   (cafaye/notes), and each service repository's own docs/ and notes/ trees.
+//   (anywaye/notes), and each service repository's own docs/ and notes/ trees.
 //   Two Starlight builds consume them: the public site becomes dist/docs and
 //   the private site becomes dist/notes. This script is the join — it reads
 //   the sources and writes what each build is allowed to contain.
@@ -13,14 +13,14 @@
 //   A missing source cannot mean "no content": the central notes repository
 //   missing is not an empty notes site, it is a broken pipeline wearing a
 //   green badge. Every source listed in content-sources.json must resolve,
-//   and every repository root must carry a readable cafaye.yml whose
+//   and every repository root must carry a readable anywaye.yml whose
 //   `repository.visibility` says what may be ingested. This is the contract
 //   tier's rule, and it is the same rule for the same reason: a check that
 //   cannot find its input is worse than no check.
 //
 // THE ONE RULE THIS SCRIPT EXISTS TO ENFORCE
 //   A public repository never carries private content. If a repository whose
-//   cafaye.yml says visibility: public contains a notes/ directory, the leak
+//   anywaye.yml says visibility: public contains a notes/ directory, the leak
 //   has already happened at `git clone` — no build-time filter can undo a
 //   pushed file. So the sync refuses, names the repository, and exits 1. The
 //   same applies to a page inside a public repository's docs/ carrying
@@ -29,7 +29,7 @@
 //
 // --source <dir>, and the two ways this script runs
 //   Without it, the sync builds the way this repository's own gate does:
-//   the fleet beside the tree (cafaye/*), the registry in
+//   the fleet beside the tree (anywaye/*), the registry in
 //   content-sources.json, and the guards that check a public repository for
 //   notes/. That is the mode CI and a developer run.
 //
@@ -61,10 +61,10 @@
 //   1. an explicit environment override (CAF_NOTES_PATH, or CAF_PROJECT_<NAME>
 //      for a project, name upper-cased, dashes as underscores) — this is what
 //      CI sets, because a runner's workspace is not a developer's machine.
-//   2. <CAF_WORKSPACE>/cafaye/<name> — the machine layout, where this
-//      repository and all its siblings sit under cafaye/. Resolved two
-//      levels up from this repository's root, which is cafaye/ whether this is
-//      a primary checkout (cafaye/docs) or a worktree (work/wt/<name>).
+//   2. <CAF_WORKSPACE>/anywaye/<name> — the machine layout, where this
+//      repository and all its siblings sit under anywaye/. Resolved two
+//      levels up from this repository's root, which is anywaye/ whether this is
+//      a primary checkout (anywaye/docs) or a worktree (work/wt/<name>).
 // If none resolves, the sync fails and prints what it tried.
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, copyFileSync } from 'node:fs';
@@ -131,14 +131,14 @@ function readFrontmatter(file) {
   return fields;
 }
 
-/** Read `repository.visibility` out of a repo's cafaye.yml, line-based on
+/** Read `repository.visibility` out of a repo's anywaye.yml, line-based on
  *  purpose: a manifest that fails to parse must fail the sync, not default to
  *  a visibility. The default wrong answer is "public", which is the one that
  *  leaks. */
 function repoVisibility(rootDir) {
-  const file = join(rootDir, 'cafaye.yml');
+  const file = join(rootDir, 'anywaye.yml');
   if (!existsSync(file)) {
-    fail(`no cafaye.yml at ${file}. Every member of the fleet carries one; a repository root without it is not a cafaye repo and cannot be ingested.`);
+    fail(`no anywaye.yml at ${file}. Every member of the fleet carries one; a repository root without it is not a anywaye repo and cannot be ingested.`);
   }
   const text = readFileSync(file, 'utf8');
   const match = /^repository:\r?\n(?:[ \t]+.*\r?\n)*?[ \t]+visibility:[ \t]*(public|private)\s*$/m.exec(text);
@@ -155,15 +155,15 @@ function resolveSource(name, envKey) {
     if (!existsSync(explicit)) fail(`$${envKey} is set to ${explicit} but that path does not exist.`);
     return resolve(explicit);
   }
-  // The fleet root is the nearest ancestor that contains a `cafaye/`
+  // The fleet root is the nearest ancestor that contains a `anywaye/`
   // directory, found by walking up rather than assuming a depth: the primary
-  // checkout (moon/cafaye/docs) and a worktree (moon/cafaye/wt/<name>, or
+  // checkout (moon/anywaye/docs) and a worktree (moon/anywaye/wt/<name>, or
   // moon/wt/<name>) sit at different depths, and a fixed "../.." works for
   // one and silently fails for the other.
   let dir = root;
   let fleetRoot = null;
   for (;;) {
-    if (existsSync(join(dir, 'cafaye'))) {
+    if (existsSync(join(dir, 'anywaye'))) {
       fleetRoot = dir;
       break;
     }
@@ -171,11 +171,11 @@ function resolveSource(name, envKey) {
     if (parent === dir) break;
     dir = parent;
   }
-  const candidate = fleetRoot ? join(fleetRoot, 'cafaye', name) : null;
+  const candidate = fleetRoot ? join(fleetRoot, 'anywaye', name) : null;
   if (candidate && existsSync(candidate)) return candidate;
   fail(
-    `source "${name}" not found. Tried $${envKey} and ${candidate ?? `no cafaye/ directory above ${root}`}. ` +
-      `On a developer machine the fleet sits under moon/cafaye/; in CI, set CAF_WORKSPACE to the directory containing cafaye/, or ${envKey} to the checkout path.`
+    `source "${name}" not found. Tried $${envKey} and ${candidate ?? `no anywaye/ directory above ${root}`}. ` +
+      `On a developer machine the fleet sits under moon/anywaye/; in CI, set CAF_WORKSPACE to the directory containing anywaye/, or ${envKey} to the checkout path.`
   );
 }
 
@@ -282,7 +282,7 @@ const registry = JSON.parse(readFileSync(sourcesFile, 'utf8'));
 
 // 0. The tenant-content mode: one directory, docs/ public and notes/ private,
 //    materialized into the two trees exactly as the fleet build does. There is
-//    no registry to honor and no per-repo cafaye.yml to read — that checking
+//    no registry to honor and no per-repo anywaye.yml to read — that checking
 //    happened where the content was ingested — so the guards below do not run
 //    and the sync cannot fail over a sibling that was never checked out.
 if (sourceDir) {
@@ -349,7 +349,7 @@ if (!checkOnly && existsSync(notesReadme)) {
   const firstPara = (body.split(/\n\s*\n/)[1] ?? '').replace(/\s+/g, ' ').trim().slice(0, 157);
   writeFileSync(
     join(NOTES_TREE, 'index.md'),
-    `---\ntitle: cafaye notes\ndescription: ${yamlQuote(firstPara || 'cafaye private notes — decisions, operations, debt and the notes that never belonged in a public repository.')}\n---\n\n` + body,
+    `---\ntitle: anywaye notes\ndescription: ${yamlQuote(firstPara || 'anywaye private notes — decisions, operations, debt and the notes that never belonged in a public repository.')}\n---\n\n` + body,
   );
 }
 // In check mode nothing is written, so the count to guard is the SOURCE's;
@@ -410,7 +410,7 @@ for (const name of registry.projects) {
       fail(
         `${name} is a PUBLIC repository (${repoDir}) and contains ${pagesIn(notesDir)} private page(s) under notes/. ` +
           `A public repository cannot carry private notes: the leak happens at git clone, before this build runs. ` +
-          `Move them to projects/${name}/ in the notes repository (cafaye/notes).`
+          `Move them to projects/${name}/ in the notes repository (anywaye/notes).`
       );
     }
     if (existsSync(docsDir)) {
