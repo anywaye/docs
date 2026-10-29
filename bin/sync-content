@@ -129,7 +129,7 @@ function deriveFrontmatter(file) {
   const body = text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
 
   let title = null;
-  const h1 = /^#\s+(.+)$/m.exec(body);
+  const h1 = /^
   if (h1) title = h1[1].trim();
   else {
     // Filename stem, humanized: "event-outbox.md" -> "Event outbox".
@@ -146,7 +146,7 @@ function deriveFrontmatter(file) {
   // this script's.
   const paragraphs = body
     .split(/\n\s*\n/)
-    .map((p) => p.replace(/^#+.*$/gm, '').replace(/\s+/g, ' ').trim())
+    .map((p) => p.replace(/^
     .filter((p) => p.length > 0);
   const description = (paragraphs[0] ?? '').slice(0, 157);
   const clipped =
