@@ -100,260 +100,46 @@ version: 1
 name: docs
 
 gate:
-  # An argv, never a shell string, so the exit code is the gate's own. This
-  # fleet's one recorded false green was `… | tail -45; echo "PRIME EXIT=$?"`
-  # under zsh, where `$?` is `tail`'s and `tail` is always 0.
-  #
-  # It was not theoretical here. Measured on this machine while writing this
-  # file: under zsh, `${PIPESTATUS[0]}` after `bin/prime | tee log` expands to
-  # the **empty string**, and under bash to the gate's real status. So the fleet
-  # defect reproduces from a shell that is the macOS default, and the spelling
-  # in `ci/ci.yml` (`shell: bash` plus `${PIPESTATUS[0]}`) is not
-  # defensive style — it is the only reading that is a status at all.
   command: [bin/prime, --contracts]
-  # The fleet's spelling. **`mise run prime` runs `bin/prime` WITHOUT
-  # `--contracts`, and that difference is real and is not fixed by this file.**
-  # `mise run prime` is the fast local loop — no `core`, no `cafe` — and the
-  # declared gate is the fast loop plus the contract tier. It is recorded here
-  # rather than reconciled because reconciling it means either renaming the
-  # task, which would add a third spelling of "run the gate" in the very
-  # repository this file exists to stop guessing at, or making a mise task
-  # require a sibling checkout, which is the thing mise is not for. If you are
-  # landing a change to a page with an example, an event type or a span name in
-  # it, `./bin/prime --contracts` is the gate and `mise run prime` is a subset.
-  #
-  # It cannot be `prime:contracts`, which is the task that actually runs the
-  # declared command: `gate.miseTask` is constrained to `^[a-z][a-z0-9-]*$` and
-  # a colon is not in that class. So `prime` is named and the difference is
-  # written down here, where a reader of the declaration will find it.
   miseTask: prime
-  # The file behind both. `mise run prime`, the developer-facing command, and
-  # CI's two jobs all resolve to this one file — which is what
-  # `gate.task-unresolvable` exists to keep them agreeing about.
   entrypoint: bin/prime
-  # 1200, and it is CI's own budget rather than a measurement: both the `gate`
-  # and the `contracts` job in `ci/ci.yml` are
-  # `timeout-minutes: 20`. Measured here on a warm npm cache, one full
-  # two-tier run is about 75 seconds (npm ci 25s, the Astro build 21s, the
-  # offline suite 5s, the contract tier 0.4s — re-measured as
-  # `CORE_PATH=../core CAF=<cafe> npm run test:contracts`, three runs at
-  # 0.31/0.37/0.38s, of which node reports 0.13s of actual test time; the
-  # 0.6s this line used to claim was the pre-change figure), so a floor tight
-  # enough to be a bug detector would be tight enough to be a flake generator
-  # on a cold runner, and a timeout that fires on a slow CI runner reads as a
-  # red gate over nothing.
   timeoutSeconds: 1200
   proof:
-    #
-    # ── THE ANCHORING, AND WHY FOUR OF THESE EIGHT NEED IT ────────────────
-    #
-    # `node --test` prints one summary block per invocation, and
-    # `bin/prime --contracts` runs TWO of them: 16 tests for the offline tier
-    # and 6 for the contract tier. Both blocks are the same shape —
-    #
-    #     1..16
-    #     # tests 16
-    #     # pass 16
-    #     # skipped 0
-    #
-    # — and the checker reads the floor from the **last** match. So a bare
-    # `^# pass ([0-9]+)$` on this gate silently reads **6**, the contract tier,
-    # and a floor of 16 would be `gate.floor` on a fully green run; worse, a
-    # floor of 6 would be satisfied by the offline tier's 16 on a run where the
-    # contract tier never executed at all. Neither is a bug to be discovered
-    # later — both are the thing `core`'s own `docs/gate.md` warns about when it
-    # says "write patterns specific enough that this cannot bite".
-    #
-    # So the four tier proofs are anchored to the `== …` banner that
-    # `bin/prime`'s own `step()` prints immediately before that tier runs, and
-    # the prefix is `.*?` — **non-greedy**, so the match is the tier's FIRST
-    # summary rather than the run's last. `(?s)` is needed because the banner
-    # and the summary are different lines; it is placed first because Python
-    # requires a global inline flag at the start of the expression.
-    #
-    # What that buys is worth stating plainly: run `bin/prime` without
-    # `--contracts` and these four are **absent**, which is `gate.proof-missing`
-    # — a FAILURE. A developer who runs the short gate and then checks the
-    # declaration against it gets red, which is the correct answer, because the
-    # short gate is not this gate.
-    #
-    # 1. The offline tier's own count. This is the decrease-detector for the
-    #    tier that checks the text: 103 shell fences parse, 11 JSON fences are
-    #    valid JSON, every `#fragment` names a heading that exists, every
-    #    internal link resolves, every sidebar slug is in `dist/`. 16 is
-    #    measured on this tree.
-    #
-    #    It is also the floor that catches the defect this packet's own
-    #    preamble describes. Deleting `tests/links.mjs` and
-    #    `tests/examples.mjs` from the `test` script leaves a **green** gate at
-    #    7 tests — and `gate.floor` is red. That breakage was run rather than
-    #    reasoned about; the transcript is in `REPORT-docs-06-gate` under
-    #    "the red proofs".
     - id: offline-suite
       match: '(?s)^== npm test\n.*?^# pass ([0-9]+)$'
-      # 16 exactly, measured — NOT 22, which is the whole run, and NOT 6, which
-      # is what an unanchored pattern would have read. And not a rounded number:
-      # this repository deliberately holds 16 by *equality* in CI
-      # (`BASELINE_TESTS`), because a floor would accept a suite that lost
-      # tests/links.mjs and tests/examples.mjs entirely.
       minimum: 16
-    #
-    # 2. Nothing skipped in the offline tier. This is a separate proof because
-    #    the count above **cannot** see it, and the case is measured rather than
-    #    imagined: rewriting a test as `test.skip` raises `# tests` and leaves
-    #    `# pass` at 16. The number this floor reads does not move; `# skipped` is
-    #    the only line that does. Every test in the offline tier is
-    #    unconditional by construction — `tests/contracts.mjs` holds the
-    #    environment-gated checks and is a separate file — so a skip here means
-    #    something changed that nobody read, and `AGENTS.md` says the build is
-    #    red on a single skip.
     - id: offline-no-skip
       match: '(?s)^== npm test\n.*?^# skipped 0$'
-    #
-    # 3. The contract tier ran, at its measured size. **This is the
-    #    load-bearing proof in this file.** Its absence is what a green
-    #    `gate-check --prove` over an unrun tier looks like, and this repository
-    #    is the shape that produces one: `bin/prime` without the flag prints
-    #    "skipping the contract tier (--contracts); it did NOT run" and exits 0.
-    #    Seven tests, measured, and RAISED 6 -> 7 because the tier had grown by
-    #    one and the floor had not: `bin/prime --contracts` prints `# pass 7` on
-    #    this tree. That is the one-test version of the drift this repository's
-    #    own AGENTS.md warns about — "the counts are printed, because a check
-    #    that reports nothing looks like a check that found nothing" — except the
-    #    count that went stale here is the one the gate reads rather than the one
-    #    the page shows, so nothing on the page changed and nothing went red.
     - id: contract-tier-ran
       match: '(?s)^== npm run test:contracts.*?^# pass ([0-9]+)$'
       minimum: 7
-    #
-    # 4. Nothing skipped in the contract tier either, anchored the same way.
-    #    The two `# skipped 0` blocks are identical strings, so an unanchored
-    #    pattern would be satisfied by either tier's line and would assert
-    #    nothing about the other.
     - id: contract-no-skip
       match: '(?s)^== npm run test:contracts.*?^# skipped 0$'
-    #
-    # 5. The documented manifests went through the real validator. 2, measured:
-    #    the ```yaml fences in the prose, both of them. This is the count an
-    #    extractor that stopped matching would silently take to zero, and
-    #    `tests/contracts.mjs` asserts it is non-zero for the same reason — this
-    #    proof is the independent reading of the same number.
     - id: manifests-validated-by-cafe
       match: '^#.*\\# manifests validated by cafe contract lint: ([0-9]+)$'
       minimum: 2
-    #
-    # 6. **The real `cafe` binary produced real output, and nothing else can
-    #    produce this line.** No floor, because the line reports nothing
-    #    countable — it is `cafe contract lint`'s own stdout, printed by the test.
-    #
-    #    This is the proof for the failure the packet's preamble names by hand:
-    #    "a checker replaced by a function that unconditionally exits 0 would
-    #    leave this repository green". Point `CAF` at `/usr/bin/true` and the
-    #    validator accepts every manifest, the test passes, and the count line
-    #    above still prints `2` — because that `console.log` is in the test, not
-    #    in `cafe`. This line is different: it is `cafe`'s own stdout, naming this
-    #    repository's own manifest. `/bin/true` emits nothing, so the log line
-    #    is `#` and this proof is `gate.proof-missing`.
-    #
-    #    **What it is coupled to, stated rather than left for the next reader to
-    #    discover:** the phrase `OK <path>` is `cafe`'s, not this repository's.
-    #    If `cafe` rewords it, this proof goes red and says so, and the fix is to
-    #    update it here in the same commit. That coupling is the intended
-    #    direction of travel — a proof that can only be satisfied by the real
-    #    tool is worth more than one that would survive the real tool being
-    #    replaced.
     - id: cafe-lint-output
       match: '^#.*\\# OK \S+/anywaye\.yml$'
-    #
-    # 7. The prose's event-type claims were checked against **core's real
-    #    catalog**, not a list written beside it. 9 claims against the 32 types
-    #    core publishes, measured. `.` in `core.s` is the apostrophe in `core's`
-    #    — it is not counting a position, which is the only way core's docs warn
-    #    a `.` in a proof can be dangerous.
-    #
-    #    RAISED 8 -> 9, measured, and the catalog figure in this sentence was
-    #    stale in the same way: the floor said 8 claims against 30 types and the
-    #    run prints 9 against 32. Both halves moved because core published two
-    #    more types and a page here gained a claim about one of them, and
-    #    neither half is a thing that goes red on its own. The pattern below
-    #    carries the catalog size in parentheses precisely so that a count
-    #    checked against the wrong document cannot still be green — and here it
-    #    did not help, because both numbers had drifted together and in the same
-    #    direction. That is the limit of the parenthesis, recorded here rather
-    #    than discovered again by the next person who trusts it.
-    #
-    #    The parenthetical is in the pattern on purpose: the count is only
-    #    meaningful beside the catalog size it was checked against, and a
-    #    pattern that ignored it would still be green if the extractor had begun
-    #    parsing a different document.
     - id: event-claims-checked
       match: "^#.*\\\\# event-type claims checked against core.s catalog: ([0-9]+) \\(core publishes [0-9]+\\)$"
       minimum: 9
-    #
-    # 8. And the other grammar, against the other schema: observability.md's
-    #    span names against core's `schemas/telemetry/span-naming.schema.json`
-    #    pattern, read out of core at run time rather than restated here. 6 good
-    #    names, measured, with the 4 "Never:" examples behind the same
-    #    assertion in the same test.
-    #
-    #    **These last four are not proof that `core` is reachable.** They are
-    #    proof that the numbers this tier prints are on the page, and
-    #    `contract-tier-ran` above is what forces the tier to have run. A proof
-    #    is a line of output; core's own `docs/gate.md` says so plainly, in its
-    #    own "What this does not prove" section.
     - id: span-names-checked
       match: "^#.*\\\\# span names checked against core.s pattern: ([0-9]+) good, [0-9]+ rejected$"
       minimum: 6
 
 external:
-  # FALSE, and every one of the four entries below was demonstrated on this
-  # machine rather than reasoned about. `selfContained: true` would be a claim
-  # that the gate needs nothing but this repository; it needs an interpreter and
-  # a pinned node that this repository does not carry, a package registry on
-  # **every** run rather than once, a Go binary from another repository, and a
-  # checkout of a third. A declaration that said `true` would be describing a
-  # gate nobody has ever run on a clean machine — the same defect as identity's
-  # suite being green against a database nobody had migrated, told the other way
-  # round.
   selfContained: false
   requirements:
-    # Demonstrated: `env -i PATH=/usr/bin:/bin bash bin/prime` prints the line
-    # quoted below and exits 127. `bin/prime` deliberately does **not** run
-    # `mise install` — it refuses rather than installing a toolchain behind your
-    # back — so this is the operator's to satisfy before gating.
-    #
-    # The pin is not decoration either. `astro@7` needs `>=22.12.0` and
-    # `undici@8.11.2` asks for `>=22.19.0`, so a runner on node 20 fails the
-    # build for a reason that has nothing to do with this repository's content.
     - kind: toolchain
       name: node 22.23.4 and the npm that ships with it, the pin in mise.toml, repeated as engines.node in package.json
       satisfy:
-        # A bare name, so this is a claim about THIS MACHINE and the checker
-        # deliberately does not run it: `gate.requirement-unproven` is a warning
-        # and never moves the exit code. That warning is correct — failing on it
-        # would be red on a laptop and green on CI.
         command: [mise, install]
         unmet: >-
           bin/prime: node not found on PATH — run 'mise install' in this
           worktree (exit 127)
-    # Demonstrated: `npm ci --offline` against an empty cache, run on a copy of
-    # this repository's package.json and package-lock.json so the working tree
-    # was not touched, prints the line quoted below, exits 1, and leaves no
-    # `node_modules/`.
-    #
-    # **And it is not "once, on a cold checkout",** which is how the other
-    # repositories in this fleet spell it and which is a real difference here.
-    # `npm ci` deletes `node_modules` and reinstalls the lockfile from scratch on
-    # EVERY run, so this is a requirement on every gate run and a warm `~/.npm`
-    # cache is the only reason nobody notices. A warm offline run needs nothing;
-    # an air-gapped runner with a warm cache is green and one with a cold cache
-    # cannot even reach step two.
     - kind: network
       name: the npm registry, on EVERY run — the 278 packages package-lock.json pins; a warm ~/.npm cache is what makes it invisible
       satisfy:
-        # Repository-relative, so the checker verifies the file is there: a
-        # requirement satisfied by a file that does not exist is a pointer to a
-        # page that does not exist, which is what this field replaced.
         command: [npm, ci]
         unmet: >-
           npm error code ENOTCACHED — npm error request to
@@ -373,106 +159,19 @@ external:
     - kind: toolchain
       name: the cafe binary, built from a checkout of anywaye/cafe — `go build ./cmd/cafe` — on PATH or at $CAF
       satisfy:
-        # A bare name, and therefore a claim about this machine that the checker
-        # reports as unproven rather than settling. `cafe version` is the command
-        # that proves it runs without doing any work.
         command: [cafe, version]
         unmet: >-
           the cafe binary (/nonexistent/cafe) could not be run: spawnSync
           /nonexistent/cafe ENOENT, and the tier exits 1 at its second test
-    # Demonstrated: `CORE_PATH=/tmp/no-such-core npm run test:contracts` fails at
-    # the tier's **first** test, exits 1, and says so in the assertion message.
-    # Two of the three environment variables this gate honours are named here —
-    # `CORE_PATH` and `CAF` — because they are the only two seams in the whole
-    # tier and neither can be asserted from a file in this repository.
-    #
-    # **Which is why `contract-tier-ran` above is a proof and this is only a
-    # requirement.** A requirement says what to get; a proof says the gate may
-    # not be green without it. `tests/contracts.mjs` resolves core at
-    # `CORE_PATH`, or a **sibling** checkout, so a contributor who cloned core
-    # next to this worktree satisfies it with no environment variable at all.
     - kind: filesystem
       name: a readable anywaye/core checkout — $CORE_PATH, or a core directory beside this repository, holding schemas/ and docs/event-naming.md
       satisfy:
-        # Repository-relative and checked on disk. This is the argv that
-        # actually reaches core: `bin/prime` without the flag never reads it.
         command: [bin/prime, --contracts]
         unmet: >-
           core is not readable at /tmp/no-such-core. This tier reads core's real
           manifest schema and cannot run without it. Set CORE_PATH, or put core
           next to this worktree. (exit 1, at the tier's first test)
-  # NOT required, and named here so nobody goes looking for them: **no
-  # credential, no secret, no token, no database, no service, no container, and
-  # no network after npm's cache is warm.** Nothing in this repository's gate
-  # reads an environment variable whose name looks like a secret; the only two
-  # it reads are `CORE_PATH` and `CAF`, and both are paths. `ci/ci.yml`
-  # takes `permissions: contents: read` and no `secrets:` at all, because
-  # `anywaye/core` and `anywaye/cafe` are public and the default `GITHUB_TOKEN`
-  # reads both — a gate that needed a credential would be the only thing in this
-  # repository that did, and its own `pins` job fails the build if one appears.
-  #
-  # The last one is the one that would be got wrong here, because
-  # `tests/links.mjs` exists precisely to keep the SUITE offline and it holds:
-  # all 50 external links are checked for shape with no network at all. The gate
-  # is a different question. `npm ci` reaches the registry before any test runs,
-  # so the offline suite does not make the offline gate.
 
 ci:
-  # THE FILE CI RUNS, AND WHY IT IS NOT A WORKFLOW ANY MORE.
-  #
-  # The paragraphs below describe the GitHub Actions workflow this repository
-  # used to have. That workflow is gone: the fleet's CI is no longer GitHub
-  # Actions. The gate runs in a dev sandbox — the same sandbox the work
-  # happens in — and what the runner executes is `ci/gate.sh`.
-  #
-  # The script is this repository's gate, in the repository, where it can be
-  # run by hand, by a sandbox, or by a runner. It owns the parts of the gate
-  # the runner cannot know about — a database, a browser, an audit tool —
-  # and the runner executes it as it stands.
-  #
-  # WHAT FOLLOWS IS KEPT, AND WHY. The notes below were written about the
-  # workflow this repository used to have. The claims they make about the GATE
-  # — which command it is, which flag it carries, which tier is deliberately
-  # not declared here — are still true and are still the reason this block is
-  # what it is. The claims they make about the workflow's shape (its job names,
-  # its `run:` bodies, the line numbers in a file that no longer exists) are
-  # how the workflow was, and the workflow is gone. Nothing here is a
-  # declaration about a file CI runs.
-  #
-  # The workflow, and the argv it runs there. Both elements of `invokes` appear
-  # in a `run:` body of `ci.yml` — `bin/prime` in the `gate` job at its
-  # bin/prime step, and `bin/prime --contracts` in the `contracts` job — so
-  # `gate.ci-disagrees` is satisfied, and a future edit that drops either is a
-  # red rather than a quiet divergence.
   workflow: ci/gate.sh
   invokes: [bin/prime, --contracts]
-  #
-  # **WHAT CI ADDS THAT `bin/prime` DOES NOT, because this is the difference
-  # worth catching and it is not visible to the checker.** `ci.invokes` is read
-  # textually, so the three assertions the `gate` job makes *around* the gate are
-  # invisible to it, and they are not nothing:
-  #
-  #   1. **Suite size by equality.** `BASELINE_TESTS: '16'` is compared with
-  #      `==`, not with a floor, so adding a test is red until it is raised in
-  #      the same commit. The floor above is 16 too, and a floor is the weaker of
-  #      the two: this format cannot express equality, so the number a person has
-  #      to look at before raising it lives in the workflow, not here.
-  #   2. **`# skipped` must be zero**, which `offline-no-skip` above also
-  #      asserts for the same run. Duplicated deliberately, in the place that
-  #      fails the build.
-  #   3. **The tree is byte-identical after the gate** — `git diff --exit-code`
-  #      plus `git status --porcelain` over the tracked paths, because a
-  #      generated file that stopped being committed looks exactly like no change.
-  #
-  # And what CI runs that this gate does not, at all: the whole `pins` job (four
-  # checks that need no toolchain and fail in seconds), and
-  # `external-links.yml`, the network tier, which is a separate file on purpose.
-  #
-  # So the honest one-line summary is: **`./bin/prime --contracts` is green on a
-  # tree that CI is red on.** Delete a test and the local gate reports 16 of 15
-  # and stays quiet while `BASELINE_TESTS` fails the build; edit
-  # `ci/ci.yml` to reintroduce the stale
-  # `anywaye/kit/workflows/ci.reusable.yml` path and every local run is still
-  # green. That gap is recorded rather than closed, and closing it would mean
-  # moving CI's assertions into `bin/prime`, which is a change to the gate's
-  # behaviour and not this packet's to make.

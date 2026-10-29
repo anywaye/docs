@@ -32,7 +32,7 @@ badge anywhere in the fleet:- **[Running the gates](/getting-started/)** — the
 ## What every one of these assumes
 
 **You are running the services yourself.** There is no hosted anywaye platform
-today — no `cafe deploy` remote and no substrate we run for you — so "the
+today — no `any deploy` remote and no substrate we run for you — so "the
 environment" means containers you built from each repository's Dockerfile on
 infrastructure you control. What does exist is [Anywaye Ops](/commercial/#anywaye-ops-on-top-the-monthly-operated-tier),
 a monthly operated tier we run *on your box* rather than a hosted one, and it

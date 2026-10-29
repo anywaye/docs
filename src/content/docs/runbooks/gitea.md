@@ -112,7 +112,7 @@ held by ship — ship mints a **person's own** token, scoped
 
 The deployment's own token and the host admin's token are both declared in
 `anywaye/ship/anywaye.yml` under `env:`, with `secret: true`. Nothing is in the
-repository; `cafe secret set` is the way to fill them in.
+repository; `any secret set` is the way to fill them in.
 
 ### The credential a person gets
 

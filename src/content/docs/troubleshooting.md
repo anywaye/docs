@@ -536,28 +536,28 @@ exit 2:
 **Flags must come before positional arguments.**
 
 ```sh
-cafe deploy --dry-run identity     # works
-cafe deploy identity --dry-run     # usage error
+any deploy --dry-run identity     # works
+any deploy identity --dry-run     # usage error
 ```
 
-**`cafe init` takes no positional argument.** It operates on a directory:
+**`any init` takes no positional argument.** It operates on a directory:
 
 ```
-$ cafe init my-saas
-cafe: usage: cafe init wants 0 arguments, got 1 (usage: cafe init [flags])
+$ any init my-saas
+cafe: usage: any init wants 0 arguments, got 1 (usage: any init [flags])
 ```
 
-The command that takes a name is `cafe new my-saas`. And if the command is one of
+The command that takes a name is `any new my-saas`. And if the command is one of
 `init`, `new`, `deploy`, `gen`, or `mcp`, the usage error is a red
 herring — the real answer is that the command is a v0 stub:
 
 ```
-$ cafe new my-saas
-cafe: cafe new: not implemented in v0
+$ any new my-saas
+cafe: any new: not implemented in v0
 ```
 
-Exit 1, not 2. **`dev` is not one of them** — `cafe dev` works, and
-`cafe doctor` and `cafe dev` both take an *optional* project path. What does real
+Exit 1, not 2. **`dev` is not one of them** — `any dev` works, and
+`any doctor` and `any dev` both take an *optional* project path. What does real
 work is `version`, `doctor`, `dev`, `contract lint` and `contract resolve`.
 
 ### Do
@@ -567,12 +567,12 @@ verified command table, with the two that bite called out.
 
 ---
 
-## `cafe contract lint` fails on a manifest I did not change
+## `any contract lint` fails on a manifest I did not change
 
 ### Check
 
 ```sh
-cd anywaye/cafe && go run ./cmd/cafe contract lint /path/to/anywaye
+cd anywaye/cafe && go run ./cmd/any contract lint /path/to/anywaye
 ```
 
 ### What it usually means

@@ -1,27 +1,4 @@
 #!/usr/bin/env node
-// tests/visibility.mjs — the anti-leak suite.
-//
-// THE RULE THIS FILE EXISTS FOR
-//   A public repository never carries private notes. The leak that rule
-//   prevents does not happen at serve time, where a flag could hide it: it
-//   happens at `git clone`, the moment the push lands. A `notes/` directory
-//   in a repository whose anywaye.yml says `visibility: public` is public, and
-//   no build step, no edge rule and no frontmatter can walk that back. The
-//   same applies to a page inside a public repository's docs/ declaring
-//   `visibility: private` — the declaration is prose; the push is the fact.
-//
-//   The enforcement lives in bin/sync-content, which refuses to run when it
-//   sees either shape. This file is what proves the enforcement actually
-//   fires, by running the sync against fixtures that carry each violation and
-//   asserting the exit code and the message. A guard nothing tests is a guard
-//   that has never run.
-//
-// WHAT ELSE IT ASSERTS
-//   The materialized trees: private content never lands in the public dist,
-//   a public repository contributes nothing to the notes tree, and no
-//   borrowed README becomes a page. These are the invariants a future
-//   refactor of the sync could break quietly, and they are checked against
-//   what the last real build produced.
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -31,7 +8,6 @@ import { test } from 'node:test';
 const root = resolve(import.meta.dirname, '..');
 const fixtures = join(import.meta.dirname, 'fixtures', 'fleet');
 
-/** Run the sync in --source mode against a directory. */
 function syncSourceMode(dir) {
 	try {
 		const stdout = execFileSync(process.execPath, [join(root, 'bin', 'sync-content'), '--source', dir], {
@@ -44,7 +20,6 @@ function syncSourceMode(dir) {
 	}
 }
 
-/** Run the sync in --check mode against a fixture fleet, env-driven. */
 function syncCheck(projectCorePath, notesPath) {
   try {
     const stdout = execFileSync(process.execPath, [join(root, 'bin', 'sync-content'), '--check'], {
@@ -83,14 +58,10 @@ test('a private repository carrying notes/ syncs cleanly', () => {
 });
 
 test('source mode refuses a directory that holds no content', () => {
-	// A tenant build with no content is a build with nothing to serve, and
-	// an empty dist is the failure shape this repository refuses to ship
-	// green. The source mode checks for either docs/ or notes/ before it
-	// replaces anything.
 	const empty = join(fixtures, 'empty');
 	const result = syncSourceMode(empty);
 	assert.equal(result.status, 1, `expected exit 1, got ${result.status}\n${result.stdout}`);
-	assert.match(result.stderr, /neither docs\/ nor notes\//, 'the failure must name what was missing');
+	assert.match(result.stderr, /neither docs\/ nor notes\
 });
 
 test('a missing notes source fails the sync rather than building an empty notes site', () => {
@@ -99,11 +70,6 @@ test('a missing notes source fails the sync rather than building an empty notes 
   assert.match(result.stderr, /CAF_NOTES_PATH/, 'the failure must name the override that resolves it');
 });
 
-// ------------------------------------------------- the materialized trees
-//
-// These read the last real build, so they run after `npm run build` the same
-// way tests/smoke.mjs does. A contributor who runs `npm test` alone sees the
-// same "run npm run build" failure the rest of the suite gives.
 
 const manifestFile = join(root, '.sync', 'manifest.json');
 const publicProjects = join(root, 'src', 'content', 'docs', 'projects');
@@ -135,10 +101,6 @@ test('no public repository contributed pages to the notes tree', () => {
 });
 
 test('the public dist carries no notes route', () => {
-  // The one assertion that would catch the worst mistake the two-build
-  // pipeline exists to prevent: private pages shipping in the public tree
-  // because a copy targeted the wrong dist. The public build emits no /notes
-  // route at all, so the directory's existence in dist/docs is the signal.
   assert.ok(
     !existsSync(join(root, 'dist', 'docs', 'notes')),
     'dist/docs/notes exists — private content reached the public build',
@@ -146,10 +108,7 @@ test('the public dist carries no notes route', () => {
 });
 
 test('every materialized public project page is free of visibility: private', () => {
-  // Belt and braces over the sync's own guard: the guard runs on the source
-  // tree, this runs on what landed. A regression in the materialization half
-  // cannot pass both.
-  if (!existsSync(publicProjects)) return; // no project pages this build
+  if (!existsSync(publicProjects)) return;
   const offenders = [];
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -166,9 +125,6 @@ test('every materialized public project page is free of visibility: private', ()
 });
 
 test('no borrowed README became a page', () => {
-  // A repository's README is its front door on github.com; publishing it here
-  // gives every project a second, worse about-page. The sync skips it, and
-  // this says so.
   const walk = (dir) => {
     if (!existsSync(dir)) return [];
     const found = [];

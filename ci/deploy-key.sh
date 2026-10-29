@@ -1,13 +1,4 @@
 #!/usr/bin/env bash
-# ci/deploy-key.sh — place this project's deploy credentials on a runner.
-#
-#   ci/deploy-key.sh <instabox-sandbox-name>
-#
-# The box (Contabo) holds the forced-command key's public half in
-# /root/.ssh/authorized_keys: it can receive rsync under /srv/docs/ and restart
-# the docs nginx, and nothing else. The private half lives in exactly two
-# places — the operator's machine (via the ssh host alias, DEPLOY_SSH_HOST) and
-# the runner this script writes it to.
 set -euo pipefail
 
 SANDBOX="${1:?usage: ci/deploy-key.sh <instabox-sandbox-name>}"

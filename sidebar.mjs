@@ -1,15 +1,3 @@
-// sidebar.mjs — the computed sidebar, shared by both sites.
-//
-// The public site's sidebar is hand-maintained when the fleet builds (the
-// curated reading order in astro.config.mjs) and computed when a tenant
-// builds (bin/sync-content --source): a tenant's content cannot promise the
-// fleet's slugs, and a sidebar that promises pages the tenant never shipped
-// is a red build over content nobody controls. The sync records which build
-// ran in .sync/mode, and each config reads it — a config that derived its
-// shape from a flag nobody sets is a config that silently picks one.
-//
-// Same for the notes site, which is computed either way: its tree is synced
-// from the notes repository in both modes.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +8,6 @@ export function lastBuildMode() {
   return existsSync(marker) && readFileSync(marker, 'utf8').trim() === 'source' ? 'source' : 'fleet';
 }
 
-/** "projects" -> "Projects", "runbooks" -> "Runbooks". */
 function humanize(name) {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }

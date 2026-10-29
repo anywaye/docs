@@ -6,7 +6,7 @@ description: Anywaye's operated control plane — customer installations, releas
 `box` is Anywaye's operated control plane. It coordinates the Anywaye side of a
 customer's deployment — entitlements, installations, releases and approvals —
 and mints the short-lived, single-use capabilities a customer's **box** (the
-machine `cafe box setup` installs onto) redeems on itself. It is written in
+machine `any box setup` installs onto) redeems on itself. It is written in
 **Ruby** as an API-only Rails service.
 
 **`box` is Anywaye-operated and is never installed on a customer box.** It runs

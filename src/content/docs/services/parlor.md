@@ -24,7 +24,7 @@ working shell that is still growing.
 
 **Its `anywaye.yml` is still the pre-`core` `apiVersion: anywaye/v0-draft` shape
 with no `name` at the top level, and it does not validate.** It is the only
-repository in the fleet where `cafe contract lint` fails. See the drift audit in
+repository in the fleet where `any contract lint` fails. See the drift audit in
 [Topology](/architecture/#cross-repo-drift-audit).
 :::
 

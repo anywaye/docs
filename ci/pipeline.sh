@@ -1,27 +1,4 @@
 #!/usr/bin/env bash
-# ci/pipeline.sh — the docs pipeline, backend-agnostic.
-#
-# One pipeline, two runners. This script is the whole product: fetch the
-# sources, build both trees, run the gate, ship the result. A backend's only
-# job is to provide the environment this script needs and call it. Which
-# backend ran is recorded in `ci/backend`, and switching is one line —
-# `github-actions` keeps ci/ci.yml as the runner; `instabox`
-# provisions a sandbox and polls it (ci/instabox/).
-#
-# WHAT IT NEEDS FROM THE ENVIRONMENT
-#   WORKSPACE     the directory holding anywaye/<name> checkouts (the fleet)
-#   GH_TOKEN      read-only-of-nothing: it reads private repos for the sync
-#   DEPLOY_HOST   the box that serves docs.anywaye.com
-#   DEPLOY_KEY    path to the deploy private key (forced-command key)
-#   DEPLOY_DRY_RUN=1  build and test, do not ship (default behavior of the
-#                 gate job in CI; the deploy job ships)
-#
-# WHY THE DEPLOY IS PART OF THE SAME SCRIPT
-#   The artifact that ships is the artifact that passed. A separate deploy
-#   step that rebuilds is a second source of truth over what was tested, and
-#   the failure it hides — a deploy from an untested tree — is exactly the
-#   failure a docs site cannot afford: a wrong status line on a page is a
-#   reader trusting documentation that was never verified.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,10 +24,6 @@ else
 fi
 
 log "the fleet sources"
-# The sync reads this repository's pages, each fleet repository's docs/ (and
-# notes/, if the repository is private), and anywaye/notes. A source that does
-# not resolve fails the sync. Private repositories read with the token;
-# public ones do not need it, and the retry mirrors ci.yml.
 mkdir -p "$WORKSPACE/anywaye"
 cd "$WORKSPACE/anywaye"
 node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).projects.join("\n"))' "$DOCS_DIR/content-sources.json" > /tmp/press-projects.txt
@@ -88,10 +61,6 @@ if [ "${DEPLOY_DRY_RUN:-0}" = "1" ]; then
   exit 0
 fi
 
-# Credential placement is the pipeline's own business (kit/backends/README.md):
-# on the instabox backend ci/deploy-key.sh places the key at
-# ~/.ssh/docs_deploy once; on GitHub Actions the same values are secrets and
-# the workflow writes them. The pipeline only knows the file it reads.
 log "ship"
 DEPLOY_KEY_FILE="${DEPLOY_KEY_FILE:-$HOME/.ssh/docs_deploy}"
 [ -f "$DEPLOY_KEY_FILE" ] || { echo "pipeline: no deploy key at $DEPLOY_KEY_FILE — run ci/deploy-key.sh" >&2; exit 1; }

@@ -165,7 +165,7 @@ estimate.
 
 | Unit | What it would be | Today |
 | --- | --- | --- |
-| Platform | a anywaye-operated control plane, and `cafe deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `cafe deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a anywaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in `anywaye/notes/deployment.md`; Kamal is the current implementation and retires at parity. |
+| Platform | a anywaye-operated control plane, and `any deploy` that has somewhere to deploy to | **Does not exist** — and the reason is the first half, not the second. `any deploy` is implemented: it deploys a service, building the image, pushing it and rolling it out. What does not exist is a anywaye-operated remote for it to authenticate against, so today it deploys to infrastructure you already pay for. The launch path is the substrate (k3s + ArgoCD + CloudNativePG), decided in `anywaye/notes/deployment.md`; Kamal is the current implementation and retires at parity. |
 | identity | your deployment, our pager | **Does not exist.** Today "hosted" means you run it in your own account and we help you get it running — which is consulting, not a product. |
 | courier | your deployment, our pager, and a configured email provider | **Does not exist.** Separately, no email provider adapter is configured in any anywaye checkout, so nothing is delivered until you set one. |
 
@@ -280,9 +280,9 @@ Stated here rather than left for you to infer from the tables:
 - **No release tags on any service.** `go install @latest` gives you `master`,
   and `core` is the only repository with a version tag.
 - **No `cafe` command is a stub as of 2026-10-10.** The stub table that held
-  `cafe gen`, `cafe init` and `cafe new` is empty (`cafe/internal/cli/stub_test.go:25`),
+  `any gen`, `any init` and `any new` is empty (`cafe/internal/cli/stub_test.go:25`),
   and the command table beside it is the single source of truth for what works.
-  **`cafe deploy`** builds, pushes and rolls out. It deploys to infrastructure you
+  **`any deploy`** builds, pushes and rolls out. It deploys to infrastructure you
   already pay for; what it does not have is a anywaye-operated remote. The launch
   path is the substrate (k3s + ArgoCD + CloudNativePG); Kamal is the current
   implementation and retires at parity.
@@ -492,7 +492,7 @@ specific:
    `kit` there is no package manifest in their ecosystem that could carry one,
    so the file is the only declaration — which is a fact about ecosystems, not
    a gap.
-2. **`cafe contract lint` checking it**, once core's manifest schema has a field
+2. **`any contract lint` checking it**, once core's manifest schema has a field
    for it — so a repository that drops its licence is a red build rather than a
    drift nobody notices. That is a change to `core`, and `core` is
    manager-owned.

@@ -1,71 +1,4 @@
 #!/usr/bin/env node
-// bin/sync-content — materialize the content sources into the two build trees.
-//
-// WHY THIS EXISTS AT ALL
-//   The fleet's documentation lives in three places, by design: the public site
-//   (this repository's src/content/docs/), the private notes repository
-//   (anywaye/notes), and each service repository's own docs/ and notes/ trees.
-//   Two Starlight builds consume them: the public site becomes dist/docs and
-//   the private site becomes dist/notes. This script is the join — it reads
-//   the sources and writes what each build is allowed to contain.
-//
-// WHY IT FAILS LOUDLY RATHER THAN DEGRADING
-//   A missing source cannot mean "no content": the central notes repository
-//   missing is not an empty notes site, it is a broken pipeline wearing a
-//   green badge. Every source listed in content-sources.json must resolve,
-//   and every repository root must carry a readable anywaye.yml whose
-//   `repository.visibility` says what may be ingested. This is the contract
-//   tier's rule, and it is the same rule for the same reason: a check that
-//   cannot find its input is worse than no check.
-//
-// THE ONE RULE THIS SCRIPT EXISTS TO ENFORCE
-//   A public repository never carries private content. If a repository whose
-//   anywaye.yml says visibility: public contains a notes/ directory, the leak
-//   has already happened at `git clone` — no build-time filter can undo a
-//   pushed file. So the sync refuses, names the repository, and exits 1. The
-//   same applies to a page inside a public repository's docs/ carrying
-//   `visibility: private` frontmatter: the page is public the moment the push
-//   lands, whatever the frontmatter says.
-//
-// --source <dir>, and the two ways this script runs
-//   Without it, the sync builds the way this repository's own gate does:
-//   the fleet beside the tree (anywaye/*), the registry in
-//   content-sources.json, and the guards that check a public repository for
-//   notes/. That is the mode CI and a developer run.
-//
-//   **--source REPLACES THE WHOLE CONTENT TREE, INCLUDING THE PAGES THIS
-//   REPOSITORY AUTHORS.** It is for a disposable engine checkout — the
-//   sandbox press clones for one build — never for a working checkout, where
-//   it deletes committed pages and only git can bring them back. The layout
-//   the worker extracts the tenant's content into is what the mode reads.
-//
-//   With `--source <dir>` the sync builds the way press builds for a tenant:
-//   one content directory, laid out as <dir>/docs/** (public) and
-//   <dir>/notes/** (private), materialized into the two trees with no fleet
-//   beside it and no per-repo visibility to read. The anti-leak guard still
-//   applies at the SOURCE of that content — press ingests from the notes
-//   repository and each repository's docs/ through the same rules — and the
-//   layout the sync writes is the same two trees the fleet build writes.
-//   A tenant build is not a weaker build; it is the same build with one
-//   tenant's content.
-//
-// --check, and why it exists
-//   `bin/sync-content --check` runs every resolution and every guard and
-//   writes nothing. It is the mode tests/visibility.mjs uses to execute the
-//   anti-leak rule against fixtures, and the mode a pre-commit hook or CI can
-//   use to answer "would this sync pass?" in a second without touching the
-//   materialized trees. The guards live in one place and both modes run them;
-//   only the writes differ.
-//
-// WHERE SOURCES RESOLVE FROM, in order, first hit wins:
-//   1. an explicit environment override (CAF_NOTES_PATH, or CAF_PROJECT_<NAME>
-//      for a project, name upper-cased, dashes as underscores) — this is what
-//      CI sets, because a runner's workspace is not a developer's machine.
-//   2. <CAF_WORKSPACE>/anywaye/<name> — the machine layout, where this
-//      repository and all its siblings sit under anywaye/. Resolved two
-//      levels up from this repository's root, which is anywaye/ whether this is
-//      a primary checkout (anywaye/docs) or a worktree (work/wt/<name>).
-// If none resolves, the sync fails and prints what it tried.
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync, copyFileSync } from 'node:fs';
 import { join, resolve, basename } from 'node:path';
@@ -79,7 +12,6 @@ if (sourceArgIndex !== -1 && (!sourceDir || sourceDir.startsWith('-'))) {
   fail('--source needs a directory argument: bin/sync-content --source <dir>');
 }
 
-/** The trees this script owns. It clears and rewrites these and nothing else. */
 const PUBLIC_TREE = join(root, 'src', 'content', 'docs');
 const PUBLIC_PROJECTS = join(PUBLIC_TREE, 'projects');
 const NOTES_TREE = join(root, 'notes-site', 'src', 'content', 'docs');
@@ -92,13 +24,6 @@ function fail(message) {
   process.exit(1);
 }
 
-// The names a content tree carries that are not content: Starlight's own
-// underscore convention, and the macOS archive pollution that follows a
-// tarball off a Mac. `tar` on macOS writes `._<name>` AppleDouble sidecars
-// and `.DS_Store` beside every file; a tenant tarball built there carries
-// them, and the engine's loader does not ignore `._`-prefixed files — it
-// tried to parse one as a page and failed with garbage frontmatter. The
-// fleet runs macOS, so this is not an edge case.
 const NOT_CONTENT = /^_|\.DS_Store$/;
 
 function walk(dir) {
@@ -115,11 +40,6 @@ function walk(dir) {
 }
 
 function readFrontmatter(file) {
-  // Only the scalar fields this script makes decisions on are parsed. A full
-  // frontmatter parse is Starlight's job at build time; this script needs
-  // `visibility` and nothing else, and a YAML dependency for two fields is
-  // not worth it. The line is matched, not evaluated, so a value containing
-  // braces cannot execute anything.
   const text = readFileSync(file, 'utf8');
   const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
   if (!match) return {};

@@ -1,49 +1,4 @@
 #!/usr/bin/env node
-// bin/generate-error-pages — the /errors/<code> page tree, generated from the contracts.
-//
-// WHY THIS EXISTS
-//   PLAN §1 stability rule 2 freezes `docs.anywaye.com/errors/<code>` as the RFC 9457
-//   `type` base, and §3 L3 says the docs site serves the page tree behind it,
-//   "generated from the contracts (the harness knows every code — generate, don't
-//   hand-write)". A hand-written page per code is a page that rots the day a service
-//   adds a code, so the enumeration is read, never typed: the reserved codes and
-//   their statuses out of core's `docs/openapi-conventions.md` (the same line the
-//   harness hardcodes as RESERVED_ERROR_CODES), and every further envelope `code`
-//   out of the fleet's OpenAPI documents through the harness's own reader
-//   (`read_yaml` + `_openapi_scan` + `_problem_examples` — the exact functions the
-//   `openapi.problem-code-matches-type` rule uses, so "the same way the harness
-//   does" is literal rather than approximate).
-//
-// WHY NODE THAT SHELLS OUT TO PYTHON
-//   The fleet scan needs a YAML reader and this repository's rule is that Astro and
-//   Starlight are the only two dependencies — no js-yaml, not even the transitive
-//   one (tests/examples.mjs states why reaching into it is forbidden). Core's
-//   harness is stdlib-only Python by its own gate, so the scan step runs it in
-//   place via `python3` and reads JSON back. Two runtimes is the cost of zero new
-//   dependencies and zero second YAML dialect.
-//
-// USAGE
-//   bin/generate-error-pages                          # full regen into src/content/docs/errors/
-//   bin/generate-error-pages --check                  # regen to a temp dir, diff against the tree
-//   bin/generate-error-pages --check-core             # core-only subset check (no fleet needed)
-//   bin/generate-error-pages --core <path> --fleet <path> --out <dir>
-//
-// THE TWO CHECK MODES, and why there are two
-//   `--check` needs the fleet (every service's openapi/v1.yaml) and core's harness,
-//   which a contributor with only this checkout and CI's contracts job (sparse core:
-//   schemas + docs, no harness, no fleet) both lack. A check that cannot find its
-//   input fails rather than skips — so `--check-core` verifies what core alone can
-//   prove: every reserved code and every conventions-named extra has a page, and
-//   each such page carries the status, the type URI and the stability note this
-//   generator writes. tests/contracts.mjs runs `--check` when the fleet resolves
-//   and `--check-core` when it does not, and says which one ran.
-//
-// EXIT CODES
-//   0  generated (or: the tree matches).
-//   1  drift, or an input that cannot be read. A missing core, a moved Reserved-codes
-//      line, a fleet with no scannable document, a reserved code served at the wrong
-//      status — all exit 1 with the offender named, never an empty tree or a subset
-//      presented as complete.
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
@@ -86,18 +41,11 @@ const STABILITY_NOTE =
   'exempts `docs.anywaye.com/errors/<code>` from every docs redesign and path rewrite: a client may ' +
   'store this URI and dereference it years later. The only permitted change is the addition of a new `<code>`.';
 
-/** Fail loudly with the offender named. No subsets presented as complete. */
 function fail(message) {
   console.error(`bin/generate-error-pages: ${message}`);
   process.exit(1);
 }
 
-/**
- * The reserved codes and their statuses, read out of core's conventions rather
- * than restated. The line is machine-shaped — "`code` (status)" repeated — and
- * it is the same line the harness copies into RESERVED_ERROR_CODES, so a core
- * edit that adds a tenth reserved code arrives here without a second edit.
- */
 function reservedCodes() {
   if (!existsSync(CONVENTIONS)) {
     fail(
@@ -109,7 +57,6 @@ function reservedCodes() {
   const lines = source.split('\n');
   const start = lines.findIndex((l) => l.startsWith('Reserved codes:'));
   if (start === -1) fail(`no 'Reserved codes:' line in ${CONVENTIONS} — the conventions changed shape`);
-  // The list wraps across lines, so the paragraph runs to the first blank line.
   const end = lines.findIndex((l, i) => i > start && l.trim() === '');
   const line = lines.slice(start, end === -1 ? start + 1 : end).join(' ');
   const codes = new Map(
@@ -121,12 +68,6 @@ function reservedCodes() {
   return codes;
 }
 
-/**
- * The two codes the conventions name outside the reserved list: an expired cursor
- * answers 400 `cursor_expired`, a sunset surface answers 410 `gone`. Read out of
- * the sentences that state them, so a rewording fails here rather than silently
- * dropping a page.
- */
 function conventionsExtras() {
   const source = readFileSync(CONVENTIONS, 'utf8');
   const stated = new Map(
@@ -142,15 +83,6 @@ function conventionsExtras() {
   return extras;
 }
 
-/**
- * Every envelope `code` the fleet's OpenAPI documents publish, read through the
- * harness's own functions. The driver is passed as `python3 -c` so no second file
- * carries a second copy of the scan: `read_yaml` parses, `_openapi_scan` walks,
- * `_problem_examples` selects exactly the bodies the rules read. `errors[].code`
- * (field-level, e.g. the conventions' own `invalid_format`) is never an envelope
- * `code` and is never counted — the harness comment above RESERVED_ERROR_CODES
- * states why, and this inherits it by calling the same function.
- */
 function fleetCodes() {
   const harness = join(CORE, 'harness', 'anywaye_contract.py');
   if (!existsSync(harness)) {
@@ -197,14 +129,12 @@ print(json.dumps(out, sort_keys=True))
   }
 }
 
-/** Most frequent wins; ties break lexicographically, so the choice is stable. */
 function pickTitle(code, titles) {
   const names = Object.keys(titles);
   assert.ok(names.length > 0, `no title recorded for ${code}`);
   return names.sort((a, b) => titles[b] - titles[a] || (a < b ? -1 : 1))[0];
 }
 
-/** One `detail` the example can carry without inventing service semantics. */
 function exampleDetail(code) {
   if (code === 'validation_failed') return 'email is not a deliverable address';
   return `an example ${code} response`;
@@ -259,13 +189,6 @@ function renderPage({ code, status, title, sources, validation }) {
   return lines.join('\n');
 }
 
-/**
- * One paragraph of meaning per code, derived from the contracts and nothing else.
- * Reserved codes restate the envelope binding; fleet codes name the services that
- * emit them; the two conventions extras quote the sentence that defines them. No
- * remediation advice, no invented semantics — a generated page that guesses at a
- * service's behaviour is a second source of truth about that service.
- */
 function meaning(code, status, title, sources) {
   if (sources === 'core reserved' || sources.startsWith('core reserved;')) {
     return 'A reserved code. The status is fixed at ' + status + ' by the contract, ' +
@@ -283,7 +206,6 @@ function meaning(code, status, title, sources) {
     'The envelope shape is the same as every anywaye error.';
 }
 
-/** The merged code table: reserved first (status fixed by core), then extras. */
 function codeTable() {
   const reserved = reservedCodes();
   const extras = conventionsExtras();
@@ -323,9 +245,6 @@ function codeTable() {
     }
     table.set(code, { status, title, sources, reserved: false });
   }
-  // A reserved code no fleet document exemplifies still gets a page: the contract
-  // promises it and errors-resolve may fetch it. Its title is the humanised slug,
-  // which is all core states about it — said here rather than hidden.
   for (const [code, entry] of table) {
     if (!entry.title) {
       entry.title = code
@@ -345,9 +264,6 @@ function emit(table, dir) {
     written.set(`${code}.md`, body);
     if (dir) writeFileSync(join(dir, `${code}.md`), body);
   }
-  // The directory is owned by the generator: a code the contracts no longer
-  // name must not keep a page. Only bannered files are ever removed, so a
-  // hand-placed page fails loudly instead of being deleted.
   if (dir) {
     for (const f of readdirSync(dir).filter((f) => /\.mdx?$/.test(f))) {
       if (written.has(f)) continue;
@@ -390,12 +306,6 @@ function checkFull() {
   }
 }
 
-/**
- * The core-only subset check: no fleet, no harness, no python. Every code core
- * alone promises (reserved + the two named extras) must have a committed page
- * carrying the status, the type URI and the stability marker this generator
- * writes. A reworded page that keeps the fields passes; a dropped page fails.
- */
 function checkCore() {
   const reserved = reservedCodes();
   const extras = conventionsExtras();

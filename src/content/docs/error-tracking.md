@@ -44,7 +44,7 @@ the one GlitchTip project named by `COURIER_ERROR_SINK_DSN`.
 
 ## Agent surface
 
-`cafe mcp` exposes read-only tools for agents:
+`any mcp` exposes read-only tools for agents:
 
 - `cafe_errors` — list unresolved issues (filter by service, release, since).
 - `cafe_error` — full detail for one issue (stacktrace, tags, release, trace id).
@@ -53,7 +53,7 @@ the one GlitchTip project named by `COURIER_ERROR_SINK_DSN`.
 ## Knowing when it is fixed
 
 - Stamp `COURIER_RELEASE` on every event.
-- On deploy, `cafe deploy` registers the release with GlitchTip.
+- On deploy, `any deploy` registers the release with GlitchTip.
 - GlitchTip resolves the issue when a release containing the fix ships; a
   recurrence in a newer release reopens it (regression).
 - After deploy, verify with `cafe_error_status`: issue resolved and no new
@@ -88,7 +88,7 @@ The same data is exposed to agents over MCP as `caf_errors`, `caf_error`, `caf_e
 
 - Local: GlitchTip boots via `docker compose -f docker-compose.yml -f docker-compose.errors.yml up -d`; relay health probe answers.
 - Instabox sandbox (`universal` template): GlitchTip booted and returned HTTP 200.
-- Contabo: store live at `http://169.58.108.209:8000`; a real exception produced an issue; `cafe errors` and `cafe errors status` read it back; `cafe errors release v0.1.0-test` registered a release.
+- Contabo: store live at `http://169.58.108.209:8000`; a real exception produced an issue; `any errors` and `any errors status` read it back; `any errors release v0.1.0-test` registered a release.
 
 ## Log correlation (Loki)
 
@@ -99,7 +99,7 @@ Handled/retried errors and request logs live in Loki. Query them with:
 
 Each GlitchTip issue carries a `trace_id` tag (set from the request context in
 identity/gateway/billing), so an agent can move from an issue to the surrounding
-logs with `cafe logs --trace-id <id>`.
+logs with `any logs --trace-id <id>`.
 
 ## Metrics (Prometheus/Mimir)
 
