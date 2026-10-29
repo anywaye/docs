@@ -1,43 +1,4 @@
 #!/usr/bin/env node
-// tests/advisories.mjs — the advisory feed's own gate.
-//
-// WHY THIS FILE EXISTS
-//   The feed is the one part of this site whose value is entirely in its
-//   metadata: a reader arrives at the index, reads four words about a condition
-//   they may have, and decides whether to open the page. An advisory missing its
-//   id, its date or its severity is a row that renders as a hole. An advisory
-//   absent from the index is a page nobody finds — and tests/smoke.mjs proves
-//   only that it is *reachable from the sidebar*, which is not the same as being
-//   listed.
-//
-//   The index is the part that drifts. It is hand-written Markdown, because
-//   Starlight has no "list the collection" component and adding one is a
-//   dependency this repository does not carry. A hand-written index is a second
-//   source of truth the moment it is written, so this file derives the expected
-//   index from the pages themselves and compares.
-//
-// WHAT IT ASSERTS
-//   1. Every page under advisories/ except the index carries a complete,
-//      well-formed `advisory:` block, and no page anywhere else in the site
-//      carries one at all. Both directions, because a field that is optional in
-//      the schema and unchecked in practice is only present until somebody
-//      forgets it.
-//   2. Ids are unique and match the published shape.
-//   3. The index lists every published advisory exactly once, in an order that
-//      is newest-first, and each row links to the page it names.
-//   4. Every advisory states the four parts the format promises — symptom,
-//      cause, check, fix — and names where the measurement came from.
-//
-// WHAT IT DELIBERATELY DOES NOT DO
-//   - It does not verify the source file exists. That needs a checkout of the
-//     fleet, which this repository does not have and the offline tier must not
-//     require. It asserts the source is *named and path-shaped* — the field
-//     exists so a claim can be re-derived, and a prose source is the one shape
-//     that cannot. Verifying it against the fleet is a contract-tier concern.
-//   - It does not verify the incident happened. "No invented incidents" is a
-//     rule for the author and the reviewer; no parser can check it. What a
-//     parser can do is refuse to publish an advisory that does not say where its
-//     claim came from, which is the part a reader can check.
 import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -47,7 +8,6 @@ const root = resolve(import.meta.dirname, '..');
 const docs = join(root, 'src', 'content', 'docs');
 const advisoryDir = join(docs, 'advisories');
 
-/** Every Markdown file under src/content/docs, in a stable order. */
 function contentFiles(dir = docs, out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
     a.name.localeCompare(b.name),
@@ -59,7 +19,6 @@ function contentFiles(dir = docs, out = []) {
   return out;
 }
 
-/** The frontmatter block and the body beneath it, or null. */
 function splitFrontmatter(file) {
   const source = readFileSync(file, 'utf8');
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
@@ -67,11 +26,6 @@ function splitFrontmatter(file) {
   return { frontmatter: match[1], body: source.slice(match[0].length) };
 }
 
-/**
- * The nested `advisory:` mapping, read by indentation. A general YAML parser is
- * a dependency this repository does not carry, and the block is a flat mapping
- * of scalars and one list — the parser below is the whole grammar it needs.
- */
 function advisoryBlock(file) {
   const split = splitFrontmatter(file);
   if (!split) return null;
@@ -84,7 +38,7 @@ function advisoryBlock(file) {
   for (let i = start + 1; i < lines.length; i++) {
     const line = lines[i];
     if (!line.trim()) continue;
-    if (/^\S/.test(line)) break; // dedented out of the block
+    if (/^\S/.test(line)) break;
     const item = line.trim();
     if (item.startsWith('- ') && key) {
       block[key] = block[key] || [];

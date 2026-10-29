@@ -5,13 +5,13 @@ description: The anywaye project registry — what every official project is, wh
 
 `pantry` is the anywaye **project registry**: the one place that answers what a
 anywaye project *is* — its name, description, language, the contract it exposes,
-and how to reach it — so `cafe dev`, `cafe deploy` and a person reading the
+and how to reach it — so `any dev`, `any deploy` and a person reading the
 platform read one answer instead of a hardcoded list in each of them. It is
 written in **Go**.
 
 The catalog's entity is a **project**, not a service: `MD23` moved the
 vocabulary end to end, so the routes are `/v1/projects`, the schema is
-`Project`, and `service` survives only as the runtime word for what `cafe dev`
+`Project`, and `service` survives only as the runtime word for what `any dev`
 starts and what `gateway` routes to.
 
 :::caution[Status: v0 — the public catalog, its address forms, and mint-on-first-publish writes]

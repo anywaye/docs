@@ -1,14 +1,4 @@
 #!/usr/bin/env node
-// tests/secrets.mjs — secrets scan over the synced content trees.
-//
-// WHY THIS EXISTS. The agent-is-courier invariant (anywaye/AGENTS-FIRST.md)
-// says no secret value ever enters a transcript, a commit, or a published
-// page. This suite is the mechanical half of that promise for the docs
-// pipeline: it fails the build if any synced content file is a .env with
-// values, or if any page carries a string that looks like a secret.
-//
-// It scans BOTH trees (public dist/docs and private dist/notes) because a
-// secret in a private note is still a secret in a repository.
 import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, relative } from 'node:path';
@@ -16,18 +6,11 @@ import { test } from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// Patterns that strongly suggest a secret value rather than documentation.
-// Kept conservative to avoid false positives on code examples.
 const SECRET_PATTERNS = [
-  // AWS access key
   /AKIA[0-9A-Z]{16}/,
-  // GitHub tokens
   /gh[pousr]_[A-Za-z0-9]{36,}/,
-  // Generic "password = ..." with a non-placeholder value
   /(?:password|passwd|pwd)\s*[:=]\s*['"][^'"]{8,}['"]/i,
-  // Private key blocks
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
-  // Bearer tokens in code
   /Bearer\s+[A-Za-z0-9\-._~+/]{20,}/,
 ];
 
@@ -41,12 +24,10 @@ function walkFiles(dir, out = []) {
   return out;
 }
 
-// Scan a content source directory (pre-sync, in the workspace).
 const contentDirs = [
   resolve(root, '..', 'docs'),
 ];
 
-// Also scan the synced output if it exists.
 const syncedDirs = [
   join(root, 'src', 'content', 'docs'),
   join(root, 'notes-site', 'src', 'content', 'docs'),

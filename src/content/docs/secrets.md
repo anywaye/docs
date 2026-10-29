@@ -25,10 +25,10 @@ keyring (macOS Keychain / Linux secret-service) or, in anywaye's case, in a
 per-access approval. Dev secrets are disposable and localhost-scoped.
 
 ```sh
-cafe secret set DATABASE_URL=postgres://localhost/myapp_dev
-cafe secret list          # names only — safe for agents
-cafe secret get DATABASE_URL  # value — dev only
-cafe dev                  # runs app with all manifest-declared secrets injected
+any secret set DATABASE_URL=postgres://localhost/myapp_dev
+any secret list          # names only — safe for agents
+any secret get DATABASE_URL  # value — dev only
+any dev                  # runs app with all manifest-declared secrets injected
 ```
 
 **Production (the box) — strict, no readable secrets.** Secrets are
@@ -43,9 +43,9 @@ ciphertext it cannot open). No `.env` files with values. The box daemon
 |---|---|---|
 | Platform secrets (DB passwords, signing keys, API tokens) | Generated on the box at install time | `cafe` installer; never transmitted |
 | Provider credentials (SMTP, S3, OAuth) | Sealed envelope to the box's public key | Stored as ciphertext (box opens locally) |
-| Dev secrets (local) | FileRing (`keyring/`, 0600, gitignored) or OS keyring | `cafe secret set` |
+| Dev secrets (local) | FileRing (`keyring/`, 0600, gitignored) or OS keyring | `any secret set` |
 | Deploy/CI secrets | CI provider's secret store | Injected into job env; repo has names only |
-| Agent tokens (CLI auth) | OS keyring / FileRing | `cafe agent register` |
+| Agent tokens (CLI auth) | OS keyring / FileRing | `any agent register` |
 
 ## The manifest declares env vars (single source of truth)
 
@@ -56,34 +56,34 @@ in the manifest — only names and metadata.
 
 ## Rules for developers
 
-- **No `.env` files with values.** Ever. Use `cafe secret set` + `cafe dev`.
+- **No `.env` files with values.** Ever. Use `any secret set` + `any dev`.
 - **`keyring/` and `secrets/` are gitignored.** Verify with `git check-ignore`.
 - **Manifests stay credential-free.** `additionalProperties: false` — there is
   no field for a secret value.
 - **Never echo a secret** in a script, log, or transcript.
-- **Secrets are rotated, not edited.** `cafe secret rotate` (box secrets) or
-  `cafe secret set` (dev secrets).
+- **Secrets are rotated, not edited.** `any secret rotate` (box secrets) or
+  `any secret set` (dev secrets).
 
 ## Agent safety — structural, not policy
 
-- `cafe secret list` prints names only. Values are never in a command's
-  stdout unless the developer explicitly runs `cafe secret get` (dev only).
+- `any secret list` prints names only. Values are never in a command's
+  stdout unless the developer explicitly runs `any secret get` (dev only).
 - The box daemon (`boxd`) has no secret-read path — enforced by a test that
   walks every route and fails if any returns a Secret-shaped value.
 - Sealed envelopes: conductor stores ciphertext it cannot open. Even a
   compromised control plane can't read provider credentials.
-- Gate scan: `tests/secrets.mjs` (loom) and `cafe gate` reject committed
+- Gate scan: `tests/secrets.mjs` (loom) and `any gate` reject committed
   `.env` files with values and secret-shaped strings.
 
 ## Team sharing (optional)
 
 For teams wanting shared dev config: use SOPS + age (encrypted `.env.enc` in
-git, key in OS keyring). `cafe secret sync` can pull from conductor's sealed
-envelopes when available. Neither is required — solo devs use `cafe secret set`.
+git, key in OS keyring). `any secret sync` can pull from conductor's sealed
+envelopes when available. Neither is required — solo devs use `any secret set`.
 
 ## Incident response
 
-If a secret leaks: rotate immediately (`cafe secret rotate` for box secrets,
-`cafe secret set` for dev), then audit. The box's enrolled identity can be
+If a secret leaks: rotate immediately (`any secret rotate` for box secrets,
+`any secret set` for dev), then audit. The box's enrolled identity can be
 re-keyed without data loss (provider creds are re-sealed). See
 `anywaye/notes/ops.md` for the runbook.

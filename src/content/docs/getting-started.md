@@ -23,9 +23,9 @@ derived from, and it is checked rather than remembered.
 What *is* real: the [contracts](/getting-started/) are frozen and validated, the
 services have
 HTTP surfaces you can call, container images you can build, a local stack you can
-run, `cafe dev` will render and bring up a compose file from a manifest, and
-`cafe deploy` will build, push and roll a service out. What
-is not real: `cafe gen`, and the broker. The
+run, `any dev` will render and bring up a compose file from a manifest, and
+`any deploy` will build, push and roll a service out. What
+is not real: `any gen`, and the broker. The
 [runbooks](/runbooks/) assume you have already got the services running on your
 own infrastructure.
 
@@ -34,7 +34,7 @@ deployment substrate — k3s + Traefik + cert-manager + ArgoCD + CloudNativePG +
 Redis + Alloy/Loki/Grafana + Prometheus — is decided in
 `anywaye/notes/deployment.md` (recorded publicly in
 [Deployment](/runbooks/deployment/)) and
-is what the launch stack ships on. `cafe deploy` drives Kamal today; the k3s/Argo
+is what the launch stack ships on. `any deploy` drives Kamal today; the k3s/Argo
 implementation lands behind the same `deploy.Runner` interface, so the command
 does not change — the infrastructure it drives does. Kamal retires at parity,
 not before. [Deployment](/runbooks/deployment/) is the runbook for the
@@ -42,13 +42,13 @@ substrate.
 
 ## Step 1 — check the toolchain
 
-`cafe doctor` is the first command to run, and it is safe anywhere. It resolves
+`any doctor` is the first command to run, and it is safe anywhere. It resolves
 binaries on `PATH` and never executes them: no subprocess, no container, no
 network.
 
 ```sh
 go install github.com/anywaye/cafe/cmd/cafe@latest
-cafe doctor
+any doctor
 ```
 
 ```
@@ -82,7 +82,7 @@ prints — with a `plan` row that fails:
 ```
 project .
 check  state  detail  fix
-plan   fail   could not be planned: no manifest: no anywaye.yml in .; a project declares its service in one (run "cafe init" to create it, or pass the project directory as the argument)  cafe contract lint .
+plan   fail   could not be planned: no manifest: no anywaye.yml in .; a project declares its service in one (run "any init" to create it, or pass the project directory as the argument)  any contract lint .
 ```
 
 That **is** a failure — `doctor` exits 1. Point it at a project directory to get
@@ -92,7 +92,7 @@ CPUs a stack needs, whether the ports the stack publishes are free, and whether
 the manifest is one that plans:
 
 ```sh
-cafe doctor ../identity
+any doctor ../identity
 ```
 
 ```
@@ -108,7 +108,7 @@ plan     ok    3 services in identity-dev  -
 Four rows there are invisible from the tool table. `runtime` asks the Docker
 **server**, so an installed-but-stopped runtime reads `fail` while the table
 above says `ok`. `machine` holds a floor of 4 GiB and 4 CPUs for a database, a
-cache and a service at once. And the ports come from the same plan `cafe dev`
+cache and a service at once. And the ports come from the same plan `any dev`
 would build, so the two cannot drift. A third table, **reclamation**, follows:
 whether the ledger holds stacks and port reservations nothing has reclaimed,
 and whether anything outside cafe's ledger is holding a port in 15000-15999.
@@ -129,7 +129,7 @@ from `master`. That works today:
 
 ```sh
 go install github.com/anywaye/cafe/cmd/cafe@latest
-cafe version
+any version
 ```
 
 ```
@@ -139,7 +139,7 @@ cafe 0.0.0-dev (commit unknown)
 That version string is not a mistake. The semver and commit are injected at link
 time by the release pipeline; a `go install` from an untagged commit has
 neither, so the binary reports the development identity. When a release lands,
-`cafe version` reports the release instead.
+`any version` reports the release instead.
 
 To build from a clone instead — which is what you want if you are going to read
 the source:
@@ -157,8 +157,8 @@ The main package is at `cmd/cafe`. The repository root holds no Go files, so
 github.com/anywaye/cafe/cmd/cafe@latest` writes to `$GOBIN` instead.
 :::
 
-There is no Homebrew tap and no `cafe install` command. `brew install
-anywaye/tap/cafe` and `cafe install` are both
+There is no Homebrew tap and no `any install` command. `brew install
+anywaye/tap/cafe` and `any install` are both
 <span class="badge caution">Coming soon</span>; neither exists today, and neither
 has a workaround beyond the two commands above.
 
@@ -188,54 +188,54 @@ Commands:
   mcp       serve the anywaye tools over the Model Context Protocol
   new       scaffold a new anywaye service or app
   reclaim   reclaim what a cafe session left behind: containers first, then volumes
-  version   print the cafe version
+  version   print the any version
   help      show help for a command
 ```
 
-`cafe help <command>` is the same as `<command> --help`, and it is the authority
+`any help <command>` is the same as `<command> --help`, and it is the authority
 on flags — this page does not restate them, because a flag list copied into
 prose is a flag list that drifts.
 
 | Command | Takes | Works today |
 | --- | --- | --- |
-| `cafe version` | — | yes |
-| `cafe doctor` | 0 or 1 | yes |
-| `cafe contract lint <path>` | 1 argument | yes |
-| `cafe contract resolve <constraint> <version>` | 2 arguments | yes |
-| `cafe dev [project]` | 0 or 1 | yes |
-| `cafe backup <service>` | 1 argument | yes |
-| `cafe env <verb>` | 1 argument | yes |
-| `cafe gen <target>` | 1 argument | yes |
-| `cafe lock <path>` | 1 argument | yes |
-| `cafe mcp` | 0 arguments | yes |
-| `cafe reclaim` | 0 arguments | yes |
-| `cafe init` | 0 arguments | flags only |
-| `cafe new <name>` | 1 argument | flags only |
+| `any version` | — | yes |
+| `any doctor` | 0 or 1 | yes |
+| `any contract lint <path>` | 1 argument | yes |
+| `any contract resolve <constraint> <version>` | 2 arguments | yes |
+| `any dev [project]` | 0 or 1 | yes |
+| `any backup <service>` | 1 argument | yes |
+| `any env <verb>` | 1 argument | yes |
+| `any gen <target>` | 1 argument | yes |
+| `any lock <path>` | 1 argument | yes |
+| `any mcp` | 0 arguments | yes |
+| `any reclaim` | 0 arguments | yes |
+| `any init` | 0 arguments | flags only |
+| `any new <name>` | 1 argument | flags only |
 
 *Flags only* means exactly what it says: the flags parse, the argument count is
 checked, and the command returns `not implemented in v0` with exit code 1.
 
-`doctor` and `dev` both take an **optional** path — `cafe doctor` alone reports
-the machine, and `cafe doctor ./my-service` reports the machine *and* whether it
+`doctor` and `dev` both take an **optional** path — `any doctor` alone reports
+the machine, and `any doctor ./my-service` reports the machine *and* whether it
 can run this particular project.
 
 ### Two things that will bite you
 
-**`cafe init` takes no positional argument.** It operates on a directory. This
+**`any init` takes no positional argument.** It operates on a directory. This
 is the argument-count check firing:
 
 ```
-$ cafe init my-saas
-cafe: usage: cafe init wants 0 arguments, got 1 (usage: cafe init [flags])
+$ any init my-saas
+cafe: usage: any init wants 0 arguments, got 1 (usage: any init [flags])
 $ echo $?
 2
 ```
 
-The command that takes a name is `cafe new`:
+The command that takes a name is `any new`:
 
 ```
-$ cafe new my-saas
-cafe: cafe new: not implemented in v0
+$ any new my-saas
+cafe: any new: not implemented in v0
 $ echo $?
 1
 ```
@@ -244,8 +244,8 @@ $ echo $?
 package, so the flags must precede them:
 
 ```sh
-cafe deploy --dry-run identity     # works
-cafe deploy identity --dry-run     # usage error, exit 2
+any deploy --dry-run identity     # works
+any deploy identity --dry-run     # usage error, exit 2
 ```
 
 ### Exit codes
@@ -259,19 +259,19 @@ version bump.
 | 1 | the command ran and failed |
 | 2 | `cafe` was invoked wrongly: unknown command, unknown flag, wrong argument count |
 
-## Step 4 — `cafe init` a project
+## Step 4 — `any init` a project
 
 <span class="badge caution">Coming soon</span> — the flags parse, the command
 returns `not implemented in v0`.
 
 ```
-$ cafe init
-cafe: cafe init: not implemented in v0
+$ any init
+cafe: any init: not implemented in v0
 $ echo $?
 1
 ```
 
-`cafe init` is the command that will create a `anywaye.yml` for the current
+`any init` is the command that will create a `anywaye.yml` for the current
 project. It takes `-dir` (default `.`) and `-force`, and nothing else:
 
 ```sh
@@ -279,10 +279,10 @@ cafe help init
 ```
 
 ```
-cafe init - create a anywaye.yml manifest for the current project
+any init - create a anywaye.yml manifest for the current project
 
 Usage:
-  cafe init [flags]
+  any init [flags]
 
 Flags:
   -dir string
@@ -297,7 +297,7 @@ Flags:
 repository.
 
 ```sh
-cafe contract lint ./anywaye.yml
+any contract lint ./anywaye.yml
 ```
 
 ```
@@ -308,7 +308,7 @@ Point it at a directory and it walks the tree, checking every `anywaye.yml` it
 finds and skipping `.git`, `node_modules`, `deps`, `_build`, and `target`:
 
 ```sh
-cafe contract lint /path/to/checkouts
+any contract lint /path/to/checkouts
 ```
 
 ```
@@ -321,8 +321,8 @@ and diffable. **It exits 1 if any manifest is invalid, and also if the path
 holds no manifest at all** — a tree that validated nothing is not a pass:
 
 ```
-$ cafe contract lint /tmp/empty-dir
-cafe: cafe contract lint: no anywaye.yml found under /tmp/empty-dir
+$ any contract lint /tmp/empty-dir
+cafe: any contract lint: no anywaye.yml found under /tmp/empty-dir
 ```
 
 Validation is two things: the core JSON Schema, vendored into the `cafe` binary
@@ -335,11 +335,11 @@ that passed it.
 
 ### Checking a core version constraint
 
-`cafe contract resolve` answers one question — does this service's `core:` range
+`any contract resolve` answers one question — does this service's `core:` range
 admit this `core` release — and is shaped for a CI gate.
 
 ```sh
-cafe contract resolve '^0.2.0' 0.2.0
+any contract resolve '^0.2.0' 0.2.0
 ```
 
 ```
@@ -347,7 +347,7 @@ yes  ^0.2.0 allows 0.2.0: 0.2.0 is in [0.2.0, 0.3.0)
 ```
 
 ```sh
-cafe contract resolve '^0.1.0' 0.2.0
+any contract resolve '^0.1.0' 0.2.0
 ```
 
 ```
@@ -363,13 +363,13 @@ ranges, no `||`, no `x`-ranges. Note the pre-1.0 caret: on a `0.x` service
 
 ## Step 5 — run a service locally
 
-`cafe dev` **works.** It reads a project's `anywaye.yml`, validates it against the
-same rules `cafe contract lint` applies, renders a compose file from it, **writes
+`any dev` **works.** It reads a project's `anywaye.yml`, validates it against the
+same rules `any contract lint` applies, renders a compose file from it, **writes
 that file and prints it in full**, brings the stack up, waits for it, and reports
 what came up and what did not.
 
 ```sh
-cafe dev --dry-run ./hello      # render and print; do not bring anything up
+any dev --dry-run ./hello      # render and print; do not bring anything up
 ```
 
 ```
@@ -378,7 +378,7 @@ skipped legacy: optional dependency, and the local registry does not know how to
 wrote /work/hello/hello.compose.yaml
 ```
 
-The report **is** the message: `cafe dev` prints its verdict for a stack that came
+The report **is** the message: `any dev` prints its verdict for a stack that came
 up with something in it that did not, on stdout, once, and does not repeat it on
 stderr. A generated compose file is marked *do not edit* — every run rewrites it,
 and the manifest is the source of truth.
@@ -607,7 +607,7 @@ would race, and a half-applied migration would take the process down with it.
 **On `bin/dev` you do not run this step at all**: `bin/dev` runs the
 repository's own migration command between bringing the stack up and printing the
 URLs, and refuses to do anything else if the stack is not healthy first. The
-commands below are for `cafe dev`, for a host-side loop, or for a Kamal deploy —
+commands below are for `any dev`, for a host-side loop, or for a Kamal deploy —
 where they are a job that runs *before* the new image rolls out.
 
 `identity` uses `goose`, which is a command-line tool rather than a module
@@ -636,7 +636,7 @@ psql muse -f migrations/00002_vault_secrets.sql
 In production, run `up-by-one` (or the equivalent) as a single ordered job
 *before* the new image rolls out, and fail the deploy on a non-zero exit.
 
-**On a `cafe dev` stack, run them from inside the compose network.** The
+**On a `any dev` stack, run them from inside the compose network.** The
 rendered file publishes only the service's own port, so `goose` on the host has
 nothing to connect to, and the first request you make before migrating fails with
 a bare `500` whose real reason — `relation "users" does not exist` — is only in
@@ -645,7 +645,7 @@ has the loop that was run, and why it does not record a goose version.
 
 ## Step 6 — deploy to your own infrastructure
 
-`cafe deploy` works. It drives Kamal: it installs Docker on the host if the host
+`any deploy` works. It drives Kamal: it installs Docker on the host if the host
 lacks it, boots the accessories, builds and pushes the image, and rolls the
 release out behind `kamal-proxy` only once the new container answers its
 healthcheck. What it does not have is a anywaye-operated remote, so it deploys
@@ -658,27 +658,27 @@ customer-facing substrate (k3s + ArgoCD + CloudNativePG, installed by
 `curl https://anywaye.com/box/install | sh`) is decided in
 `anywaye/notes/deployment.md` and
 is documented in [Deployment](/runbooks/deployment/). The k3s/Argo
-implementation of `cafe deploy` lands behind the same `deploy.Runner` interface
+implementation of `any deploy` lands behind the same `deploy.Runner` interface
 (`cafe/internal/cli/deploy.go`), so the command you type does not change — the
 infrastructure it drives does. Read this section to understand the shape; read
 the Deployment runbook for the path that replaces it.
 :::
 
 ```sh
-cafe deploy --dry-run identity
+any deploy --dry-run identity
 ```
 
 Run it from the project directory — the one holding `config/deploy.yml`. In a
 directory without one, the real answer is:
 
 ```text
-cafe: cafe deploy: /tmp/cafdry has no config/deploy.yml, so there is nothing to deploy.
+cafe: any deploy: /tmp/cafdry has no config/deploy.yml, so there is nothing to deploy.
   Copy it from anywaye/kit at the ref your kit.ref names: kit/templates/kamal/deploy.yml.erb -> config/deploy.yml
 ```
 
 It takes `-env`, `-version`, `-dry-run` and `-yes`, and its usage line is
-`cafe deploy [flags] <service>`. **Flags come before the service name**, so
-`cafe deploy --dry-run identity` and not `cafe deploy identity --dry-run`; the
+`any deploy [flags] <service>`. **Flags come before the service name**, so
+`any deploy --dry-run identity` and not `any deploy identity --dry-run`; the
 latter is a usage error. `-env` names an overlay merged over the base config
 (`config/deploy.<env>.yml` over `config/deploy.yml`) and defaults to empty
 rather than to a named stage. `-dry-run` prints every command it would run and
@@ -919,12 +919,12 @@ Every anywaye repository carries one file, `anywaye.yml`, validated against
 `core`'s
 [manifest schema](https://github.com/anywaye/core/blob/master/schemas/anywaye.manifest.schema.json).
 It is the one place that declares what a service is and what it speaks, so that
-`cafe init`, `cafe dev`, `cafe gen`, `pantry`, and `gateway` all read the same six
+`any init`, `any dev`, `any gen`, `pantry`, and `gateway` all read the same six
 facts instead of six bespoke config files.
 
 ```yaml
 name: billing                      # the anywaye namespace name, also the event source
-description: …                     # one sentence, shown by `cafe new` and pantry
+description: …                     # one sentence, shown by `any new` and pantry
 language: ruby                     # go|ruby|elixir|python|typescript|rust|spec
 core: ^0.2.0                       # the core spec range this service compiles against
 
@@ -989,7 +989,7 @@ has the current list.
 
 **`core` also owns seven telemetry schemas** — span naming, traces, metrics,
 logs, redaction, probes, and the `<SERVICE>_OTEL_ENDPOINT` contract — which are
-read by `cafe contract lint` alongside the event schemas. See
+read by `any contract lint` alongside the event schemas. See
 [Observability](/observability/), and note that the contract is shipped while the
 stack that would receive it is not.
 
@@ -1003,7 +1003,7 @@ idempotency keys, `traceparent` propagation — are written down in
 
 ## What this means for you
 
-- **You do not write the contracts.** `core` owns them, `cafe gen` generates your
+- **You do not write the contracts.** `core` owns them, `any gen` generates your
   SDK from them, and drift is caught by a test rather than by a bug report.
 - **You can take only what you need.** A project depends on `identity` and
   nothing else if that is all it needs. The platform is a set of independent
@@ -1375,7 +1375,7 @@ Grafana and the git repository, so it is your box with our attention on it rathe
 than ours with your data in it. We do not page anybody yet: response is on a
 stated schedule during business hours, and the tier we sell says so.
 
-Two things that have *not* changed. `cafe deploy` itself is implemented — it
+Two things that have *not* changed. `any deploy` itself is implemented — it
 builds the image, pushes it and rolls it out — but it still has no
 anywaye-operated remote to target automatically, so it deploys to infrastructure
 you already pay for. And Anywaye Ops is a service rather than a remote: the box
@@ -1479,7 +1479,7 @@ measures the current one is [Licensing](/commercial/).
 **We have not published a sizing guide, and this page is not going to invent
 one.** Here is what the code actually asserts, and it is all of it:
 
-- **`cafe doctor` holds a floor of 4 GiB of memory and 4 CPUs** for a local stack
+- **`any doctor` holds a floor of 4 GiB of memory and 4 CPUs** for a local stack
   — a database, a cache and a service at once. That is a floor in
   `cafe/internal/cli/doctor_env.go`, not a recommendation, and it is the only
   number in the fleet about how much machine you need.
@@ -1493,7 +1493,7 @@ one.** Here is what the code actually asserts, and it is all of it:
 - **One object-storage bucket you choose**, for `darkroom` — S3 or Cloudflare
   R2, one implementation, two configurations. It is not covered by `pg_dump`.
 - **One `identity` container brought up this way is three containers.** Verified:
-  `cafe dev` on `identity` renders `identity` plus `postgres:16-alpine` plus
+  `any dev` on `identity` renders `identity` plus `postgres:16-alpine` plus
   `redis:7-alpine`.
 
 There is a managed option — **Anywaye Ops** — priced as a flat monthly band on
@@ -1527,14 +1527,14 @@ This is a check you can run, not a sentence to interpret.
 
 ```sh
 go install github.com/anywaye/cafe/cmd/cafe@latest
-cafe doctor
+any doctor
 ```
 
 There is no tagged release, so `@latest` resolves to a pseudo-version built from
 `master`. That works today, and it is the only install path: there is no
-Homebrew tap and no `cafe install`.
+Homebrew tap and no `any install`.
 
-`cafe doctor` prints **two tables and always exits 0** — it is a report about a
+`any doctor` prints **two tables and always exits 0** — it is a report about a
 machine, not a gate, so a `missing` row is something you read rather than a CI
 failure.
 
@@ -1589,20 +1589,20 @@ table:
   can start. A failure here reads `unreachable` and says to start the runtime.
 - **`memory` and `cpu` are the 4 GiB / 4 floor.** A machine reports every
   toolchain it needs and still cannot run a stack.
-- **`port 8080 free`.** If something else holds it, `cafe dev -port` publishes
+- **`port 8080 free`.** If something else holds it, `any dev -port` publishes
   the project service somewhere else — but the databases and caches do not move,
-  so a collision on a **database** port is a different problem. On a `cafe dev`
+  so a collision on a **database** port is a different problem. On a `any dev`
   stack the database is not published on a host port at all (see
   [step 5](#step-5--apply-the-migrations)), which is why the collision you hit
   here is a *service* port.
 
 :::caution[Running it with no project at all]
-`cafe doctor` in a directory with no `anywaye.yml` prints the tool table and then
+`any doctor` in a directory with no `anywaye.yml` prints the tool table and then
 one line:
 
 ```
 project .: no manifest: no anywaye.yml in .; a project declares its service in one
-(run "cafe init" to create it, or pass the project directory as the argument)
+(run "any init" to create it, or pass the project directory as the argument)
 ```
 
 That is not a failure. It is the second table saying it has nothing to plan. Run
@@ -1615,7 +1615,7 @@ it again from step 2 and it will answer the real question.
 
 ```sh
 go install github.com/anywaye/cafe/cmd/cafe@latest
-cafe version
+any version
 ```
 
 ```
@@ -1660,8 +1660,8 @@ HTTPS for a read-only clone if you have to — `git clone
 https://github.com/anywaye/identity.git` — but keep SSH for anything you push.
 SSH is the rule for repositories anywaye owns.
 
-If you are adding **your own** service rather than running ours, `cafe new` and
-`cafe init` are stubs — they parse their flags and return `not implemented in
+If you are adding **your own** service rather than running ours, `any new` and
+`any init` are stubs — they parse their flags and return `not implemented in
 v0` — so write the manifest by hand. The minimum that validates is this, and it
 was linted:
 
@@ -1694,7 +1694,7 @@ placeholders.
 ### Step 3 — prove the manifest
 
 ```sh
-cafe contract lint ./anywaye.yml
+any contract lint ./anywaye.yml
 ```
 
 ```
@@ -1721,18 +1721,18 @@ table — and re-run it, because that number moves with every packet and the
 answer underneath it does not:
 
 ```sh
-cafe contract lint /path/to/anywaye
+any contract lint /path/to/anywaye
 ```
 
 ### Step 4 — bring the stack up
 
 ```sh
-cafe dev --dry-run .     # render and print; start nothing
-cafe dev .
+any dev --dry-run .     # render and print; start nothing
+any dev .
 ```
 
 `--dry-run` first is not optional politeness: it prints the rendered compose file
-in full, so you can see what `cafe dev` decided before it decides it for you. On
+in full, so you can see what `any dev` decided before it decides it for you. On
 `identity` it renders three services — `identity` built from the repository's
 own `Dockerfile`, plus `postgres:16-alpine` and `redis:7-alpine` — and writes
 `cafe.dev.compose.yaml` into the project.
@@ -1750,7 +1750,7 @@ identity  running  project         Up Less than a second
 identity is up on http://localhost:8080
 ```
 
-`cafe dev` leaves the stack running when it exits. To stop it:
+`any dev` leaves the stack running when it exits. To stop it:
 
 ```sh
 docker compose -p identity-dev down
@@ -1762,23 +1762,23 @@ your data survives. Add `-v` when you want the database gone as well.
 **Four ways this step fails, and what each one means:**
 
 - **`nothing to run: … has no docker/Dockerfile and the local registry names no
-  image for it`.** You are in a directory without a `Dockerfile`. `cafe dev`
+  image for it`.** You are in a directory without a `Dockerfile`. `any dev`
   builds your service from the project directory; there is no registry entry for
   a repository it has never seen.
 - **`skipped legacy: optional dependency, and the local registry does not know
   how to run it`.** Your manifest declares a dependency on another anywaye
-  service. `cafe dev` resolves dependencies through a catalog and the default
-  catalog is empty — `pantry` serves the official one over HTTP, but `cafe dev
+  service. `any dev` resolves dependencies through a catalog and the default
+  catalog is empty — `pantry` serves the official one over HTTP, but `any dev
   -registry` reads a **local JSON file**, and no catalog file is published yet.
   Run each service in its own directory until one is.
 - **A container never reaches `healthy`.** Read `docker compose -p identity-dev
-  logs`. `cafe dev` waits three minutes by default (`-wait`) before it reports
+  logs`. `any dev` waits three minutes by default (`-wait`) before it reports
   what did not come up, which is generous because a first run is mostly a build.
-- **`port 8080 in use`.** `cafe doctor` predicts this one. `cafe dev -port 8081`.
+- **`port 8080 in use`.** `any doctor` predicts this one. `any dev -port 8081`.
 
 ### Step 5 — apply the migrations
 
-**`cafe dev` does not run migrations, and it does not publish the database on a
+**`any dev` does not run migrations, and it does not publish the database on a
 host port.** Both of those matter, and together they make this the step a stuck
 reader stops at.
 
@@ -1808,7 +1808,7 @@ deploy with two versions live would race, and a half-applied migration would
 take the process down with it. It is a deploy job, which locally means you run
 it.
 
-Because `cafe dev` keeps Postgres on the compose network, run the migrations from
+Because `any dev` keeps Postgres on the compose network, run the migrations from
 inside it:
 
 ```sh
@@ -1929,7 +1929,7 @@ than a defect to file.
 `404` on this stack, and so does `/.well-known/openid-configuration`. Not
 because OIDC is broken — it is built and tested — but because `Config.OIDCEnabled()`
 requires all three of `OIDC_ISSUER`, `OIDC_SIGNING_KEY` and `OIDC_SIGNING_KEY_ID`
-to be set, and `cafe dev` sets none of them. A process with no signing key serves
+to be set, and `any dev` sets none of them. A process with no signing key serves
 its `/v1` surface and its probes and nothing else, deliberately, because there is
 no key to sign with and no document to publish.
 
@@ -1955,8 +1955,8 @@ whole surface, with its own OpenAPI document. `MFA_ENCRYPTION_KEY` is base64url,
 boot. Unset means the management routes are absent; a value of the wrong length
 is a startup failure.
 
-**To turn it on locally, use the repository's own stack rather than `cafe dev`**,
-because `cafe dev` has no flag to add environment variables and rewrites its
+**To turn it on locally, use the repository's own stack rather than `any dev`**,
+because `any dev` has no flag to add environment variables and rewrites its
 rendered file on every run:
 
 ```sh
@@ -2069,14 +2069,14 @@ because it will get shorter and this page will be updated when it does.
 | **`gateway` has no API keys and no mounted scope check.** | The TypeScript implementation that had both was deleted at the Go cutover (`f87c891`, 2026-10-05), so a bearer JWT is the only script credential and no route refuses a token for lacking a scope. What it *does* do: verify RS256 bearers against identity's JWKS, serve a browser login on a Redis session store, and relay the prefixes `ROUTE_TABLE` names — statically, with no discovery. Set `ROUTE_TABLE` or nothing is forwarded. | `openapi/v1.yaml` (zero `api-keys` operations); `internal/auth/middleware.go`, where `RequireScope` is implemented and unmounted; `internal/httpapi/table.go` |
 | **`gateway` needs `REDIS_URL` for the browser surface.** | The session store is Redis and the four `/auth` routes are built only when `IDENTITY_URL` **and** `REDIS_URL` are both set, so a gateway without it serves no browser surface at all rather than a degraded one. | `browserSurfaceFromEnv` in `gateway`'s `internal/httpapi/runtime.go` |
 | **`muse`'s auth was a stub until 2026-10-01, and is not one now.** | This row said *do not put `muse` behind anything you care about*. `muse` `e3f53b0` verifies the bearer against `identity`'s JWKS with RS256 pinned at the decoder, requires `iss`, `aud`, `sub`, `exp`, `iat`, `jti` and `account_id`, checks the operation's capability separately from the signature, and refuses unauthenticated traffic when `identity` is down. What is still true: `muse` accepts either of two authorisation claim names and refuses a token where they disagree, and that ruling is core's to make. | [Security and trust](/security/#one-drift-we-found-recorded-rather-than-papered-over); `src/muse/auth.py`; `tests/test_auth.py` |
-| **`cafe` has no stub commands as of 2026-10-10.** | The three that used to parse their flags and return `not implemented in v0` — `gen`, `init`, `new` — are in the working table now, and the stub table is empty. `cafe deploy` works (Kamal) and `cafe mcp` serves the tools, so you can scaffold a manifest rather than writing one by hand. | `cafe/internal/cli/stub_test.go`, whose `stubCommands` table is the single source of truth |
+| **`cafe` has no stub commands as of 2026-10-10.** | The three that used to parse their flags and return `not implemented in v0` — `gen`, `init`, `new` — are in the working table now, and the stub table is empty. `any deploy` works (Kamal) and `any mcp` serves the tools, so you can scaffold a manifest rather than writing one by hand. | `cafe/internal/cli/stub_test.go`, whose `stubCommands` table is the single source of truth |
 | **Telemetry is instrumented; no collector is deployed.** `courier`, `billing`, `identity` and `muse` each export traces, and nothing in a anywaye environment receives them. `kit` ships the stack and `bin/dev` runs it, so a pilot gets traces rather than a promise. | You will not have a fleet-wide trace view until you run the stack, and you should budget for wiring `<SERVICE>_OTEL_ENDPOINT` at whatever backend you already pay for. `muse` is not on core's `error.type` vocabulary, so do not group a cross-service error panel on that attribute. | [Observability](/observability/) |
 | **Password reset is built but unconfigured by default.** | `POST /v1/password-resets` and `/confirm` are served and published, and `site` ships the flow — but the recovery surface is mounted only with a mailer behind it, so without `COURIER_BASE_URL`, `COURIER_TOKEN` and `PASSWORD_RESET_LINK_TEMPLATE` it answers **503**, not 404. Set those, and **still plan a support channel.** | `cmd/identity/main.go`, `buildRecovery`; `identity/openapi/v1.yaml` |
 | **`identity` OIDC has no refresh tokens.** | Access tokens live fifteen minutes and cannot be renewed. | the discovery document, where the absent features are absent rather than stubbed |
 | **No vault key rotation.** | `MUSE_VAULT_KEY` cannot be rotated in place. | `key_version` is always 1 |
 | **`parlor` is not a finished template,** and its manifest does not validate. | Do not clone it expecting a product shell. | the [drift audit](/architecture/#cross-repo-drift-audit) |
 | **A green badge may have skipped its hard half.** `kit`'s reusable workflow is callable and eight repositories now call it, but in most of the fleet the interesting tests are a second tier that does not run by default — so "the gate is green" often means somebody ran the suite by hand, that day. The exception is `identity`, whose CI refuses to skip its own database tier. | Check what ran before you check the colour. | [Running the gates](/getting-started/) |
-| **The licence is a file in seven of the fourteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those seven, so the `LICENSE` file is the only declaration — and for `billing`, `cafe`, `core`, `darkroom`, `gateway`, `identity` and `kit` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `cafe contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/commercial/#what-each-repository-declares-today) and its `re-derive it yourself` command |
+| **The licence is a file in seven of the fourteen repositories, and a field in seven.** | Nothing that reads a manifest can answer what grant a repository carries in those seven, so the `LICENSE` file is the only declaration — and for `billing`, `cafe`, `core`, `darkroom`, `gateway`, `identity` and `kit` no package manifest exists in their ecosystem that could carry one, which is a fact about ecosystems rather than a gap. `any contract lint` will check it once core's manifest schema has a field for it. | the [licence table](/commercial/#what-each-repository-declares-today) and its `re-derive it yourself` command |
 
 One more that decides whether you can put anything in front of a customer:
 **`docs` is the only anywaye repository with no CI workflow at all.** The other
@@ -2158,7 +2158,7 @@ Stated here rather than left for you to guess:
 - **Nothing on macOS with Docker Desktop was run on Linux.** No step was run on
   a Kubernetes cluster, on ARM outside this machine, or against a managed
   Postgres. Steps 1–6 are one machine, one platform, one day.
-- **`cafe dev` bringing up a project that depends on another anywaye service was
+- **`any dev` bringing up a project that depends on another anywaye service was
   not run**, because no published catalog file exists for `-registry` to read.
   Step 4 states the error message the code produces for it; the message was read
   from `internal/dev/registry.go`, not captured from a run.
@@ -2169,9 +2169,9 @@ Stated here rather than left for you to guess:
 - **A production deployment was not performed.** No `docker build` for each of
   the seven services, no rollout, no restore from a real backup.
 - **Only `identity` was actually run.** The other six services' rows are read out
-  of their repositories, not exercised. `cafe dev --dry-run` was run against
+  of their repositories, not exercised. `any dev --dry-run` was run against
   `darkroom` as a second data point and rendered three services correctly — its
-  Dockerfile path comes from its manifest, not from the project root, so `cafe dev`
+  Dockerfile path comes from its manifest, not from the project root, so `any dev`
   finds it — but nothing was brought up.
 - **Sizing was not measured.** Nothing on this page says how much memory or CPU a
   production install wants, because nobody in the fleet has published that and

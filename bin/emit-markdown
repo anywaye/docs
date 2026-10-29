@@ -1,32 +1,4 @@
 #!/usr/bin/env node
-// bin/emit-markdown — emit raw-markdown twins beside the built HTML.
-//
-// WHY THIS EXISTS
-//   Agents are the majority of this documentation's readers, and a Starlight
-//   page served to an agent is 100 kB of chrome around 3 kB of content. The
-//   engine therefore emits, for every page, the raw markdown beside the built
-//   HTML, served at /api/<slug>.md — the same auth rules as the page itself.
-//   The public tree's /api/ is public; the notes tree's /api/ sits behind the
-//   same gate as /notes/. This script is the step that writes those twins.
-//
-//   It runs as part of `npm run build`, after both Astro builds, so a page
-//   without its markdown twin is a build failure, not a runtime surprise.
-//   Two dists, two trees — it walks the MATERIALIZED content trees
-//   (src/content/docs/ and notes-site/src/content/docs/, already populated by
-//   bin/sync-content) and writes each page's raw markdown to
-//   <dist>/api/<slug>.md in both dists (dist/docs/api/… and dist/notes/api/…).
-//   The file is the page's source markdown, frontmatter included — an agent
-//   asking "what does this page say" gets exactly what the author wrote.
-//
-// SLUG RULES, and why they are not invented here
-//   The slug is the page's URL path the way Starlight/Astro actually build it,
-//   not a new derivation. Astro's loader sluggifies each segment through
-//   `github-slugger`'s `slug()` (lowercases, strips punctuation), then joins
-//   with `/` and drops a trailing `/index`. The derivation below mirrors
-//   tests/smoke.mjs exactly, so the twins and the HTML disagree nowhere — a
-//   second derivation that diverged by one lowercasing rule would be a twin
-//   at the wrong path on a case-sensitive filesystem and a 404 on Linux while
-//   looking correct on macOS (see smoke.mjs's header).
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
@@ -105,10 +77,6 @@ for (const target of buildTargets) {
     writeFileSync(out, source);
     total += 1;
   }
-  // The notes tree's twins are in the notes dist and nowhere else — the public
-  // dist must not carry a private `api/notes` path. The invariant is also
-  // asserted by the suite, but failing the build here turns it into the
-  // immediate signal rather than a test failure one step later.
   if (target.label === 'public' && existsSync(join(target.dist, 'api', 'notes'))) {
     fail(`public dist contains api/notes — private content reached the public tree`);
   }

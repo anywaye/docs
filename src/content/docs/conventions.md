@@ -1,6 +1,6 @@
 ---
 title: 'Conventions'
-description: '- Group by deployment target: anywaye (building block) vs anywaye (product). - Git repos moved as whole dirs; relative service refs preserved under anywaye/.…'
+description: '- Group by deployment target: anywaye (building block) vs anywaye (product). - Git repos moved as whole dirs; relative service refs preserved under…'
 ---
 
 # Conventions
@@ -33,9 +33,9 @@ description: '- Group by deployment target: anywaye (building block) vs anywaye 
 - Agent-facing guidance: per-repo `AGENTS.md` + `/AGENTS.md`. Published docs: customer/operator-facing.
 
 ## Secrets
-- No `.env` files with values. Use `cafe secret set/get/list` (dev, FileRing) and `cafe dev` (injects from keyring).
-- Dev secrets: `cafe secret set KEY=value` stores in `keyring/` (0600, gitignored). `cafe secret list` prints names only.
+- No `.env` files with values. Use `any secret set/get/list` (dev, FileRing) and `any dev` (injects from keyring).
+- Dev secrets: `any secret set KEY=value` stores in `keyring/` (0600, gitignored). `any secret list` prints names only.
 - Production secrets: box-generated or sealed envelopes (conductor stores ciphertext it cannot open).
-- Agents must never read secret values in production. `cafe secret list` is the agent-facing interface.
+- Agents must never read secret values in production. `any secret list` is the agent-facing interface.
 - Gate scan (`tests/secrets.mjs`) rejects committed `.env` files with values and secret-shaped strings.
 - See `docs/secrets.md` for the full two-tier model.

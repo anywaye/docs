@@ -126,7 +126,7 @@ reverted in minutes; an agent that opens a commit fixes it permanently.
 
 **Rollback is `git revert`** (anywaye/notes/deployment.md).
 
-**`cafe deploy` is the same loop behind one command.** The seam already exists:
+**`any deploy` is the same loop behind one command.** The seam already exists:
 `cafe/internal/cli/deploy.go` takes a `deploy.Runner`, and
 `deploy.NewKamalRunner()` is the current implementation; the k3s/Argo
 implementation lands behind that same interface, which is why nothing above the
@@ -145,7 +145,7 @@ route is a follow-up, not a launch requirement (anywaye/notes/deployment.md).
 (anywaye/notes/deployment.md) — the customer's data loss is the vendor's support ticket, so
 the backup story is the one that matters most.
 
-**`cafe backup` is the command.** It gets the same treatment as `cafe deploy`:
+**`any backup` is the command.** It gets the same treatment as `any deploy`:
 `backup.Runner` gains a CNPG implementation driving `kubectl cnpg`, replacing the
 Kamal drill (anywaye/notes/deployment.md). The command's own description — quoted in
 [getting started](/getting-started/) — is *"take one real backup and prove it
@@ -165,7 +165,7 @@ story.** Observability data is the one stateful thing the box can afford to lose
 
 ## What is deliberately not here
 
-- **Traces.** Deferred. Services already emit OTLP (`cafe gen telemetry`); Tempo
+- **Traces.** Deferred. Services already emit OTLP (`any gen telemetry`); Tempo
   slots in later as one more `Application`. Nothing re-architects
   (anywaye/notes/deployment.md).
 - **Hosted anywaye.** Does not exist, and Anywaye Ops does not change that: the
@@ -193,7 +193,7 @@ step 6 has the Kamal mechanics; this page is what replaces them.
 - **Do not invent an install flag.** The script does not exist; when it lands,
   read it (see the caution above).
 - **Do not treat a green Argo sync as a verified backup.** The backup is proven
-  by a restore, and `cafe backup` is the command that proves it.
+  by a restore, and `any backup` is the command that proves it.
 
 ## See also
 

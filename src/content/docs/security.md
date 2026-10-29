@@ -267,7 +267,7 @@ secrets](/runbooks/secret-rotation/).
   `OIDC_ISSUER`, `OIDC_SIGNING_KEY` and `OIDC_SIGNING_KEY_ID` to publish its
   discovery document, and `MFA_ENCRYPTION_KEY` to mount the MFA routes. Unset,
   the routes are **absent** rather than present-and-broken, and the process says
-  so twice at startup. `cafe dev` sets none of them.
+  so twice at startup. `any dev` sets none of them.
 - **`gateway` relays what `ROUTE_TABLE` names, and keeps sessions in Redis.** It
   serves `/v1/me` and `/auth/*` always and forwards a configured prefix to the
   service that owns it. The routing table is static — no discovery, no health

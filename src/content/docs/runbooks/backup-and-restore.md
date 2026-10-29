@@ -11,7 +11,7 @@ the fleet's gates run on today.
 ## Status: two paths, one future
 
 **The substrate path is decided, not built.** Postgres is CloudNativePG;
-`cafe backup` drives `kubectl cnpg` and proves a restore into a scratch database
+`any backup` drives `kubectl cnpg` and proves a restore into a scratch database
 it then drops (anywaye/notes/deployment.md). The CNPG implementation of
 `backup.Runner` has not landed, so the specific `kubectl cnpg` subcommands are
 **unverified** — named here as the driver, not as a procedure a reader can copy.
@@ -124,14 +124,14 @@ path's key is whatever CNPG's backup object store uses. The sentence is the
 same either way: **the key is a different value from every application
 credential, and it is the one most worth writing down twice.**
 
-## The substrate path: CloudNativePG and `cafe backup`
+## The substrate path: CloudNativePG and `any backup`
 
 **Backups and failover are configuration** (anywaye/notes/deployment.md) — CloudNativePG's
 whole argument is that a Postgres backup is a declarative object, not a script.
 We sell code that runs on the customer's server, so their data loss is our
 support ticket.
 
-**`cafe backup` is the command.** It gets the same treatment as `cafe deploy`:
+**`any backup` is the command.** It gets the same treatment as `any deploy`:
 `backup.Runner` gains a CNPG implementation driving `kubectl cnpg`, replacing the
 Kamal drill (anywaye/notes/deployment.md). The command's own description — quoted in
 [getting started](/getting-started/) — is *"take one real backup and prove it
@@ -186,7 +186,7 @@ hold content came back with rows in them, and drop the scratch database —
 including after a failure, because a scratch database left behind on a shared
 cluster is a hole the isolation sweep will find. On the Kamal path that was
 `bin/drill` (now removed; nothing runs it). On the substrate path it is
-`cafe backup`, which proves the restore as part of the backup itself.
+`any backup`, which proves the restore as part of the backup itself.
 
 ## What not to do
 

@@ -74,7 +74,7 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 | Repo | What it does | Language |
 | --- | --- | --- |
-| [`cafe`](https://github.com/anywaye/cafe) | The CLI: `cafe init · new · dev · deploy · gen · contract` | Go |
+| [`cafe`](https://github.com/anywaye/cafe) | The CLI: `any init · new · dev · deploy · gen · contract` | Go |
 | [`core`](https://github.com/anywaye/core) | The substrate: service manifests, OpenAPI & event specs, telemetry specs, generator engine | — |
 | `pantry` | The registry: what a service is and how to reach it — closed source, public endpoint | Go |
 | `anywaye-rb` | The shared Ruby gem: JWKS token verification, the transactional outbox, a Rails railtie | Ruby |
@@ -98,7 +98,7 @@ command table beside it is the single source of truth for which verbs work.
 There is **no broker** — no service starts an outbox publisher loop, so an event
 is a row and nothing more.
 There is also no anywaye-operated platform to deploy *to*: Anywaye Ops is a monthly
-operated tier we run on your box, not a destination `cafe deploy` can target.
+operated tier we run on your box, not a destination `any deploy` can target.
 Three of the seven services
 are built past their first milestone (`darkroom` ships signed uploads and
 Cloudflare R2; `courier` ships outbound webhooks over the Standard Webhooks spec;

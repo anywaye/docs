@@ -105,7 +105,7 @@ instabox exec my-saas -- 'cd /data/workspace/my-saas && npm test'
 # Agent asks: "Deploy to prod? (yes/no)"
 # You say yes in your editor.
 # Agent runs:
-cafe deploy  # commits values change → Argo syncs on your box
+any deploy  # commits values change → Argo syncs on your box
 # Argo waits for /readyz before completing rollout
 ```
 

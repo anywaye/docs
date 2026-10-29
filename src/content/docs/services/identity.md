@@ -149,7 +149,7 @@ a short password with a `422` naming the field.
 
 **MFA needs a key you supply.** It is built, but `MFA_ENCRYPTION_KEY` is never
 generated: unset, and the management routes are not mounted at all. A local
-stack from `cafe dev` will not set it, so a `404` on `/v1/mfa` there is the
+stack from `any dev` will not set it, so a `404` on `/v1/mfa` there is the
 configuration, not a missing feature. See [Hosted pilot
 onboarding](/getting-started/#step-7--check-the-two-things-this-stack-is-not-giving-you).
 

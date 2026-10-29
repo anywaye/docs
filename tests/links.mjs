@@ -1,40 +1,3 @@
-// tests/links.mjs — the link half of the gate.
-//
-// WHY THIS FILE IS SEPARATE FROM tests/smoke.mjs
-//   smoke.mjs answers "did the build produce the pages the sidebar promises?".
-//   This file answers "can a reader who clicks something get somewhere?", which
-//   is a different question with a different failure: every assertion in
-//   smoke.mjs can pass on a site where a third of the links are dead, because
-//   the build never resolves an `href`. For a documentation site that is the
-//   whole product, and it is the failure a self-hoster finds on their first
-//   visit and never reports.
-//
-// WHAT IT ASSERTS
-//   1. Every internal link's `#fragment` names a heading that exists on the
-//      page it points at. **This is the check that was missing.** smoke.mjs
-//      strips the fragment (`h.split('#')[0]`) and checks only the page, so a
-//      link to a page that exists but a heading that was renamed two commits
-//      ago passes the whole suite and 404s the reader's scroll position.
-//   2. Every redirect Astro is configured to serve points at a page that
-//      exists, and no redirect shadows a page that is really there. The
-//      second direction is the one that hurts: a redirect whose source is also
-//      a live route means the site serves two answers to one question and the
-//      reader cannot tell which is current.
-//   3. Every external href is a well-formed absolute `https:` URL with a real
-//      host, and none of them is a placeholder. This is **offline by
-//      construction** — it asserts the shape of the URL, never that something
-//      answers at the far end. Liveness is a network check and lives in
-//      bin/check-external-links; see the header there for why it is not here.
-//
-// WHAT IT DELIBERATELY DOES NOT DO
-//   - It does not fetch anything. A link checker that makes an HTTP request
-//     cannot run offline, and this tier must not need the internet.
-//   - It does not assert the prose is right. A link to the wrong page with a
-//     perfectly good heading is a review finding, not a mechanical one.
-//   - It does not compare the documented HTTP surface against any service's
-//     OpenAPI document. That is a genuine check and it lives in
-//     tests/contracts.mjs, which needs a checkout of `core` and a built `cafe`
-//     binary — see that file for what it found.
 import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -42,13 +5,6 @@ import { test } from 'node:test';
 
 const root = resolve(import.meta.dirname, '..');
 
-// The two build trees this suite runs against, in the same shape
-// tests/smoke.mjs defines them: the public site at /, the private notes site
-// at /notes. `ownBase` is the prefix this tree's own pages live under, which
-// is how a link is scoped: a link rooted at this tree's base must resolve
-// inside this tree, and a link rooted at the other tree's base is a
-// cross-tree reference (a notes page pointing back into the public site) that
-// the owning tree checks.
 const buildTargets = [
   {
     label: 'public',
@@ -64,15 +20,10 @@ const buildTargets = [
     docs: join(root, 'notes-site', 'src', 'content', 'docs'),
     config: join(root, 'notes-site', 'astro.config.mjs'),
     ownBase: '/notes',
-    // The notes site mounts no redirects: it is new, and a redirect is a
-    // promise about an old URL that never existed here. The redirect test
-    // below asserts the count for the public tree and skips this one, with
-    // the reason here.
     redirects: false,
   },
 ];
 
-/** Every content file, in a stable order so a failure names one file at a time. */
 function contentFiles(dir, out = []) {
   for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
     a.name.localeCompare(b.name),
@@ -84,19 +35,10 @@ function contentFiles(dir, out = []) {
   return out;
 }
 
-/** Strip comments so a `slug:` or an example URL inside a comment is not a link. */
 function stripComments(source) {
-  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+  return source.replace(/\/\*[\s\S]*?\*\
 }
 
-/**
- * `id="…"` for every element in a built page, and the page's own route.
- *
- * Read from the **built HTML**, not from the Markdown, because the id a browser
- * jumps to is the one the renderer emitted. Deriving it from a heading slug in
- * the source would be a reimplementation of Starlight's slugifier, and it would
- * agree with the site right up until the day it did not.
- */
 function builtPages(target) {
   const pages = new Map();
   const walk = (dir) => {

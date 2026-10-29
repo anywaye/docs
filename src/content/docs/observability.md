@@ -297,7 +297,7 @@ failure directions are machine-checked:
 
 ## What a service does with this
 
-`cafe contract lint` reads these seven schemas alongside the event schemas, so a
+`any contract lint` reads these seven schemas alongside the event schemas, so a
 service's telemetry declaration is checked against `core` the same way its
 `anywaye.yml` is.
 

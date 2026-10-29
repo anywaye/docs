@@ -94,11 +94,11 @@ grep -rn --include='*.rb' --include='*.ex' --include='*.go' --include='*.ts' --i
 matches on it. A consumer that filters correctly but writes the type into its own
 ledger will produce two rows for one message during the window in step 3.
 
-**How you know you are done.** `cafe contract lint` over the fleet is green for
+**How you know you are done.** `any contract lint` over the fleet is green for
 `courier`:
 
 ```sh
-cd anywaye && go run ./cmd/cafe contract lint .
+cd anywaye && go run ./cmd/any contract lint .
 ```
 
 ---
@@ -217,7 +217,7 @@ and it is a real one.
 ## 4. Every event type now owes five things
 
 An event type is conformant when **all five** exist. A publisher that has done
-four is not conformant, and `cafe contract lint` will say so once it enforces the
+four is not conformant, and `any contract lint` will say so once it enforces the
 catalog direction:
 
 1. The type in the publisher's `anywaye.yml` `exposes.events`, in the
@@ -263,17 +263,17 @@ set is wrong the moment you run two replicas.
 **Ordering is per-`subject`, never global.** Correlate on `subject` and compare
 `time`.
 
-**`cafe gen`, `cafe init` and `cafe new` are still flags-only** — they parse, check
-their argument count, and return `not implemented in v0`. `cafe dev` now does real
+**`any gen`, `any init` and `any new` are still flags-only** — they parse, check
+their argument count, and return `not implemented in v0`. `any dev` now does real
 work; see [Getting
-started](/getting-started/#step-5--run-a-service-locally). `cafe deploy` and
-`cafe mcp` also do real work and are covered under Step 6.
+started](/getting-started/#step-5--run-a-service-locally). `any deploy` and
+`any mcp` also do real work and are covered under Step 6.
 
 ## Verify, then close
 
 ```sh
 # 1. every manifest in your tree validates
-cd anywaye && go run ./cmd/cafe contract lint .
+cd anywaye && go run ./cmd/any contract lint .
 
 # 2. your tree has no surviving reference to courier's old spellings
 grep -rn -E "['\"](email|notification)\.(queued|delivered|bounced|complained|suppressed)['\"]" .

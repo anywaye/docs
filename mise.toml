@@ -1,23 +1,3 @@
-# Toolchain pins for this repository. The worktree and CI must agree, so the
-# versions live here rather than in whatever the machine happens to have
-# installed.
-#
-#   mise install        # install the pinned toolchain
-#   mise run prime      # the gate: npm ci, the build, the smoke test
-#
-# WHY THESE NUMBERS
-#   - node 22.23.4 is above Astro 7's floor (`engines.node: >=22.12.0`) and at or
-#     above what every transitive dependency asks for. undici@8.11.2, pulled in
-#     by astro via unifont, declares `>=22.19.0`; pinning Astro's exact floor
-#     makes `npm ci` print EBADENGINE warnings on every install, and a gate whose
-#     output is noisy trains you to skim it. This pin is still on the supported
-#     LTS line.
-#   - package.json repeats the floor so a plain `npm ci` without mise fails the
-#     same way. Two places, one number; raise both in the same commit.
-#   - npm is not pinned separately. It ships with node, so pinning it would be
-#     pinning a version of node's own tarball.
-#   - This repo does NOT need npm to be the only package manager. There is no
-#     pnpm-lock.yaml, so a pnpm pin here would be an unused install.
 [tools]
 node = "22.23.4"
 
@@ -25,22 +5,10 @@ node = "22.23.4"
 description = "The gate: install dependencies, build the site, run the offline suite"
 run = "./bin/prime"
 
-# The tier `prime` deliberately does not run: it needs a readable checkout of
-# anywaye/core and a built `caf` binary, and a gate that needs a sibling
-# repository is a gate a contributor with one checkout cannot run. It is the
-# only thing here that can catch a documented example contradicting a shipped
-# contract, so it is a named command rather than an afterthought.
-#
-#   mise run prime:contracts
-#
-# CI runs it as its own job and fails the build if it did not run.
 [tasks."prime:contracts"]
 description = "The gate plus the contract tier: examples checked against core's real schemas"
 run = "./bin/prime --contracts"
 
-# The network tier, deliberately separate and deliberately not a `mise run
-# prime` step. See the header of bin/check-external-links for why a slow link
-# fails rather than being retried.
 [tasks."links:external"]
 description = "Check that the site's external links answer (needs the network; no retries)"
 run = "./bin/check-external-links"
