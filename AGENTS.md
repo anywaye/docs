@@ -80,7 +80,7 @@ bin/prime             # or: mise run prime
 - `tests/examples.mjs` asserts the code examples: every ` ```sh ` fence parses
   under `bash -n`, every ` ```json ` fence is valid JSON, every ` ```yaml `
   fence is a manifest, and every `cafe` invocation in a fence names a subcommand
-  the `cafe help` output **quoted in `getting-started.md`** lists. That last one
+  the `any help` output **quoted in `getting-started.md`** lists. That last one
   reads its vocabulary out of the repository's own prose rather than from a list
   written beside it, so there is one place that says what `cafe` can do.
 - `tests/advisories.mjs` asserts the advisory feed: every page under
@@ -103,7 +103,7 @@ bin/prime             # or: mise run prime
 contradicting something that has actually shipped:
 
 - every `anywaye.yml` example in the docs goes through the **real
-  `cafe contract lint`**, against core's real manifest schema — and so does this
+  `any contract lint`**, against core's real manifest schema — and so does this
   repository's own `anywaye.yml`, because `getting-started.md` tells a reader to
   trust that tool;
 - every event type a page says a service **declares or emits** has a catalog row
@@ -210,7 +210,7 @@ by the next packet, and this repository's drift was entirely that kind. Two
 rules that follow:
 
 - **Run the command.** The drift audit is produced by executing
-  `cafe contract lint` over the workspace, not by remembering what it said last
+  `any contract lint` over the workspace, not by remembering what it said last
   time. A table that was copied rather than re-run is a changelog with a table
   in it.
 - **A service repository is read-only here.** When its README contradicts its
@@ -270,7 +270,7 @@ tests/examples.mjs        the examples: every sh fence parses, every json fence 
 tests/advisories.mjs      the advisory feed: complete advisory metadata on every
                           advisory and nowhere else, and an index that lists all of it
 tests/contracts.mjs       the contract tier, run by `bin/prime --contracts`: manifests
-                          through the real `cafe contract lint`, event types against
+                          through the real `any contract lint`, event types against
                           core's catalog, span names against core's span-naming schema,
                           and observability.md's per-service telemetry table against
                           core's fleet.yml
@@ -321,4 +321,4 @@ mise.toml                 node 22.23.4 — covers Astro 7's floor and every tran
 - **Bound long or networked commands with `timeout N`** — `npm install` and
   `npm run build` especially.
 ## Secrets
-- No `.env` files with values. Use `cafe secret set/get/list` (dev) and `cafe dev` (injects). See `docs/secrets.md`.
+- No `.env` files with values. Use `any secret set/get/list` (dev) and `any dev` (injects). See `docs/secrets.md`.

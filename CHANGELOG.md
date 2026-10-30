@@ -210,7 +210,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   was regenerated — the generated page spells what the contracts spell.
 
 - **The CLI is `cafe` everywhere, not `caf`.** PLAN §3 L1 renames the framework
-  CLI `caf` → `cafe` ("all `caf …` verbs become `cafe …` in docs"), and this
+  CLI `caf` → `cafe` ("all `caf …` verbs become `any …` in docs"), and this
   site is the biggest living-docs surface. Every living page and `README.md`
   printed the old name: 297 standalone `caf` occurrences across 25 content
   files and `README.md`, covering CLI invocations, the quoted `caf help` output,
@@ -223,7 +223,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   after, because the sweep matched word boundaries only — and `conductor` naming
   belongs to a later packet. `tests/examples.mjs` follows the rename rather than
   losing the check: its subcommand vocabulary is still read out of the help
-  output this repository quotes in `getting-started.md`, now the `cafe help`
+  output this repository quotes in `getting-started.md`, now the `any help`
   quote (6 subcommands referenced against a 16-command vocabulary), and an
   example that invents a command still fails against it. Gate: `bin/prime`, 22
   tests, 22 pass, 0 fail.
@@ -360,7 +360,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   described the retiring Kamal path. The new page documents prerequisites and
   sizing, the install sequence, TLS and domains (launch blocker B7's
   documentation half), the deploy loop (Argo pull-only; no helm-from-CI path
-  and one may never be added), backup and restore (CloudNativePG, `cafe backup`,
+  and one may never be added), backup and restore (CloudNativePG, `any backup`,
   `kubectl cnpg`, rclone offsite), and what is deliberately not here. Every
   claim cites `anywaye/notes/deployment.md` or a file:line; the install steps are marked
   **unverified** because `kit/templates/substrate/` does not exist on this
@@ -393,7 +393,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   Kamal drill instructions (`bin/drill`) are deleted — the path retires at
   parity and an operator following them today gets nothing. Kept: the
   per-service durable-state table and the keys table, both mechanism-independent.
-  The substrate path (CNPG, `cafe backup`, `kubectl cnpg`, rclone) is documented
+  The substrate path (CNPG, `any backup`, `kubectl cnpg`, rclone) is documented
   and marked unverified where the implementation does not exist.
 
 - **`install.sh` follows W106: it brings up the launch tier, not the e2e
@@ -459,7 +459,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   sentences that still name `guard`** are in the entry below.
 
 - **`muse` still declares a dependency named `guard`, and two pages now say so.**
-  `muse/anywaye.yml` carries `dependencies[].name: guard`, so `cafe dev` and
+  `muse/anywaye.yml` carries `dependencies[].name: guard`, so `any dev` and
   `pantry` read a service name the rename removed. `architecture/topology.md`
   and `runbooks/service-down.md` both claim that dependency, and both now state
   the fleet's meaning (`gateway`) and the drift, rather than claiming agreement
@@ -484,9 +484,9 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 - **The contract tier validated three manifests with three `cafe` processes, and
   was red in CI against the `cafe` CI builds.** `tests/contracts.mjs` ran
-  `cafe contract lint <file>` once per manifest, so the tier's cost was the cost
+  `any contract lint <file>` once per manifest, so the tier's cost was the cost
   of starting a process per fence: measured at ~12.9 ms per spawn against ~1 ms
-  of linting. `cafe contract lint` already takes a directory and walks it in one
+  of linting. `any contract lint` already takes a directory and walks it in one
   process, printing one line per document, so every manifest is now written
   into a single scratch tree and **one** invocation validates all of them —
   3 processes → 1, and the verdicts are still per manifest, read out of `cafe`'s
@@ -567,16 +567,16 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 ### Fixed
 
-- **`cafe deploy` and `cafe mcp` were documented as stubs. They are not, and this
+- **`any deploy` and `any mcp` were documented as stubs. They are not, and this
   was the most load-bearing falsehood in the documentation.** A prospect
   reading *Pilot* and *Pricing* was told the headline verb parses its flags and
   returns `not implemented in v0`, and that five of `cafe`'s commands are
   flags-only. `cafe/internal/cli/stub_test.go` holds the table that is the
   single source of truth, and it says three of twelve are stubs — `gen`, `init`,
   `new` — while `deploy`, `mcp`, `backup`, `contract`, `dev`, `doctor`, `env`
-  and `reclaim` all work. Measured rather than inferred: `cafe gen`, `cafe init`
-  and `cafe new` were each run and returned the sentinel; `cafe deploy` printed a
-  real configuration error naming the file to copy from `kit`; `cafe mcp` started
+  and `reclaim` all work. Measured rather than inferred: `any gen`, `any init`
+  and `any new` were each run and returned the sentinel; `any deploy` printed a
+  real configuration error naming the file to copy from `kit`; `any mcp` started
   a server and logged a session connect and disconnect. Corrected in
   `pilot.md`, `pricing.md`, `getting-started.md` and `upgrading.md`.
 
@@ -586,10 +586,10 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   from a stale snapshot rather than from what the code does.
 
 - **The example under "Step 6" could not have worked as written.** It read
-  `cafe deploy identity --dry-run`, but `cafe` requires flags to precede
+  `any deploy identity --dry-run`, but `cafe` requires flags to precede
   positional arguments; run verbatim it fails with
-  `cafe deploy wants 1 argument, got 2`. The correct order is
-  `cafe deploy --dry-run identity`. The same paragraph said `-env` defaults to
+  `any deploy wants 1 argument, got 2`. The correct order is
+  `any deploy --dry-run identity`. The same paragraph said `-env` defaults to
   `staging`, and `deploy.go` declares `fs.StringVar(&opts.environment, "env",
   "", ...)` — the default is empty, naming no stage. It also omitted `-version`,
   which the command does accept. All three corrected against the source, and the
@@ -651,7 +651,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     still here" is not, and the page no longer says it.** The measurement stands
     over the sentence: a first run gets `postgres:16.6-alpine`, not 17, because
     the `.env` `bin/dev` writes comes from `kit/.env.example` and overrides kit's
-    `17-alpine` compose default; `cafe dev` renders `postgres:16-alpine`. That is
+    `17-alpine` compose default; `any dev` renders `postgres:16-alpine`. That is
     three values, and `topology.md` now states the standard and the three values
     separately. `docs-25`'s correction of the Database column also survives, and
     it is why that column reads *via `kit`'s container* for three rows: those
@@ -752,7 +752,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
     `pg_isready`-does-not-authenticate note were all still true and are still
     here.
   - A new drift subsection records what `kit`'s own fleet gate says, because
-    `cafe contract lint` reads manifests and cannot see which container a service
+    `any contract lint` reads manifests and cannot see which container a service
     runs. `tests/fleet_check.py` was **run against the workspace**: six findings
     across three repositories, four of them about the database, all `WARN`
     rather than `FAIL` because none of the three has a `kit.ref` yet. The two
@@ -1349,8 +1349,8 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   16`. `CORE_PATH` pointed at an empty directory: `gate.nonzero`, plus
   `gate.floor` and two `gate.proof-missing`, and **nothing skipped**. `CAF` set
   to `/usr/bin/true`: **all 22 tests passed, exit 0**, the tier still printed
-  `manifests validated by cafe contract lint: 2`, and the single thing that
-  caught it was the proof that matches `cafe contract lint`'s own stdout — the
+  `manifests validated by any contract lint: 2`, and the single thing that
+  caught it was the proof that matches `any contract lint`'s own stdout — the
   count-based proof was satisfied by the stub, because that line is printed by
   the test and not by `cafe`.
 
@@ -1389,11 +1389,11 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - **`tests/examples.mjs`** — the code examples, checked. Every ` ```sh ` fence
   parses under `bash -n`, every ` ```json ` fence is valid JSON, every ` ```yaml `
   fence is a manifest, and every `cafe` invocation in a fence names a subcommand
-  the `cafe help` output **quoted in `getting-started.md`** lists — read out of
+  the `any help` output **quoted in `getting-started.md`** lists — read out of
   this repository's own prose rather than from a list written beside it.
 - **`tests/contracts.mjs`, and `bin/prime --contracts`** — the only tier that can
   catch an example contradicting something that has actually shipped. Every
-  documented `anywaye.yml` goes through the real `cafe contract lint` against
+  documented `anywaye.yml` goes through the real `any contract lint` against
   core's real schema, as does this repository's own manifest; every event type a
   page says a service declares is checked against core's catalog; and every span
   name in `observability.md` is checked against core's `span-naming.schema.json`.
@@ -1477,7 +1477,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   - `courier` — was *"Status: v0 scaffold… deliberately **no notification logic
     yet**. There is no Swoosh, no provider adapter, no job queue, no preference
     store, and no migrations"*, and its manifest was recorded as failing
-    `cafe contract lint` over two-segment event types. Now: the Swoosh pipeline,
+    `any contract lint` over two-segment event types. Now: the Swoosh pipeline,
     preference store, Oban worker, six migrations, and outbound webhooks over
     the **Standard Webhooks** spec with an SSRF guard; the manifest is corrected
     and the event types carry the `courier.` prefix.
@@ -1506,7 +1506,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   - `services/index.md` — the status table, refreshed, with the three gaps a
     reader would otherwise plan around named in one line.
 - `index.mdx` — *"Of the ten `cafe` subcommands, four do real work… and
-  `darkroom` is an empty repository"* is gone: **`cafe dev` now works**, and
+  `darkroom` is an empty repository"* is gone: **`any dev` now works**, and
   `darkroom` is three milestones past that sentence. The tooling table no longer
   advertises `anywaye-py` and `anywaye-ts`, which **do not exist as repositories**;
   `anywaye-rb` is described as what it is — **the shared Ruby gem** (JWKS
@@ -1576,7 +1576,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - `troubleshooting.md` — the **"Uploads fail at 90%"** entry, which answered
   "there is no upload path today, `darkroom` is an **empty repository**", is
   rewritten around the three real failures (`409` at completion, `422` checksum,
-  and the 1 GiB memory cost at complete time). The `cafe contract lint` entry no
+  and the 1 GiB memory cost at complete time). The `any contract lint` entry no
   longer names `cafe` and `courier`. New entry: **"A suite is green and I do not
   believe it"** — the skipped-tier table, and the fact that eight of thirteen
   repositories have no CI at all.
@@ -1586,7 +1586,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 - `contracts.md` — the five-part rule for a conformant event type, the fact that
   a manifest and what a service emits are two different lists (`identity`
   declares three and writes eight; `courier` declares five and publishes one),
-  and a pointer to the telemetry schemas that `cafe contract lint` also reads.
+  and a pointer to the telemetry schemas that `any contract lint` also reads.
 - `guides/index.md`, `runbooks/index.md` — the walkable-procedures list now
   includes Upgrading and Running the gates, and says five unbuilt commands rather
   than six.
@@ -1620,7 +1620,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
   the liveness/readiness table with each service's 503 body, every environment
   variable for `identity`, `guard`, `billing`, and `muse`, the HTTP surface of
   each service, an ASCII dependency graph, a "what is not wired yet" table, and
-  the three repositories `cafe contract lint` currently fails on.
+  the three repositories `any contract lint` currently fails on.
 - **Runbooks** (`runbooks/`) — the §5 promise and the §8 risk control, as five
   procedures plus an index stating the two facts every one of them assumes
   (probe failures never leak; no service publishes events):
@@ -1661,7 +1661,7 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 ### Changed
 
 - **Getting Started** (`getting-started.md`) — rewritten as a six-step path that
-  works: `cafe doctor` → install → read the command table → `cafe init` a project
+  works: `any doctor` → install → read the command table → `any init` a project
   → run a service locally → deploy to your own infrastructure. Every command was
   run against a binary built from `moon/anywaye/cafe`, and the output is quoted.
   The per-service local stacks, the migration commands (goose, Rails, plain
@@ -1691,13 +1691,13 @@ unversioned at present — it is pre-launch and `package.json` carries `0.0.0`.
 
 Three claims the site made that are not true, all verified against the real CLI:
 
-- `cafe init my-saas` was documented. **`cafe init` takes 0 positional arguments**
-  and `cafe init my-saas` is a usage error, exit 2. The command that takes a name
-  is `cafe new <name>`.
+- `any init my-saas` was documented. **`any init` takes 0 positional arguments**
+  and `any init my-saas` is a usage error, exit 2. The command that takes a name
+  is `any new <name>`.
 - `go build -o cafe .` was documented. **It fails** — `no Go files in <path>`, exit
   1 — because the main package is at `cmd/cafe`. `go build ./cmd/cafe` is correct.
-- `cafe contract test` was documented. **There is no `test` subcommand**; the
-  verbs are `lint` and `resolve`, and `cafe contract test` exits 2 with
+- `any contract test` was documented. **There is no `test` subcommand**; the
+  verbs are `lint` and `resolve`, and `any contract test` exits 2 with
   `unknown contract subcommand "test"`.
 
 ### Notes
@@ -1720,7 +1720,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   3. `identity`'s `/v1/accounts` routes are registered in code but absent from
      its `openapi/v1.yaml`, and it emits `identity.member.accepted`, which is not
      a row in core's catalog.
-  4. `cafe contract lint` fails on `cafe`, `courier`, and `parlor` today. The
+  4. `any contract lint` fails on `cafe`, `courier`, and `parlor` today. The
      `courier` failure is a genuine spec disagreement (two-segment versus
      three-segment event types), not a typo, and specs are manager-owned.
 - No page claims a command, flag, endpoint, or environment variable that was not
@@ -1740,7 +1740,7 @@ Three claims the site made that are not true, all verified against the real CLI:
   here**, because it is read at a different moment by a different person.
 
   It opens by saying the thing that decides the deal before anything else:
-  **there is no hosted anywaye.** `cafe deploy` is a stub, so "hosted pilot" means
+  **there is no hosted anywaye.** `any deploy` is a stub, so "hosted pilot" means
   you run it in your own infrastructure. Then, in order: what you get (seven
   services, what each owns, what each one will fail you on), **the licence
   position across all thirteen repositories** — ten state no licence at all,
@@ -1748,24 +1748,24 @@ Three claims the site made that are not true, all verified against the real CLI:
   in writing before building commercially — what it costs to run, and the four
   things that leave your infrastructure if you turn them on.
 
-  The prerequisite check is `cafe doctor`, and the ten-row toolchain table on the
+  The prerequisite check is `any doctor`, and the ten-row toolchain table on the
   page **is** the `tools` table in `cafe/internal/cli/doctor.go`, in that order,
-  because that is where the requirement comes from. Step 3 is `cafe contract
+  because that is where the requirement comes from. Step 3 is `any contract
   lint`, whose output is greppable and which exits 1 on an invalid manifest *and*
   on a path holding none.
 
   The path itself is eight steps — install, clone `identity` (the only service
-  with no anywaye dependency), lint the manifest, `cafe dev --dry-run` then
-  `cafe dev`, apply migrations, first request, the two things a default stack
+  with no anywaye dependency), lint the manifest, `any dev --dry-run` then
+  `any dev`, apply migrations, first request, the two things a default stack
   does not mount, then tenant provisioning — and **every step carries the failure
   branch beside it**, because a step that cannot fail is not a step a stuck
   reader can use.
 
   Two things the page found by running it rather than reading about it:
-  `cafe dev` **does not run migrations and does not publish Postgres on a host
+  `any dev` **does not run migrations and does not publish Postgres on a host
   port**, so the first request on a fresh stack is a bare 500 whose real reason
   (`relation "users" does not exist`) is only in the service's logs; and
-  `cafe dev` sets no `OIDC_*` or `MFA_*` variable, so `/.well-known/jwks.json`
+  `any dev` sets no `OIDC_*` or `MFA_*` variable, so `/.well-known/jwks.json`
   404s and the MFA management routes are unmounted. Both now have a recipe, and
   `getting-started.md` points at it.
 
@@ -1786,13 +1786,13 @@ Three claims the site made that are not true, all verified against the real CLI:
   claims changed as a result and were corrected rather than kept:
   - **The session token is 43 characters, not 64.** It is 32 random bytes,
     base64url, unpadded. A number a reader would have counted.
-  - **`cafe contract lint` over the workspace is 31 manifests: 26 `OK`, 5
+  - **`any contract lint` over the workspace is 31 manifests: 26 `OK`, 5
     `INVALID`.** Topology's drift audit now tables all five and says which one
     is a defect: `parlor`. Three of the others are **negative fixtures for
     `core`'s own conformance tests**, now tracked on `core`'s `master` rather
     than in a worker worktree, which exist to be rejected — the concrete reason
     a raw manifest count is worthless as a health signal.
-  - **`cafe contract lint` prints one line per manifest, not per repository.**
+  - **`any contract lint` prints one line per manifest, not per repository.**
     `pantry` alone contributes ten, because its registry ships a copy of every
     service's `anywaye.yml`. The page said "one line per repository" and was
     wrong.
@@ -1837,25 +1837,25 @@ Three claims the site made that are not true, all verified against the real CLI:
   moved twice in an hour **is** the argument for never quoting it, and both pages
   now say so in those words.
 - Every command on `pilot.md` was run, against `cafe` at `460acf3` and
-  `identity` at `master` (`35c2576`): `go install`, `cafe version`,
-  `cafe doctor`, `cafe contract lint` (single manifest, whole workspace, and
-  `kit`, which ships none), `cafe dev --dry-run`, `cafe dev`, the migration loop,
+  `identity` at `master` (`35c2576`): `go install`, `any version`,
+  `any doctor`, `any contract lint` (single manifest, whole workspace, and
+  `kit`, which ships none), `any dev --dry-run`, `any dev`, the migration loop,
   `POST /v1/users`, `POST /v1/session`, `GET /v1/me`, the outbox query, and the
   JWKS, discovery and MFA 404s. The steps that could not be run — Linux, a
   production deployment, the MFA enrollment walkthrough, `muse`, Stripe — are
   named on the page itself, not only here.
-- `cafe doctor`'s exit code was checked in all three states: with a project, with
+- `any doctor`'s exit code was checked in all three states: with a project, with
   no project at all, and `--help`. **It exits 0 every time.** It is a report,
   not a gate, and the page says so.
-- `cafe contract lint` exits 1 in all three interesting cases: an invalid
+- `any contract lint` exits 1 in all three interesting cases: an invalid
   manifest, a directory with no manifest, and `kit`, which ships none.
 - The "every service is one stateless container" claim was re-derived from all
   seven Dockerfiles: all multi-stage, all `USER`-set to a non-root account, none
   declaring a `VOLUME`. `darkroom`'s Dockerfile is at `docker/Dockerfile` rather
-  than the project root, and `cafe dev` renders the right path because it comes
+  than the project root, and `any dev` renders the right path because it comes
   from the manifest — checked rather than assumed.
 - **One read-only repository was written to by accident and repaired.**
-  `cafe dev --dry-run` writes `caf.dev.compose.yaml` into the project directory
+  `any dev --dry-run` writes `caf.dev.compose.yaml` into the project directory
   even though it starts nothing, and the dry-run against `darkroom` left one
   behind. It was deleted immediately and `darkroom` verified clean at `bcaa2fe`.
   The behaviour is real and is now stated on the page.
@@ -1873,7 +1873,7 @@ Three claims the site made that are not true, all verified against the real CLI:
 - **Home** (`src/content/docs/index.mdx`) — what anywaye is in one paragraph,
   then the services and tooling tables mirroring the org README, with cards for
   the three entry points.
-- **Getting Started** — installing `cafe`, `cafe init`, `cafe dev`. Every command
+- **Getting Started** — installing `cafe`, `any init`, `any dev`. Every command
   that has not shipped is marked *Coming soon* rather than presented as working.
 - **Services** — an overview page and one page each for `identity`, `billing`,
   `courier`, `darkroom`, `muse`, `guard`, and `parlor`. Each page states the

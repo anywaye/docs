@@ -48,7 +48,7 @@ so a page with a missing `title` or a sidebar entry pointing at nothing fails
 | `tests/advisories.mjs` | every advisory page carries its whole `advisory` block, ids are unique and well-formed, and the index lists every advisory exactly once, newest first |
 | `tests/visibility.mjs` | a public repo never carries private notes — guards executed against fixtures, and the public dist never carries a `/notes` route |
 | `tests/api-markdown.mjs` | every page has a markdown twin at `api/<slug>.md` in the right dist with the exact source, no private twin in the public dist, and `/api/` serves no HTML |
-| `tests/contracts.mjs` | **the contract tier**, run by `--contracts`: every documented `anywaye.yml` through the real `cafe contract lint`, this repository's own manifest too, every event type a page says a service declares against core's catalog, and every span name against core's span-naming schema |
+| `tests/contracts.mjs` | **the contract tier**, run by `--contracts`: every documented `anywaye.yml` through the real `any contract lint`, this repository's own manifest too, every event type a page says a service declares against core's catalog, and every span name against core's span-naming schema |
 
 The offline tier needs no network, no sibling checkout and nothing but node and
 bash, on purpose: a gate a contributor cannot run is a gate they stop running.
@@ -348,7 +348,7 @@ Where a page describes a broken or missing thing in a anywaye repository, it say
 so on the page an operator will hit, with the error they will see. The single
 audit is [Topology](/architecture/topology/#cross-repo-drift-audit), and it is
 **re-run, not recalled** — the lint table comes from executing
-`cafe contract lint` over the workspace. Its second half, *the drift the linter
+`any contract lint` over the workspace. Its second half, *the drift the linter
 cannot see*, is the part that matters most:
 
 - `core/fleet.yml` is transcribed at commits that have since moved:
@@ -373,7 +373,7 @@ cannot see*, is the part that matters most:
   `master` has **twelve** subcommands, not ten: `env` and `reclaim` are new and
   `mcp` is no longer a stub, so **eight** work and **four** are stubs
   (`init`, `new`, `deploy`, `gen` — `internal/cli/stub_test.go` is the table of
-  record). `cafe doctor` now prints **three** sections in a
+  record). `any doctor` now prints **three** sections in a
   `check / state / detail / fix` shape where the page quotes two tables with
   `ok / missing` rows, and it has gained a reclamation section. Both were measured
   from a binary built at `cafe` `f5d3020`, not inferred. **Left in place
