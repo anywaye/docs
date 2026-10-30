@@ -322,3 +322,15 @@ mise.toml                 node 22.23.4 — covers Astro 7's floor and every tran
   `npm run build` especially.
 ## Secrets
 - No `.env` files with values. Use `cafe secret set/get/list` (dev) and `cafe dev` (injects). See `docs/secrets.md`.
+
+
+## Code comments policy
+
+Only the following comments are permitted; everything else is banned and enforced by `bin/prime` via `commentlint`:
+
+- License/copyright/SPDX headers at the top of a file.
+- Doc comments on exported/public symbols.
+- Tracked `TODO(#n)` / `FIXME(#n)` / `XXX(#n)` (must reference a tracked issue).
+- Compiler/linter directives (e.g. `# type: ignore`, `# noqa`, `//go:`, `eslint-disable`).
+
+All other comments — explanatory notes, section banners, commented-out code, trailing chatter — are prohibited. `bin/prime` runs `commentlint` over the repository and fails the gate on any violation.

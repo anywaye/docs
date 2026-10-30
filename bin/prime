@@ -60,5 +60,9 @@ else
   echo "   Run 'bin/prime --contracts', or 'mise run prime:contracts'."
 fi
 
+if [ -f /data/workspace/platform/scripts/commentlint.py ]; then
+  python3 /data/workspace/platform/scripts/commentlint.py . || exit 1
+fi
+
 version="$(version_of node)"
 step "prime ok (node ${version:-unknown})"

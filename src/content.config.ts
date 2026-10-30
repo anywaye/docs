@@ -1,10 +1,4 @@
 import { defineCollection } from 'astro:content';
-// `z` comes from astro/zod and NOT from astro:content. `astro:content`'s export
-// is the raw `zod/v4` core surface (`z.core.$strip` and friends); Starlight's
-// docsSchema() reads `_zod.def` off whatever it deep-merges, which is a shape
-// only `astro/zod`'s `z` produces. Getting this wrong fails `astro sync` with
-// "Cannot read properties of undefined (reading 'def')" at build time, which
-// names neither the file nor the field.
 import { z } from 'astro/zod';
 import { docsLoader, i18nLoader } from '@astrojs/starlight/loaders';
 import { docsSchema, i18nSchema } from '@astrojs/starlight/schema';
